@@ -23,7 +23,10 @@ body {
 }
 
 body {
-  background: var(--cream);
+  background-color: var(--cream);
+  background-image: radial-gradient(rgba(185, 138, 61, 0.35) 1px, transparent 1px);
+  background-size: 24px 24px;
+  background-attachment: fixed;
   color: var(--ink);
   font-family: var(--sans);
   line-height: 1.55;
@@ -56,20 +59,22 @@ button {
 .btn {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   background: var(--coffee);
   color: var(--cream);
   border: none;
-  padding: 14px 28px;
-  border-radius: 2px;
+  padding: 14px 30px;
+  border-radius: 999px;
   font-size: 15px;
   font-weight: 600;
   letter-spacing: 0.02em;
-  transition: background 0.2s ease;
+  box-shadow: 0 8px 20px rgba(43, 28, 20, 0.18);
+  transition: background 0.2s ease, transform 0.2s ease;
 }
 
 .btn:hover {
   background: var(--coffee-soft);
+  transform: translateY(-1px);
 }
 
 .btn:disabled {
@@ -81,6 +86,7 @@ button {
   background: transparent;
   color: var(--coffee);
   border: 1px solid var(--coffee);
+  box-shadow: none;
 }
 
 .field {
@@ -104,8 +110,8 @@ button {
   font-size: 15px;
   padding: 12px 14px;
   border: 1px solid var(--cream-deep);
-  background: #fff;
-  border-radius: 2px;
+  background: #fffaf0;
+  border-radius: 8px;
   color: var(--ink);
 }
 
@@ -122,10 +128,17 @@ button {
 }
 
 .card {
-  background: #fff;
+  background: #fffaf0;
   border: 1px solid var(--cream-deep);
-  border-radius: 4px;
-  padding: 28px;
+  border-radius: 12px;
+  padding: 32px 28px;
+  box-shadow: 0 10px 30px rgba(43, 28, 20, 0.06);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 34px rgba(43, 28, 20, 0.1);
 }
 
 .error-text {

@@ -14,13 +14,20 @@ function Monogram({ size = 40 }) {
 
 function BoxArt({ accent }) {
   // Placeholder packaging art until real product photography is in —
-  // matte box + copper ribbon, tinted per edition.
+  // matte black box with a copper ribbon bow, like the physical box.
   return (
     <svg viewBox="0 0 200 200" style={{ width: "100%", height: "auto" }} aria-hidden="true">
-      <rect x="20" y="20" width="160" height="160" rx="4" fill="#171012" />
-      <rect x="20" y="92" width="160" height="16" fill={accent} />
-      <rect x="92" y="20" width="16" height="160" fill={accent} />
-      <circle cx="100" cy="100" r="14" fill="none" stroke={accent} strokeWidth="2" />
+      <rect x="18" y="18" width="164" height="164" rx="10" fill="#171012" />
+      <rect x="18" y="90" width="164" height="14" fill={accent} />
+      <path
+        d="M100 90 C 78 68, 60 68, 60 90 C 60 100, 80 100, 100 90 Z"
+        fill={accent}
+      />
+      <path
+        d="M100 90 C 122 68, 140 68, 140 90 C 140 100, 120 100, 100 90 Z"
+        fill={accent}
+      />
+      <path d="M100 90 L 90 112 L 100 106 L 110 112 Z" fill={accent} />
     </svg>
   );
 }
