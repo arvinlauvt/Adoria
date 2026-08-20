@@ -36,7 +36,10 @@ export default function Home() {
           backgroundImage: "radial-gradient(rgba(217, 171, 92, 0.25) 1px, transparent 1px)",
           backgroundSize: "24px 24px",
           color: "var(--cream)",
-          padding: "80px 0 64px",
+          minHeight: "100vh",
+          display: "flex",
+          alignItems: "center",
+          padding: "64px 0",
         }}
       >
         <div className="wrap" style={{ textAlign: "center" }}>
@@ -68,11 +71,29 @@ export default function Home() {
             message written in gold ink. Anniversaries, promotions, new homes, or simply
             visiting someone well — pick the box built for your occasion below.
           </p>
+          <div
+            className="animate-in"
+            style={{
+              display: "flex",
+              gap: 16,
+              justifyContent: "center",
+              flexWrap: "wrap",
+              marginTop: 36,
+              animationDelay: "0.2s",
+            }}
+          >
+            <Link href="/about" className="btn-outline btn" style={{ borderColor: "var(--cream-deep)", color: "var(--cream)" }}>
+              What is Adoria?
+            </Link>
+            <a href="#catalog" className="btn" style={{ background: "var(--gold-bright)", color: "var(--coffee)" }}>
+              Browse the catalog
+            </a>
+          </div>
         </div>
       </section>
 
       {/* Catalog — image + name only, no prices */}
-      <section style={{ padding: "64px 0 88px" }}>
+      <section id="catalog" style={{ padding: "64px 0 88px" }}>
         <div className="wrap" style={{ maxWidth: 920 }}>
           <h2 style={{ textAlign: "center", fontSize: 24, marginBottom: 40 }}>Choose your box</h2>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 28 }}>

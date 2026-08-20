@@ -4,7 +4,8 @@ import { useState } from "react";
 
 const FLAVORS = ["Dark", "Milk", "White"];
 const PRICE_PER_BOX = 25;
-const MAX_MESSAGE = 200;
+const MAX_CARD_MESSAGE = 200;
+const MAX_LETTER = 1200;
 
 export default function OrderForm({ product }) {
   const [name, setName] = useState("");
@@ -12,7 +13,8 @@ export default function OrderForm({ product }) {
   const [email, setEmail] = useState("");
   const [recipientName, setRecipientName] = useState("");
   const [occasionDate, setOccasionDate] = useState("");
-  const [boxes, setBoxes] = useState(["Dark"]);
+  const [boxes, setBoxes] = useState([["Dark"]]);
+  const [messageMode, setMessageMode] = useState("card"); // "card" | "letter"
   const [cardMessage, setCardMessage] = useState("");
   const [street, setStreet] = useState("");
   const [city, setCity] = useState("");
@@ -25,14 +27,24 @@ export default function OrderForm({ product }) {
 
   function addBox() {
     if (boxes.length >= 12) return;
-    setBoxes([...boxes, "Dark"]);
+    setBoxes([...boxes, ["Dark"]]);
   }
   function removeBox(i) {
     if (boxes.length <= 1) return;
     setBoxes(boxes.filter((_, idx) => idx !== i));
   }
-  function setBoxFlavor(i, flavor) {
-    setBoxes(boxes.map((b, idx) => (idx === i ? flavor : b)));
+  function toggleBoxFlavor(i, flavor) {
+    setBoxes(
+      boxes.map((flavors, idx) => {
+        if (idx !== i) return flavors;
+        const has = flavors.includes(flavor);
+        if (has) {
+          // Keep at least one flavor selected per box.
+          return flavors.length === 1 ? flavors : flavors.filter((f) => f !== flavor);
+        }
+        return [...flavors, flavor];
+      })
+    );
   }
 
   async function handleSubmit(e) {
@@ -47,11 +59,9 @@ export default function OrderForm({ product }) {
 
     setSubmitting(true);
     try {
-      const breakdown = Object.entries(
-        boxes.reduce((acc, f) => ({ ...acc, [f]: (acc[f] || 0) + 1 }), {})
-      )
-        .map(([flavor, qty]) => `${flavor} x${qty}`)
-        .join(", ");
+      const breakdown = boxes
+        .map((flavors, i) => `Box ${i + 1}: ${flavors.join(" + ")}`)
+        .join("; ");
 
       const orderRes = await fetch("/api/create-order", {
         method: "POST",
@@ -66,6 +76,7 @@ export default function OrderForm({ product }) {
           quantity: boxes.length,
           chocolateBreakdown: breakdown,
           cardMessage,
+          messageType: messageMode === "letter" ? "Full letter" : "Card message",
           street,
           city,
           state,
@@ -99,7 +110,9 @@ export default function OrderForm({ product }) {
   }
 
   return (
-    <form onSubmit={handleSubmit}>
+    <div className="clipboard">
+      <div className="clipboard-sheet">
+        <form onSubmit={handleSubmit}>
       <div className="field">
         <label htmlFor="name">Your full name</label>
         <input id="name" value={name} onChange={(e) => setName(e.target.value)} required />
@@ -137,25 +150,32 @@ export default function OrderForm({ product }) {
 
       <div className="field">
         <label>Your boxes</label>
-        {boxes.map((flavor, i) => (
-          <div key={i} style={{ display: "flex", gap: 10, alignItems: "center", marginBottom: 8 }}>
-            <select value={flavor} onChange={(e) => setBoxFlavor(i, e.target.value)} style={{ flex: 1 }}>
-              {FLAVORS.map((f) => (
-                <option key={f} value={f}>
-                  {f} Chocolate
-                </option>
-              ))}
-            </select>
-            <button
-              type="button"
-              className="btn-outline btn"
-              onClick={() => removeBox(i)}
-              disabled={boxes.length <= 1}
-              aria-label={`Remove box ${i + 1}`}
-              style={{ padding: "8px 14px" }}
-            >
-              −
-            </button>
+        <span className="hint">Each box can hold more than one flavor, like a mixed tray.</span>
+        {boxes.map((flavors, i) => (
+          <div key={i} className="card" style={{ padding: 14, marginBottom: 10 }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+              <strong style={{ fontSize: 13, color: "var(--coffee-soft)" }}>Box {i + 1}</strong>
+              <button
+                type="button"
+                className="btn-outline btn"
+                onClick={() => removeBox(i)}
+                disabled={boxes.length <= 1}
+                aria-label={`Remove box ${i + 1}`}
+                style={{ padding: "4px 12px", fontSize: 13 }}
+              >
+                Remove
+              </button>
+            </div>
+            {FLAVORS.map((f) => (
+              <label key={f} className="checkbox-row">
+                <input
+                  type="checkbox"
+                  checked={flavors.includes(f)}
+                  onChange={() => toggleBoxFlavor(i, f)}
+                />
+                {f} Chocolate
+              </label>
+            ))}
           </div>
         ))}
         <button
@@ -169,14 +189,42 @@ export default function OrderForm({ product }) {
       </div>
 
       <div className="field">
-        <label htmlFor="msg">Card message</label>
+        <label htmlFor="msg">
+          {messageMode === "card" ? "Card message" : "Full letter"}
+        </label>
+        <div style={{ display: "flex", gap: 18, marginBottom: 4 }}>
+          <label className="checkbox-row">
+            <input
+              type="radio"
+              name="messageMode"
+              checked={messageMode === "card"}
+              onChange={() => {
+                setMessageMode("card");
+                setCardMessage((m) => m.slice(0, MAX_CARD_MESSAGE));
+              }}
+            />
+            Short card message
+          </label>
+          <label className="checkbox-row">
+            <input
+              type="radio"
+              name="messageMode"
+              checked={messageMode === "letter"}
+              onChange={() => setMessageMode("letter")}
+            />
+            Full letter
+          </label>
+        </div>
         <span className="hint">
-          {MAX_MESSAGE - cardMessage.length} characters left — the small details are what make it land.
+          {(messageMode === "card" ? MAX_CARD_MESSAGE : MAX_LETTER) - cardMessage.length} characters left
+          {messageMode === "card"
+            ? " — the small details are what make it land."
+            : " — as long a note as you'd actually write, tucked in alongside the card."}
         </span>
         <textarea
           id="msg"
-          rows={4}
-          maxLength={MAX_MESSAGE}
+          rows={messageMode === "card" ? 4 : 10}
+          maxLength={messageMode === "card" ? MAX_CARD_MESSAGE : MAX_LETTER}
           value={cardMessage}
           onChange={(e) => setCardMessage(e.target.value)}
         />
@@ -187,7 +235,7 @@ export default function OrderForm({ product }) {
         <input id="street" value={street} onChange={(e) => setStreet(e.target.value)} required />
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
+      <div className="field-row">
         <div className="field">
           <label htmlFor="city">City</label>
           <input id="city" placeholder="e.g., Kuantan" value={city} onChange={(e) => setCity(e.target.value)} required />
@@ -223,6 +271,8 @@ export default function OrderForm({ product }) {
       <button type="submit" className="btn" disabled={submitting} style={{ width: "100%", justifyContent: "center" }}>
         {submitting ? "Preparing your payment…" : `Continue to payment — RM${total}`}
       </button>
-    </form>
+        </form>
+      </div>
+    </div>
   );
 }
