@@ -6,6 +6,9 @@
   --gold: #b98a3d;
   --gold-bright: #d9ab5c;
   --ink: #1c130d;
+  --blush: #f3d9d0;
+  --sage: #dce6d5;
+  --sky: #dbe6ef;
 
   --serif: "Fraunces", Georgia, serif;
   --sans: "Manrope", -apple-system, sans-serif;
@@ -16,17 +19,21 @@
   box-sizing: border-box;
 }
 
+html {
+  background-color: var(--cream);
+}
+
 html,
 body {
   margin: 0;
   padding: 0;
+  min-height: 100%;
 }
 
 body {
   background-color: var(--cream);
   background-image: radial-gradient(rgba(185, 138, 61, 0.35) 1px, transparent 1px);
   background-size: 24px 24px;
-  background-attachment: fixed;
   color: var(--ink);
   font-family: var(--sans);
   line-height: 1.55;
@@ -74,12 +81,13 @@ button {
 
 .btn:hover {
   background: var(--coffee-soft);
-  transform: translateY(-1px);
+  transform: translateY(-2px);
 }
 
 .btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
+  transform: none;
 }
 
 .btn-outline {
@@ -94,6 +102,7 @@ button {
   flex-direction: column;
   gap: 6px;
   margin-bottom: 20px;
+  min-width: 0;
 }
 
 .field label {
@@ -106,6 +115,8 @@ button {
 .field input,
 .field textarea,
 .field select {
+  width: 100%;
+  min-width: 0;
   font-family: var(--sans);
   font-size: 15px;
   padding: 12px 14px;
@@ -127,6 +138,23 @@ button {
   color: #8a7a68;
 }
 
+.field-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+}
+
+.checkbox-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.checkbox-row input {
+  width: auto;
+}
+
 .card {
   background: #fffaf0;
   border: 1px solid var(--cream-deep);
@@ -145,6 +173,60 @@ button {
   color: #a3372a;
   font-size: 14px;
   margin-top: 4px;
+}
+
+/* --- Clipboard motif for the order form: aesthetic, not literal --- */
+.clipboard {
+  position: relative;
+  background: var(--blush);
+  border-radius: 20px;
+  padding: 26px 18px 18px;
+  margin-top: 28px;
+}
+
+.clipboard::before {
+  content: "";
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 76px;
+  height: 28px;
+  background: var(--coffee);
+  border-radius: 14px;
+  box-shadow: 0 4px 10px rgba(43, 28, 20, 0.25);
+}
+
+.clipboard-sheet {
+  background: #fffaf0;
+  border-radius: 12px;
+  padding: 28px 22px;
+  box-shadow: 0 12px 26px rgba(43, 28, 20, 0.1);
+}
+
+/* --- Liveliness: gentle entrance motion --- */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes floatY {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+.animate-in {
+  animation: fadeInUp 0.7s ease both;
+}
+
+.float {
+  animation: floatY 4s ease-in-out infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
