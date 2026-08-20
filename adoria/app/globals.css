@@ -178,10 +178,12 @@ button {
 /* --- Clipboard motif for the order form: aesthetic, not literal --- */
 .clipboard {
   position: relative;
-  background: var(--blush);
+  background: linear-gradient(160deg, #f2e2bc, #e6cd93);
+  border: 1px solid var(--gold);
   border-radius: 20px;
   padding: 26px 18px 18px;
   margin-top: 28px;
+  box-shadow: 0 14px 30px rgba(43, 28, 20, 0.12);
 }
 
 .clipboard::before {
@@ -202,6 +204,7 @@ button {
   border-radius: 12px;
   padding: 28px 22px;
   box-shadow: 0 12px 26px rgba(43, 28, 20, 0.1);
+  border-top: 3px solid var(--gold-bright);
 }
 
 /* --- Liveliness: gentle entrance motion --- */

@@ -50,7 +50,7 @@ export default function Home() {
             className="animate-in"
             style={{ color: "var(--cream)", fontSize: "clamp(2rem, 5vw, 3rem)" }}
           >
-            Luxury chocolate gifting,<br />for the moment you're marking
+            Luxury gifting,<br />for the moment you're marking
           </h1>
           <div
             className="animate-in"
@@ -67,7 +67,7 @@ export default function Home() {
             className="animate-in"
             style={{ fontSize: 17, color: "var(--cream-deep)", maxWidth: 520, margin: "0 auto", animationDelay: "0.15s" }}
           >
-            Hand-molded Malaysian chocolate, boxed in matte black and copper, with a
+            Malaysian cookie cubes, boxed in matte black and copper, with a
             message written in gold ink. Anniversaries, promotions, new homes, or simply
             visiting someone well — pick the box built for your occasion below.
           </p>

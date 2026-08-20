@@ -18,8 +18,8 @@ export default function AboutPage() {
 
         <h2 style={{ fontSize: 20, marginTop: 40, marginBottom: 12 }}>The box</h2>
         <p style={{ color: "#5a4a3c", marginBottom: 20 }}>
-          Every edition shares the same craftsmanship: hand-molded Malaysian chocolate
-          in Dark, Milk, or White, set in a 12×12cm matte black box finished with a
+          Every edition shares the same craftsmanship: hand-baked Malaysian cookie cubes
+          in Dark, Milk, or White, set in a 15×15cm matte black box finished with a
           copper ribbon. Inside, a card in black stock and gold ink carries whatever
           you want said — a short line, or a full letter, depending on what the moment
           calls for.

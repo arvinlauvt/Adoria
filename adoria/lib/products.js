@@ -9,7 +9,7 @@ export const PRODUCTS = [
     edition: "Milestone & Anniversary Edition",
     tagline: "For the date you never want to forget.",
     description:
-      "Our original box, built for anniversaries and the milestones that come with a relationship — engagements, first dates remembered, the small private dates only the two of you keep. A gold-ink note carries the message; the chocolate is just the excuse to say it.",
+      "Our original box, built for anniversaries and the milestones that come with a relationship — engagements, first dates remembered, the small private dates only the two of you keep. A gold-ink note carries the message; the box is just the excuse to say it.",
     accent: "#8a5a34",
     occasionDateLabel: "Anniversary date",
     occasionDateRequired: true,

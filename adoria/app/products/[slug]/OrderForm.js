@@ -219,7 +219,7 @@ export default function OrderForm({ product }) {
           {(messageMode === "card" ? MAX_CARD_MESSAGE : MAX_LETTER) - cardMessage.length} characters left
           {messageMode === "card"
             ? " — the small details are what make it land."
-            : " — as long a note as you'd actually write, tucked in alongside the card."}
+            : " — this replaces the card entirely, so write as much as the moment deserves."}
         </span>
         <textarea
           id="msg"
