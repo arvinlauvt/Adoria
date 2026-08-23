@@ -16,7 +16,7 @@ export async function createBill({
   const body = new URLSearchParams({
     userSecretKey: SECRET_KEY,
     categoryCode: CATEGORY_CODE,
-    billName: "Adoria Anniversary Box",
+    billName: "Cubelle Gift Box",
     billDescription: `Order ${orderId}`,
     billPriceSetting: "1",
     billPayorInfo: "1",

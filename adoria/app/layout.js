@@ -1,9 +1,9 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "Adoria — Never Forget An Anniversary Again",
+  title: "Cubelle — For The Moments Worth Archiving",
   description:
-    "Bespoke Malaysian chocolate, hand-molded and boxed, delivered on your anniversary — with a card written the way you'd write it yourself.",
+    "Luxury gift boxes for the moments worth marking — hand-baked Malaysian Cubelles, boxed in matte black and copper, with a message written in gold ink.",
 };
 
 export default function RootLayout({ children }) {

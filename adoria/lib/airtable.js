@@ -55,6 +55,18 @@ export async function updateOrder(recordId, fields) {
   return res.json();
 }
 
+// Fetches a single order record by its Airtable record ID. Used at checkout
+// to charge the amount actually committed to Airtable, never a client-
+// supplied number, so a tampered request can't pay less than it should.
+export async function getOrder(recordId) {
+  const res = await fetch(`${API_URL}/${recordId}`, { headers: headers() });
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`Airtable getOrder failed: ${res.status} ${body}`);
+  }
+  return res.json();
+}
+
 // Returns every order placed with this email, most recent first.
 export async function findOrdersByEmail(email) {
   const safe = email.replace(/"/g, '\\"');

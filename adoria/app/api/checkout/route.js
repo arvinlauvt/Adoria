@@ -1,11 +1,19 @@
 import { createBill } from "../../../lib/toyyibpay";
-import { updateOrder } from "../../../lib/airtable";
+import { updateOrder, getOrder } from "../../../lib/airtable";
 
 export async function POST(req) {
   try {
-    const { orderId, recordId, name, email, phone, amountRM } = await req.json();
-    if (!orderId || !recordId || !amountRM) {
+    const { orderId, recordId, name, email, phone } = await req.json();
+    if (!orderId || !recordId) {
       return Response.json({ error: "Missing order details." }, { status: 400 });
+    }
+
+    // Charge exactly what was committed to Airtable at order creation —
+    // never a number the browser sends at this step.
+    const order = await getOrder(recordId);
+    const amountRM = order?.fields?.["Order Total"];
+    if (!amountRM || amountRM <= 0) {
+      return Response.json({ error: "Could not verify the order amount." }, { status: 400 });
     }
 
     const site = process.env.SITE_URL;

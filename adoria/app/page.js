@@ -1,14 +1,18 @@
+import Image from "next/image";
 import Link from "next/link";
 import { PRODUCTS } from "../lib/products";
+import Reveal from "../components/Reveal";
 
-function Monogram({ size = 40 }) {
+function Logo({ size = 60 }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 40 40" aria-hidden="true">
-      <circle cx="20" cy="20" r="19" fill="none" stroke="currentColor" strokeWidth="1.4" />
-      <text x="20" y="27" textAnchor="middle" fontFamily="Fraunces, serif" fontSize="18" fill="currentColor">
-        A
-      </text>
-    </svg>
+    <Image
+      src="/logo-icon.png"
+      alt="Cubelle"
+      width={size}
+      height={size}
+      priority
+      style={{ width: size, height: "auto", objectFit: "contain" }}
+    />
   );
 }
 
@@ -29,7 +33,7 @@ function BoxArt({ accent }) {
 export default function Home() {
   return (
     <main>
-      {/* Hero — tells them what Adoria is before anything else */}
+      {/* Hero — tells them what Cubelle is before anything else */}
       <section
         style={{
           backgroundColor: "var(--coffee)",
@@ -44,7 +48,19 @@ export default function Home() {
       >
         <div className="wrap" style={{ textAlign: "center" }}>
           <div className="float" style={{ color: "var(--gold-bright)", marginBottom: 20 }}>
-            <Monogram size={44} />
+            <Logo size={64} />
+          </div>
+          <div
+            className="animate-in"
+            style={{
+              fontSize: 12,
+              letterSpacing: "0.18em",
+              textTransform: "uppercase",
+              color: "var(--gold-bright)",
+              marginBottom: 14,
+            }}
+          >
+            For The Moments Worth Archiving
           </div>
           <h1
             className="animate-in"
@@ -67,7 +83,7 @@ export default function Home() {
             className="animate-in"
             style={{ fontSize: 17, color: "var(--cream-deep)", maxWidth: 520, margin: "0 auto", animationDelay: "0.15s" }}
           >
-            Malaysian cookie cubes, boxed in matte black and copper, with a
+            The Cubelles, boxed in matte black and copper, with a
             message written in gold ink. Anniversaries, promotions, new homes, or simply
             visiting someone well — pick the box built for your occasion below.
           </p>
@@ -83,7 +99,7 @@ export default function Home() {
             }}
           >
             <Link href="/about" className="btn-outline btn" style={{ borderColor: "var(--cream-deep)", color: "var(--cream)" }}>
-              What is Adoria?
+              What is Cubelle?
             </Link>
             <a href="#catalog" className="btn" style={{ background: "var(--gold-bright)", color: "var(--coffee)" }}>
               Browse the catalog
@@ -97,24 +113,51 @@ export default function Home() {
         <div className="wrap" style={{ maxWidth: 920 }}>
           <h2 style={{ textAlign: "center", fontSize: 24, marginBottom: 40 }}>Choose your box</h2>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 28 }}>
-            {PRODUCTS.map((p, i) => (
-              <Link
-                key={p.slug}
-                href={`/products/${p.slug}`}
-                style={{ textDecoration: "none", color: "inherit" }}
-              >
-                <div
-                  className="card animate-in"
-                  style={{ padding: 0, overflow: "hidden", animationDelay: `${0.1 + i * 0.08}s` }}
-                >
-                  <div style={{ height: 6, background: p.accent }} />
-                  <div style={{ padding: 20 }}>
-                    <BoxArt accent={p.accent} />
-                    <h3 style={{ fontSize: 17, textAlign: "center", marginTop: 16 }}>{p.name}</h3>
+            {PRODUCTS.map((p, i) => {
+              const card = (
+                <Reveal delay={i * 0.08}>
+                  <div
+                    className="card"
+                    style={{
+                      padding: 0,
+                      overflow: "hidden",
+                      opacity: p.comingSoon ? 0.65 : 1,
+                      position: "relative",
+                    }}
+                  >
+                    <div style={{ height: 6, background: p.accent }} />
+                    <div style={{ padding: 20 }}>
+                      <BoxArt accent={p.accent} />
+                      <h3 style={{ fontSize: 17, textAlign: "center", marginTop: 16 }}>{p.name}</h3>
+                      {p.comingSoon && (
+                        <div
+                          style={{
+                            textAlign: "center",
+                            marginTop: 8,
+                            fontSize: 12,
+                            letterSpacing: "0.08em",
+                            textTransform: "uppercase",
+                            color: "var(--gold)",
+                            fontWeight: 600,
+                          }}
+                        >
+                          Coming Soon
+                        </div>
+                      )}
+                    </div>
                   </div>
+                </Reveal>
+              );
+              return p.comingSoon ? (
+                <div key={p.slug} style={{ cursor: "default" }}>
+                  {card}
                 </div>
-              </Link>
-            ))}
+              ) : (
+                <Link key={p.slug} href={`/products/${p.slug}`} style={{ textDecoration: "none", color: "inherit" }}>
+                  {card}
+                </Link>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -131,7 +174,7 @@ export default function Home() {
       >
         <div className="wrap">
           <div style={{ color: "var(--gold)", marginBottom: 12 }}>
-            <Monogram size={28} />
+            <Logo size={40} />
           </div>
           <div style={{ fontSize: 13, display: "flex", gap: 20, justifyContent: "center" }}>
             <Link href="/track">Track your order</Link>

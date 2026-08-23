@@ -19,7 +19,18 @@ export default function ProductPage({ params }) {
         </p>
         <p style={{ color: "#5a4a3c", marginBottom: 40 }}>{product.description}</p>
 
-        <OrderForm product={product} />
+        {product.comingSoon ? (
+          <div className="card" style={{ textAlign: "center" }}>
+            <p style={{ fontFamily: "var(--serif)", fontSize: 18, color: "var(--coffee)" }}>
+              Coming soon.
+            </p>
+            <p style={{ color: "#5a4a3c", fontSize: 14 }}>
+              This edition isn't open for orders yet — check back soon.
+            </p>
+          </div>
+        ) : (
+          <OrderForm product={product} />
+        )}
       </div>
     </main>
   );

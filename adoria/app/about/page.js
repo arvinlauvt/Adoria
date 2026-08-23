@@ -3,14 +3,14 @@ import Link from "next/link";
 export default function AboutPage() {
   return (
     <main style={{ padding: "72px 0 96px" }}>
-      <div className="wrap" style={{ maxWidth: 620 }}>
-        <h1 style={{ fontSize: 32, marginBottom: 6 }}>What is Adoria?</h1>
+      <div className="wrap animate-in" style={{ maxWidth: 620 }}>
+        <h1 style={{ fontSize: 32, marginBottom: 6 }}>What is Cubelle?</h1>
         <p style={{ fontFamily: "var(--serif)", fontStyle: "italic", color: "var(--gold)", marginBottom: 28 }}>
-          A luxury occasion gifting atelier — one box, built for the moment you're marking.
+          For the moments worth archiving.
         </p>
 
         <p style={{ color: "#5a4a3c", marginBottom: 20 }}>
-          Adoria started as a way to never forget an anniversary. It's grown into
+          Cubelle started as a way to never forget an anniversary. It's grown into
           something broader: a single, considered gift for the moments worth marking
           properly — a promotion, a new home, visiting someone well, or the quiet
           private dates only two people keep track of.
@@ -18,7 +18,7 @@ export default function AboutPage() {
 
         <h2 style={{ fontSize: 20, marginTop: 40, marginBottom: 12 }}>The box</h2>
         <p style={{ color: "#5a4a3c", marginBottom: 20 }}>
-          Every edition shares the same craftsmanship: hand-baked Malaysian cookie cubes
+          Every edition shares the same craftsmanship: The Cubelles, hand-baked in Malaysia,
           in Dark, Milk, or White, set in a 15×15cm matte black box finished with a
           copper ribbon. Inside, a card in black stock and gold ink carries whatever
           you want said — a short line, or a full letter, depending on what the moment
