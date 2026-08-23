@@ -3,7 +3,7 @@ import "./globals.css";
 export const metadata = {
   title: "Cubelle — For The Moments Worth Archiving",
   description:
-    "Luxury gift boxes for the moments worth marking — hand-baked Malaysian Cubelles, boxed in matte black and copper, with a message written in gold ink.",
+    "Luxury gift boxes for the moments worth marking — hand-baked Malaysian Cubelles, set in a matte black box, with a message written in gold ink.",
 };
 
 export default function RootLayout({ children }) {

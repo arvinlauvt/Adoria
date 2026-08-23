@@ -4,10 +4,10 @@ Next.js site: landing page → product catalog → product page (description +
 order form, per-box flavor picker, message type, add-ons) → ToyyibPay
 checkout → thank-you page → "Your Orders" tracker backed by Airtable.
 
-A luxury occasion gifting atelier — four editions, one box design (The
-Cubelles: hand-baked Malaysian cookie cubes, 15×15cm matte black box, copper
-ribbon, gold-ink card). Products are defined in `lib/products.js`; add,
-rename, or re-skin an edition (the Seasonal one especially) by editing that
+A luxury occasion gifting atelier — three editions, one box design (The
+Cubelles: hand-baked Malaysian cookie cubes, 15×15cm matte black box,
+gold-ink card). Products are defined in `lib/products.js`; add,
+rename, or re-skin an edition by editing that
 file, no other code changes needed as long as the `edition` string still
 matches an option in Airtable's **Product Edition** field.
 

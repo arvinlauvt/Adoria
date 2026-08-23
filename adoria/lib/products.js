@@ -9,10 +9,10 @@ export const PRICE_LETTER = 89;
 export const PRICE_ADDON = 25;
 
 export const FLOWER_OPTIONS = [
-  { name: "Midnight Lavender", swatch: "/flowers/midnight-lavender.png" },
-  { name: "Blushing Petal", swatch: "/flowers/blushing-petal.png" },
-  { name: "Cerulean Azure", swatch: "/flowers/cerulean-azure.png" },
-  { name: "Ivory Bloom", swatch: "/flowers/ivory-bloom.png" },
+  { name: "Midnight Lavender", color: "#4b3a63" },
+  { name: "Blushing Petal", color: "#d98ca0" },
+  { name: "Cerulean Azure", color: "#2f6fa8" },
+  { name: "Ivory Bloom", color: "#f3ead3" },
 ];
 
 export const PRODUCTS = [
@@ -51,18 +51,6 @@ export const PRODUCTS = [
     occasionDateLabel: "Delivery date (optional)",
     occasionDateRequired: false,
     addon: { type: "flowers", label: "Flowers" },
-  },
-  {
-    slug: "festive",
-    name: "The Festive Box",
-    edition: "Seasonal & Holiday Edition",
-    tagline: "This season's limited drop.",
-    description:
-      "A limited-run edition timed to the Malaysian holiday calendar — warmth and gratitude over the year-end season. Packaging and card tone rotate with the season; what stays the same is the box.",
-    accent: "#b98a3d",
-    occasionDateLabel: "Delivery date (optional)",
-    occasionDateRequired: false,
-    comingSoon: true,
   },
 ];
 

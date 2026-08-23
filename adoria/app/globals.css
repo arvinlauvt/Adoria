@@ -75,8 +75,9 @@ button {
   padding: 14px 30px;
   border-radius: 999px;
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.02em;
+  text-decoration: none;
   box-shadow: 0 8px 20px rgba(43, 28, 20, 0.18);
   transition: background 0.3s var(--ease-premium), transform 0.3s var(--ease-premium),
     box-shadow 0.3s var(--ease-premium);

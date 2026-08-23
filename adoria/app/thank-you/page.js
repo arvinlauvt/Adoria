@@ -24,7 +24,7 @@ export default async function ThankYouPage({ searchParams }) {
           <>
             <h1 style={{ fontSize: 28 }}>Your box is on its way to being made</h1>
             <p style={{ color: "#5a4a3c" }}>
-              Order <strong>{orderId}</strong> is confirmed. We'll box it, tie the ribbon, and get it
+              Order <strong>{orderId}</strong> is confirmed. We'll box it and get it
               moving in time for the date you gave us.
             </p>
             <p
