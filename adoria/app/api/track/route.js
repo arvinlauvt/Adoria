@@ -21,11 +21,13 @@ export async function GET(req) {
       occasionDate: r.fields["Occasion Date"],
       chocolateBreakdown: r.fields["Chocolate Breakdown"],
       cardMessage: r.fields["Card Message"],
+      addonType: r.fields["Add-on"],
+      addonDetail: r.fields["Add-on Detail"],
       address: [r.fields["Street Address"], r.fields["City"], r.fields["State"], r.fields["Postcode"]]
         .filter(Boolean)
         .join(", "),
       paymentStatus: r.fields["Payment Status"],
-      fulfillmentStatus: r.fields["Fulfillment Status"] || "Processing",
+      fulfillmentStatus: r.fields["Fulfillment Status"] || "Order Confirmed",
       courier: r.fields["Courier"],
       trackingNumber: r.fields["Tracking Number"],
       orderDate: r.fields["Order Date"],

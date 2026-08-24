@@ -1,267 +1,234 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
-import { PRODUCTS } from "../lib/products";
+import { useState } from "react";
+import { PRODUCTS, CUBE_CAP, LEAD_TIME_DAYS, PRICE_CARD } from "../lib/products";
 import Reveal from "../components/Reveal";
 
-function Logo({ size = 60 }) {
-  return (
-    <Image
-      src="/logo-icon.png"
-      alt="Cubelle"
-      width={size}
-      height={size}
-      priority
-      style={{ width: size, height: "auto", objectFit: "contain" }}
-    />
-  );
-}
-
-function BoxArt() {
-  // Placeholder packaging art until real product photography is in —
-  // plain matte black box, no ribbon (there isn't one on the real box).
-  return (
-    <svg viewBox="0 0 200 200" style={{ width: "100%", height: "auto" }} aria-hidden="true">
-      <rect x="18" y="18" width="164" height="164" rx="10" fill="#171012" stroke="rgba(217,171,92,0.35)" strokeWidth="1" />
-      <circle cx="100" cy="100" r="26" fill="none" stroke="rgba(217,171,92,0.3)" strokeWidth="1.2" />
-      <text
-        x="100"
-        y="109"
-        textAnchor="middle"
-        fontFamily="Fraunces, serif"
-        fontSize="24"
-        fill="rgba(217,171,92,0.5)"
-      >
-        C
-      </text>
-    </svg>
-  );
-}
+const FILTERS = ["All occasions", "Romance", "Career", "Visiting"];
 
 export default function Home() {
+  const [filter, setFilter] = useState("All occasions");
+  const visible = filter === "All occasions" ? PRODUCTS : PRODUCTS.filter((p) => p.occasionTag === filter);
+
   return (
     <main>
-      {/* Hero — tells them what Cubelle is before anything else */}
+      {/* Hero — type-led, no product photo needed up front */}
       <section
         style={{
+          position: "relative",
           backgroundColor: "var(--coffee)",
-          backgroundImage: "radial-gradient(rgba(217, 171, 92, 0.25) 1px, transparent 1px)",
+          backgroundImage: "radial-gradient(rgba(217, 171, 92, 0.22) 1px, transparent 1px)",
           backgroundSize: "24px 24px",
-          color: "var(--cream)",
-          minHeight: "100vh",
-          display: "flex",
-          alignItems: "center",
-          padding: "64px 0",
+          overflow: "hidden",
+          padding: "104px 32px 88px",
         }}
       >
-        <div className="wrap" style={{ textAlign: "center" }}>
-          <div className="float animate-in" style={{ marginBottom: 8 }}>
-            <Image
-              src="/logo.png"
-              alt="Cubelle"
-              width={280}
-              height={396}
-              priority
-              style={{ width: "clamp(180px, 32vw, 280px)", height: "auto", margin: "0 auto" }}
-            />
+        <Image
+          src="/logo-icon.png"
+          alt=""
+          width={420}
+          height={420}
+          aria-hidden="true"
+          className="float"
+          style={{ position: "absolute", right: -40, top: 40, width: 320, height: "auto", opacity: 0.07 }}
+        />
+        <div className="wrap" style={{ maxWidth: 900, position: "relative" }}>
+          <div
+            className="animate-in"
+            style={{ fontSize: 11, letterSpacing: "0.32em", textTransform: "uppercase", color: "var(--gold)", marginBottom: 30 }}
+          >
+            Hand-baked in Malaysia · Written in gold ink
           </div>
           <h1
             className="animate-in"
-            style={{ color: "var(--cream)", fontSize: "clamp(2rem, 5vw, 3rem)", marginTop: 8 }}
+            style={{ margin: 0, fontWeight: 300, fontSize: "clamp(2.4rem, 7vw, 5.2rem)", lineHeight: 0.98, letterSpacing: "-0.02em", color: "var(--cream)" }}
           >
-            Luxury gifting,<br />for the moment you're marking
+            For the moments<br />
+            worth <em style={{ fontStyle: "italic", fontWeight: 400, color: "var(--gold-bright)" }}>archiving</em>.
           </h1>
-          <div
-            className="animate-in"
-            style={{
-              width: 64,
-              height: 3,
-              background: "var(--gold-bright)",
-              borderRadius: 2,
-              margin: "18px auto",
-              animationDelay: "0.1s",
-            }}
-          />
           <p
             className="animate-in"
-            style={{ fontSize: 17, color: "var(--cream-deep)", maxWidth: 520, margin: "0 auto", animationDelay: "0.15s" }}
+            style={{ margin: "34px 0 0", maxWidth: 470, fontWeight: 300, fontSize: 17, lineHeight: 1.7, color: "rgba(247,240,228,.72)" }}
           >
-            A luxury gift box — hand-baked Malaysian cookie cubes we call
-            The Cubelles — set in a matte black box, with a message written
-            in gold ink. Anniversaries, promotions, new homes, or simply
-            visiting someone well — pick the box built for your occasion below.
+            Hand-baked cookie cubes in a matte black box, with your message written by hand in
+            real gold ink — we call them The Cubelles. One considered gift, timed to land on the date that matters.
           </p>
-          <div
-            className="animate-in"
-            style={{
-              display: "flex",
-              gap: 16,
-              justifyContent: "center",
-              flexWrap: "wrap",
-              marginTop: 36,
-              animationDelay: "0.2s",
-            }}
-          >
-            <Link href="/about" className="btn-outline btn" style={{ borderColor: "var(--cream-deep)", color: "var(--cream)" }}>
+          <div className="animate-in" style={{ display: "flex", gap: 14, marginTop: 40, flexWrap: "wrap" }}>
+            <a href="#catalog" className="btn" style={{ background: "var(--gold-bright)", color: "var(--coffee)" }}>
+              Choose your box
+            </a>
+            <Link href="/about" className="btn-outline btn" style={{ borderColor: "rgba(247,240,228,.34)", color: "var(--cream)" }}>
               What is Cubelle?
             </Link>
-            <a href="#catalog" className="btn" style={{ background: "var(--gold-bright)", color: "var(--coffee)" }}>
-              Browse the catalog
-            </a>
           </div>
         </div>
       </section>
 
-      {/* Catalog — image + name only, no prices */}
-      {/* Why Cubelle — three quiet value props to break up the flat scroll */}
-      <section style={{ padding: "72px 0" }}>
-        <div className="wrap" style={{ maxWidth: 860 }}>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 32 }}>
-            {[
-              { title: "Hand-baked, not mass-produced", body: "Every Cubelle is baked in small batches — no factory line, no shortcuts." },
-              { title: "Written, not printed", body: "Your message goes on in real gold ink, by hand, every time." },
-              { title: "Timed, not guessed", body: "We build in time to land on the date that actually matters, not just \"a few days.\"" },
-            ].map((item, i) => (
-              <Reveal key={item.title} delay={i * 0.08}>
-                <div style={{ textAlign: "center" }}>
-                  <div
-                    style={{
-                      width: 40,
-                      height: 40,
-                      margin: "0 auto 16px",
-                      borderRadius: "50%",
-                      border: "1px solid var(--gold)",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontFamily: "var(--serif)",
-                      color: "var(--gold)",
-                      fontSize: 16,
-                    }}
-                  >
-                    {i + 1}
-                  </div>
-                  <h3 style={{ fontSize: 16, marginBottom: 8 }}>{item.title}</h3>
-                  <p style={{ fontSize: 14, color: "#8a7a68", margin: 0 }}>{item.body}</p>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* How it works — three-step process, so the page has real substance, not just a CTA */}
-      <section style={{ padding: "8px 0 72px" }}>
-        <div className="wrap" style={{ maxWidth: 900 }}>
-          <h2 style={{ textAlign: "center", fontSize: 24, marginBottom: 40 }}>How it works</h2>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 28 }}>
-            {[
-              { step: "01", title: "Tell us the occasion", body: "Pick the box, the flavors, and whether it's a short note or a full letter." },
-              { step: "02", title: "We hand-finish it", body: "Baked, boxed in matte black, message written in gold ink — by hand, every order." },
-              { step: "03", title: "It arrives on time", body: "Timed delivery, tracked from your own Cubelle account, right up to your door." },
-            ].map((s, i) => (
-              <Reveal key={s.step} delay={i * 0.08}>
-                <div className="card" style={{ padding: 26 }}>
-                  <div style={{ fontFamily: "var(--serif)", color: "var(--gold)", fontSize: 22, marginBottom: 10 }}>
-                    {s.step}
-                  </div>
-                  <h3 style={{ fontSize: 16, marginBottom: 8 }}>{s.title}</h3>
-                  <p style={{ fontSize: 14, color: "#8a7a68", margin: 0 }}>{s.body}</p>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <section id="catalog" style={{ padding: "64px 0 88px" }}>
-        <div className="wrap" style={{ maxWidth: 920 }}>
-          <h2 style={{ textAlign: "center", fontSize: 24, marginBottom: 40 }}>Choose your box</h2>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 28 }}>
-            {PRODUCTS.map((p, i) => {
-              const card = (
-                <Reveal delay={i * 0.08}>
-                  <div
-                    className="card"
-                    style={{
-                      padding: 0,
-                      overflow: "hidden",
-                      opacity: p.comingSoon ? 0.65 : 1,
-                      position: "relative",
-                    }}
-                  >
-                    <div style={{ height: 6, background: p.accent }} />
-                    <div style={{ padding: 20 }}>
-                      <BoxArt />
-                      <h3 style={{ fontSize: 17, textAlign: "center", marginTop: 16 }}>{p.name}</h3>
-                      {p.comingSoon && (
-                        <div
-                          style={{
-                            textAlign: "center",
-                            marginTop: 8,
-                            fontSize: 12,
-                            letterSpacing: "0.08em",
-                            textTransform: "uppercase",
-                            color: "var(--gold)",
-                            fontWeight: 600,
-                          }}
-                        >
-                          Coming Soon
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </Reveal>
-              );
-              return p.comingSoon ? (
-                <div key={p.slug} style={{ cursor: "default" }}>
-                  {card}
-                </div>
-              ) : (
-                <Link key={p.slug} href={`/products/${p.slug}`} style={{ textDecoration: "none", color: "inherit" }}>
-                  {card}
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      <section style={{ padding: "0 0 80px", textAlign: "center" }}>
-        <Reveal>
-          <p
+      {/* Stat strip */}
+      <div style={{ display: "flex", flexWrap: "wrap", background: "var(--coffee-soft)", color: "rgba(247,240,228,.8)" }}>
+        {["Small-batch baked", "Your words, on real paper", "Delivered on the date", "Kuantan delivery"].map((t) => (
+          <div
+            key={t}
             style={{
-              fontFamily: "var(--script)",
-              fontSize: 32,
-              color: "var(--gold)",
-              maxWidth: 480,
-              margin: "0 auto",
-              lineHeight: 1.3,
+              flex: "1 1 200px",
+              padding: "20px 20px",
+              textAlign: "center",
+              borderRight: "1px solid rgba(247,240,228,.1)",
+              fontSize: 11,
+              letterSpacing: "0.2em",
+              textTransform: "uppercase",
             }}
           >
+            {t}
+          </div>
+        ))}
+      </div>
+
+      {/* The box — stats grid */}
+      <section style={{ padding: "88px 32px" }}>
+        <div className="wrap" style={{ maxWidth: 1000 }}>
+          <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) minmax(0,1.05fr)", gap: 56, alignItems: "center" }} className="responsive-two-col">
+            <Reveal>
+              <div
+                style={{
+                  aspectRatio: "4/5",
+                  borderRadius: 6,
+                  background: "repeating-linear-gradient(135deg,#e9dcc2 0 11px,#e1d1b2 11px 22px)",
+                  border: "1px solid rgba(43,28,20,.14)",
+                  display: "flex",
+                  alignItems: "flex-end",
+                  padding: 20,
+                }}
+              >
+                <span style={{ fontSize: 11, color: "#7a6448", background: "var(--cream)", padding: "6px 10px", borderRadius: 3 }}>
+                  open box, overhead — cubes in the tray
+                </span>
+              </div>
+            </Reveal>
+            <Reveal delay={0.1}>
+              <div>
+                <div style={{ fontSize: 11, letterSpacing: "0.3em", textTransform: "uppercase", color: "var(--gold)", marginBottom: 22 }}>
+                  The box
+                </div>
+                <h2 style={{ margin: 0, fontWeight: 400, fontSize: 36, lineHeight: 1.1, color: "var(--coffee)" }}>
+                  Twenty-five cubes,<br />one card, zero shortcuts.
+                </h2>
+                <p style={{ margin: "26px 0 0", fontWeight: 300, fontSize: 16, lineHeight: 1.75, color: "#5a4a3c", maxWidth: 440 }}>
+                  Every box is 15×15cm, matte black, and packed by hand: up to {CUBE_CAP} cubes in
+                  Dark, Milk or White — as many as you want, mixed however you like — beside a
+                  black-stock card written in gold ink while the order is being packed.
+                </p>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1, marginTop: 38, background: "rgba(43,28,20,.12)" }}>
+                  {[
+                    [`up to ${CUBE_CAP}`, "cubes per box, mixed freely"],
+                    ["1,300", "characters in a full letter, or 200 on the card"],
+                    [`RM${PRICE_CARD}`, "per box, before add-ons"],
+                    [`${LEAD_TIME_DAYS} day`, "lead time, date-locked delivery"],
+                  ].map(([big, small]) => (
+                    <div key={big} style={{ background: "var(--cream)", padding: "20px 22px" }}>
+                      <div style={{ fontFamily: "var(--serif)", fontSize: 28, color: "var(--coffee)" }}>{big}</div>
+                      <div style={{ fontSize: 12, color: "#8a7a68", marginTop: 4 }}>{small}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </Reveal>
+          </div>
+        </div>
+      </section>
+
+      {/* Catalog — list rows with filter pills */}
+      <section id="catalog" style={{ padding: "0 32px 96px" }}>
+        <div className="wrap" style={{ maxWidth: 1000 }}>
+          <div style={{ fontSize: 11, letterSpacing: "0.32em", textTransform: "uppercase", color: "var(--gold)", marginBottom: 20 }}>
+            The catalog
+          </div>
+          <h2 style={{ margin: 0, fontWeight: 300, fontSize: "clamp(1.8rem, 4vw, 2.6rem)", lineHeight: 1.06, letterSpacing: "-0.02em", color: "var(--coffee)" }}>
+            Three boxes.<br />Same craft, different occasion.
+          </h2>
+          <div style={{ display: "flex", gap: 10, marginTop: 32, flexWrap: "wrap" }}>
+            {FILTERS.map((f) => (
+              <button
+                key={f}
+                onClick={() => setFilter(f)}
+                className="btn"
+                style={{
+                  padding: "10px 20px",
+                  fontSize: 12,
+                  boxShadow: "none",
+                  background: filter === f ? "var(--coffee)" : "transparent",
+                  color: filter === f ? "var(--cream)" : "#5a4a3c",
+                  border: filter === f ? "none" : "1px solid rgba(43,28,20,.24)",
+                }}
+              >
+                {f}
+              </button>
+            ))}
+          </div>
+
+          {visible.map((p, i) => (
+            <Reveal key={p.slug} delay={i * 0.06}>
+              <Link
+                href={`/products/${p.slug}`}
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "160px minmax(0,1fr)",
+                  gap: 32,
+                  padding: "36px 0",
+                  borderTop: "1px solid rgba(43,28,20,.12)",
+                  alignItems: "center",
+                  textDecoration: "none",
+                  color: "inherit",
+                }}
+                className="catalog-row"
+              >
+                <div
+                  style={{
+                    aspectRatio: "1/1",
+                    borderRadius: 6,
+                    background: "repeating-linear-gradient(135deg,#241812 0 11px,#1c130d 11px 22px)",
+                  }}
+                />
+                <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) 150px", gap: 28, alignItems: "center" }} className="catalog-row-inner">
+                  <div>
+                    <div style={{ fontSize: 10, letterSpacing: "0.26em", textTransform: "uppercase", color: "var(--gold)" }}>
+                      {p.edition}
+                    </div>
+                    <h3 style={{ margin: "11px 0 8px", fontWeight: 400, fontSize: 26, color: "var(--coffee)" }}>{p.name}</h3>
+                    <p style={{ margin: "0 0 12px", fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 15, color: "var(--gold)" }}>
+                      {p.tagline}
+                    </p>
+                    <p style={{ margin: 0, fontWeight: 300, fontSize: 14, lineHeight: 1.7, color: "#5a4a3c" }}>{p.shortDescription}</p>
+                    <div style={{ display: "flex", gap: 8, marginTop: 16, flexWrap: "wrap" }}>
+                      {p.badges.map((b) => (
+                        <span key={b} style={{ padding: "6px 12px", borderRadius: 4, background: "var(--cream-deep)", fontSize: 11, color: "#7a6448" }}>
+                          {b}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                  <div style={{ textAlign: "right" }}>
+                    <div style={{ fontFamily: "var(--serif)", fontSize: 24, color: "var(--coffee)" }}>RM{PRICE_CARD}</div>
+                    <div style={{ fontSize: 12, color: "#8a7a68", marginBottom: 14 }}>per box</div>
+                    <span className="btn" style={{ padding: "11px 20px", fontSize: 13 }}>Build this box</span>
+                  </div>
+                </div>
+              </Link>
+            </Reveal>
+          ))}
+        </div>
+      </section>
+
+      {/* Quote line */}
+      <section style={{ padding: "0 32px 88px", textAlign: "center" }}>
+        <Reveal>
+          <p style={{ fontFamily: "Parisienne, cursive", fontSize: 34, lineHeight: 1.5, color: "var(--gold)", maxWidth: 480, margin: "0 auto" }}>
             Some things deserve more than a text message.
           </p>
         </Reveal>
       </section>
-
-      <footer
-        style={{
-          backgroundColor: "var(--coffee)",
-          backgroundImage: "radial-gradient(rgba(217, 171, 92, 0.25) 1px, transparent 1px)",
-          backgroundSize: "24px 24px",
-          color: "var(--cream-deep)",
-          padding: "40px 0",
-          textAlign: "center",
-        }}
-      >
-        <div className="wrap">
-          <div style={{ color: "var(--gold)", marginBottom: 12 }}>
-            <Logo size={64} />
-          </div>
-          <div style={{ fontSize: 13, display: "flex", gap: 20, justifyContent: "center" }}>
-            <Link href="/track">Track your order</Link>
-          </div>
-        </div>
-      </footer>
     </main>
   );
 }

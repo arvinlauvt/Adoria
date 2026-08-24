@@ -1,40 +1,67 @@
 "use client";
 
-import { useState } from "react";
-import { PRICE_CARD, PRICE_LETTER, PRICE_ADDON, FLOWER_OPTIONS, computeTotalRM } from "../../../lib/products";
+import { useState, useMemo } from "react";
+import Image from "next/image";
+import {
+  PRICE_CARD,
+  PRICE_LETTER,
+  PRICE_ADDON,
+  FLOWER_OPTIONS,
+  FLAVORS,
+  CUBE_CAP,
+  LEAD_TIME_DAYS,
+  computeTotalRM,
+} from "../../../lib/products";
 import Reveal from "../../../components/Reveal";
 
-const FLAVORS = ["Dark", "Milk", "White"];
 const MAX_CARD_MESSAGE = 200;
 const MAX_LETTER = 1300;
+const WEEKDAYS = ["S", "M", "T", "W", "T", "F", "S"];
+
+function emptyBox() {
+  return { Dark: 0, Milk: 0, White: 0 };
+}
+function boxTotal(box) {
+  return box.Dark + box.Milk + box.White;
+}
+
+function buildCalendar(minDate) {
+  const today = new Date();
+  const month = today.getMonth();
+  const year = today.getFullYear();
+  const first = new Date(year, month, 1);
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const startWeekday = first.getDay();
+  const monthLabel = today.toLocaleDateString("en-MY", { month: "long", year: "numeric" });
+  const cells = [];
+  for (let i = 0; i < startWeekday; i++) cells.push(null);
+  for (let d = 1; d <= daysInMonth; d++) {
+    const date = new Date(year, month, d);
+    cells.push({ n: d, date, disabled: date < minDate });
+  }
+  return { cells, monthLabel };
+}
 
 function StepHeader({ index, total, title, subtitle }) {
   return (
-    <div style={{ marginBottom: 32 }}>
-      <div
-        style={{
-          height: 2,
-          background: "var(--cream-deep)",
-          borderRadius: 2,
-          marginBottom: 22,
-          overflow: "hidden",
-        }}
-      >
+    <div style={{ marginBottom: 26 }}>
+      <div style={{ height: 3, background: "var(--cream-deep)", borderRadius: 2, overflow: "hidden", marginBottom: 26 }}>
         <div
           style={{
             height: "100%",
             width: `${((index + 1) / total) * 100}%`,
             background: "var(--gold)",
-            borderRadius: 2,
             transition: "width 0.4s var(--ease-premium)",
           }}
         />
       </div>
-      <div style={{ fontSize: 12, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--gold)", marginBottom: 6 }}>
-        Step {index + 1} of {total}
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+        <div style={{ fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--gold)" }}>
+          Step {index + 1} of {total}
+        </div>
+        <div style={{ fontSize: 12, color: "#8a7a68" }}>{subtitle}</div>
       </div>
-      <h2 style={{ fontSize: 24, marginBottom: subtitle ? 6 : 0 }}>{title}</h2>
-      {subtitle && <p style={{ color: "#8a7a68", fontSize: 14, margin: 0 }}>{subtitle}</p>}
+      <h2 style={{ margin: "10px 0 6px", fontWeight: 400, fontSize: 28, color: "var(--coffee)" }}>{title}</h2>
     </div>
   );
 }
@@ -46,13 +73,13 @@ export default function OrderForm({ product }) {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
-  const [recipientName, setRecipientName] = useState("");
-  const [occasionDate, setOccasionDate] = useState("");
-  const [boxes, setBoxes] = useState([["Dark"]]);
-  const [messageMode, setMessageMode] = useState("card"); // "card" | "letter"
+  const [boxes, setBoxes] = useState([emptyBox()]);
+  const [messageMode, setMessageMode] = useState("card");
   const [cardMessage, setCardMessage] = useState("");
   const [addonSelected, setAddonSelected] = useState(false);
   const [flowerChoice, setFlowerChoice] = useState(FLOWER_OPTIONS[0].name);
+  const [recipientName, setRecipientName] = useState("");
+  const [occasionDate, setOccasionDate] = useState(null);
   const [street, setStreet] = useState("");
   const [city, setCity] = useState("");
   const [state, setState] = useState("");
@@ -62,38 +89,56 @@ export default function OrderForm({ product }) {
 
   const total = computeTotalRM({ messageMode, addonSelected, quantity: boxes.length });
   const perBox = (messageMode === "letter" ? PRICE_LETTER : PRICE_CARD) + (addonSelected ? PRICE_ADDON : 0);
+  const maxChars = messageMode === "letter" ? MAX_LETTER : MAX_CARD_MESSAGE;
+
+  const minDate = useMemo(() => {
+    const d = new Date();
+    d.setHours(0, 0, 0, 0);
+    d.setDate(d.getDate() + LEAD_TIME_DAYS);
+    return d;
+  }, []);
+  const calendar = useMemo(() => buildCalendar(minDate), [minDate]);
 
   function addBox() {
     if (boxes.length >= 12) return;
-    setBoxes([...boxes, ["Dark"]]);
+    setBoxes([...boxes, emptyBox()]);
   }
   function removeBox(i) {
     if (boxes.length <= 1) return;
     setBoxes(boxes.filter((_, idx) => idx !== i));
   }
-  function toggleBoxFlavor(i, flavor) {
+  function setFlavorQty(i, flavor, delta) {
     setBoxes(
-      boxes.map((flavors, idx) => {
-        if (idx !== i) return flavors;
-        const has = flavors.includes(flavor);
-        if (has) {
-          return flavors.length === 1 ? flavors : flavors.filter((f) => f !== flavor);
-        }
-        return [...flavors, flavor];
+      boxes.map((box, idx) => {
+        if (idx !== i) return box;
+        const nextVal = Math.max(0, box[flavor] + delta);
+        const others = boxTotal(box) - box[flavor];
+        const clamped = Math.min(nextVal, CUBE_CAP - others);
+        return { ...box, [flavor]: clamped };
+      })
+    );
+  }
+  function setFlavorQtyAbsolute(i, flavor, rawValue) {
+    const parsed = parseInt(rawValue, 10);
+    const value = Number.isNaN(parsed) ? 0 : Math.max(0, parsed);
+    setBoxes(
+      boxes.map((box, idx) => {
+        if (idx !== i) return box;
+        const others = boxTotal(box) - box[flavor];
+        const clamped = Math.min(value, CUBE_CAP - others);
+        return { ...box, [flavor]: clamped };
       })
     );
   }
 
   function validateStep(key) {
-    if (key === "details") {
-      if (!name || !phone || !email) return "Please fill in your name, phone, and email.";
-    }
+    if (key === "details" && (!name || !phone || !email)) return "Please fill in your name, phone, and email.";
     if (key === "boxes") {
-      // always at least one flavor per box by construction
+      const empty = boxes.some((b) => boxTotal(b) === 0);
+      if (empty) return "Every box needs at least one cube.";
     }
     if (key === "delivery") {
-      const missingOccasionDate = product.occasionDateRequired && !occasionDate;
-      if (missingOccasionDate) return `Please add the ${product.occasionDateLabel.toLowerCase()}.`;
+      if (product.occasionDateRequired && !occasionDate) return `Please pick the ${product.occasionDateLabel.toLowerCase()}.`;
       if (!recipientName) return "Please add the recipient's name.";
       if (!street || !city || !state || !postcode) return "Please complete the delivery address.";
     }
@@ -118,7 +163,14 @@ export default function OrderForm({ product }) {
     setError("");
     setSubmitting(true);
     try {
-      const breakdown = boxes.map((flavors, i) => `Box ${i + 1}: ${flavors.join(" + ")}`).join("; ");
+      const breakdown = boxes
+        .map((b, i) => {
+          const parts = FLAVORS.filter((f) => b[f] > 0).map((f) => `${b[f]} ${f}`);
+          return `Box ${i + 1}: ${parts.join(", ")} (${boxTotal(b)}/${CUBE_CAP})`;
+        })
+        .join("; ");
+
+      const occasionDateStr = occasionDate ? occasionDate.toISOString().slice(0, 10) : null;
 
       const orderRes = await fetch("/api/create-order", {
         method: "POST",
@@ -128,7 +180,7 @@ export default function OrderForm({ product }) {
           phone,
           email,
           recipientName,
-          occasionDate: occasionDate || null,
+          occasionDate: occasionDateStr,
           productEdition: product.edition,
           quantity: boxes.length,
           chocolateBreakdown: breakdown,
@@ -149,14 +201,7 @@ export default function OrderForm({ product }) {
       const checkoutRes = await fetch("/api/checkout", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          orderId: orderData.orderId,
-          recordId: orderData.recordId,
-          name,
-          email,
-          phone,
-          amountRM: total,
-        }),
+        body: JSON.stringify({ orderId: orderData.orderId, recordId: orderData.recordId, name, email, phone }),
       });
       const checkoutData = await checkoutRes.json();
       if (!checkoutRes.ok) throw new Error(checkoutData.error || "Could not start payment.");
@@ -169,10 +214,14 @@ export default function OrderForm({ product }) {
   }
 
   const key = steps[step];
+  const previewText = cardMessage || (messageMode === "card" ? "Your message will appear here." : "Your letter will appear here — write as much as the moment deserves.");
+  const previewDate = occasionDate
+    ? occasionDate.toLocaleDateString("en-MY", { day: "numeric", month: "long", year: "numeric" })
+    : calendar.monthLabel;
 
   return (
     <Reveal>
-      <div className="card" style={{ padding: "40px 36px" }}>
+      <div className="card" style={{ padding: "36px 32px", boxShadow: "none", border: "none", background: "transparent" }}>
         <StepHeader
           index={step}
           total={steps.length}
@@ -189,9 +238,9 @@ export default function OrderForm({ product }) {
           subtitle={
             {
               details: "So we can reach you about your order.",
-              boxes: "Each box can hold more than one flavor, like a mixed tray.",
+              boxes: `Up to ${CUBE_CAP} cubes per box — mix flavors however you like.`,
               message: "A short line, or a full letter — your call.",
-              addon: "A small extra, tucked in beside the card.",
+              addon: "Dried and pressed in-house, tucked in beside the card.",
               delivery: "Who it's for, and where it's going.",
               review: "Everything before you pay.",
             }[key]
@@ -203,47 +252,90 @@ export default function OrderForm({ product }) {
             <div className="field-row">
               <div className="field">
                 <label htmlFor="name">Your full name</label>
-                <input id="name" value={name} onChange={(e) => setName(e.target.value)} required />
+                <input id="name" placeholder="Arvin Lau" value={name} onChange={(e) => setName(e.target.value)} required />
               </div>
               <div className="field">
                 <label htmlFor="phone">Phone number</label>
-                <input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} required />
+                <input id="phone" placeholder="+60 12 345 6789" value={phone} onChange={(e) => setPhone(e.target.value)} required />
               </div>
             </div>
             <div className="field">
               <label htmlFor="email">Email</label>
               <span className="hint">Your receipt and order tracking go here.</span>
-              <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+              <input id="email" type="email" placeholder="you@email.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
             </div>
           </>
         )}
 
         {key === "boxes" && (
           <div className="field">
-            {boxes.map((flavors, i) => (
-              <div key={i} className="card" style={{ padding: 14, marginBottom: 10, boxShadow: "none" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                  <strong style={{ fontSize: 13, color: "var(--coffee-soft)" }}>Box {i + 1}</strong>
-                  <button
-                    type="button"
-                    className="btn-outline btn"
-                    onClick={() => removeBox(i)}
-                    disabled={boxes.length <= 1}
-                    aria-label={`Remove box ${i + 1}`}
-                    style={{ padding: "4px 12px", fontSize: 13 }}
-                  >
-                    Remove
-                  </button>
+            {boxes.map((box, i) => {
+              const remaining = CUBE_CAP - boxTotal(box);
+              return (
+                <div key={i} style={{ border: "1px solid var(--cream-deep)", borderRadius: 10, padding: 20, marginBottom: 14, background: "var(--cream)" }}>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+                    <strong style={{ fontSize: 14, color: "var(--coffee)" }}>Box {i + 1}</strong>
+                    <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                      <span style={{ fontSize: 12, color: remaining === 0 ? "var(--gold)" : "#8a7a68" }}>
+                        {remaining === 0 ? "Full" : `${remaining} of ${CUBE_CAP} left`}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => removeBox(i)}
+                        disabled={boxes.length <= 1}
+                        className="btn-outline btn"
+                        style={{ padding: "7px 14px", fontSize: 12 }}
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+
+                  {FLAVORS.map((f) => (
+                    <div key={f} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "9px 0", borderBottom: "1px solid rgba(43,28,20,.07)" }}>
+                      <span style={{ fontSize: 14, color: "var(--coffee-soft)" }}>{f}</span>
+                      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                        <button type="button" onClick={() => setFlavorQty(i, f, -1)} className="stepper-btn">−</button>
+                        <input
+                          type="text"
+                          inputMode="numeric"
+                          value={box[f]}
+                          onChange={(e) => setFlavorQtyAbsolute(i, f, e.target.value.replace(/[^0-9]/g, ""))}
+                          onFocus={(e) => e.target.select()}
+                          style={{
+                            width: 34,
+                            padding: "3px 0",
+                            textAlign: "center",
+                            fontFamily: "var(--serif)",
+                            fontSize: 17,
+                            color: "var(--coffee)",
+                            background: "transparent",
+                            border: "none",
+                            borderBottom: "1px solid rgba(43,28,20,.22)",
+                            outline: "none",
+                          }}
+                        />
+                        <button type="button" onClick={() => setFlavorQty(i, f, 1)} disabled={remaining <= 0} className="stepper-btn">+</button>
+                      </div>
+                    </div>
+                  ))}
+
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: 5, marginTop: 16, maxWidth: 180 }}>
+                    {Array.from({ length: CUBE_CAP }).map((_, ci) => {
+                      const filled = ci < boxTotal(box);
+                      let color = "rgba(43,28,20,.08)";
+                      if (filled) {
+                        const darkEnd = box.Dark;
+                        const milkEnd = darkEnd + box.Milk;
+                        color = ci < darkEnd ? "#3b2417" : ci < milkEnd ? "#8a5a34" : "#f0e2c8";
+                      }
+                      return <span key={ci} style={{ aspectRatio: "1/1", borderRadius: 3, background: color, border: "1px solid rgba(43,28,20,.12)" }} />;
+                    })}
+                  </div>
                 </div>
-                {FLAVORS.map((f) => (
-                  <label key={f} className="checkbox-row">
-                    <input type="checkbox" checked={flavors.includes(f)} onChange={() => toggleBoxFlavor(i, f)} />
-                    {f} Chocolate
-                  </label>
-                ))}
-              </div>
-            ))}
-            <button type="button" className="btn-outline btn" onClick={addBox} style={{ padding: "8px 14px" }}>
+              );
+            })}
+            <button type="button" onClick={addBox} className="btn-outline btn" style={{ width: "100%", justifyContent: "center", border: "1px dashed rgba(43,28,20,.3)" }}>
               + Add another box
             </button>
           </div>
@@ -251,91 +343,129 @@ export default function OrderForm({ product }) {
 
         {key === "message" && (
           <div className="field">
-            <div style={{ display: "flex", gap: 18, marginBottom: 4 }}>
-              <label className="checkbox-row">
-                <input
-                  type="radio"
-                  name="messageMode"
-                  checked={messageMode === "card"}
-                  onChange={() => {
-                    setMessageMode("card");
-                    setCardMessage((m) => m.slice(0, MAX_CARD_MESSAGE));
-                  }}
-                />
-                Short card message (RM{PRICE_CARD}/box)
-              </label>
-              <label className="checkbox-row">
-                <input
-                  type="radio"
-                  name="messageMode"
-                  checked={messageMode === "letter"}
-                  onChange={() => setMessageMode("letter")}
-                />
-                Full letter (RM{PRICE_LETTER}/box)
-              </label>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 20 }}>
+              <button
+                type="button"
+                onClick={() => {
+                  setMessageMode("card");
+                  setCardMessage((m) => m.slice(0, MAX_CARD_MESSAGE));
+                }}
+                className="card"
+                style={{ padding: "14px 16px", textAlign: "left", boxShadow: "none", border: messageMode === "card" ? "2px solid var(--gold)" : "1px solid var(--cream-deep)" }}
+              >
+                <div style={{ fontWeight: 600, fontSize: 13, color: "var(--coffee)" }}>Short card message</div>
+                <div style={{ fontSize: 12, color: "#8a7a68" }}>RM{PRICE_CARD} / box · 200 characters</div>
+              </button>
+              <button
+                type="button"
+                onClick={() => setMessageMode("letter")}
+                className="card"
+                style={{ padding: "14px 16px", textAlign: "left", boxShadow: "none", border: messageMode === "letter" ? "2px solid var(--gold)" : "1px solid var(--cream-deep)" }}
+              >
+                <div style={{ fontWeight: 600, fontSize: 13, color: "var(--coffee)" }}>Full letter</div>
+                <div style={{ fontSize: 12, color: "#8a7a68" }}>RM{PRICE_LETTER} / box · 1,300 characters</div>
+              </button>
             </div>
-            <span className="hint">
-              {(messageMode === "card" ? MAX_CARD_MESSAGE : MAX_LETTER) - cardMessage.length} characters left
-              {messageMode === "card"
-                ? " — the small details are what make it land."
-                : " — this replaces the card entirely, so write as much as the moment deserves."}
-            </span>
+
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
+              <label htmlFor="msg" style={{ margin: 0 }}>Your message</label>
+              <span className="hint">{maxChars - cardMessage.length} left</span>
+            </div>
             <textarea
-              rows={messageMode === "card" ? 4 : 10}
-              maxLength={messageMode === "card" ? MAX_CARD_MESSAGE : MAX_LETTER}
+              id="msg"
+              rows={messageMode === "card" ? 4 : 8}
+              maxLength={maxChars}
+              placeholder="Write it the way you'd say it."
               value={cardMessage}
               onChange={(e) => setCardMessage(e.target.value)}
             />
+
+            {messageMode === "card" ? (
+              <div style={{ marginTop: 20, background: "#100b08", border: "1px solid rgba(217,171,92,.3)", borderRadius: 6, padding: "26px 24px", minHeight: 120 }}>
+                <div style={{ fontSize: 9, letterSpacing: "0.3em", textTransform: "uppercase", color: "rgba(217,171,92,.6)", marginBottom: 14 }}>
+                  Card preview · gold ink on black stock
+                </div>
+                <p style={{ margin: 0, fontFamily: "var(--script)", fontSize: 22, lineHeight: 1.4, color: "var(--gold-bright)", overflowWrap: "break-word", wordBreak: "break-word" }}>{previewText}</p>
+              </div>
+            ) : (
+              <div style={{ marginTop: 20 }}>
+                <div style={{ fontSize: 9, letterSpacing: "0.3em", textTransform: "uppercase", color: "var(--gold)", marginBottom: 10 }}>
+                  Letter preview · {product.letterFrame === "ornate" ? "Milestone frame" : "Plain frame"}
+                </div>
+                <div style={{ position: "relative", background: "#fffdf7", border: "1px solid rgba(185,138,61,.35)", borderRadius: 3, padding: "30px 40px 26px", boxShadow: "0 10px 26px rgba(43,28,20,.1)", overflow: "hidden" }}>
+                  {product.letterFrame === "ornate" && (
+                    <>
+                      <Image src="/letter-corner.png" alt="" width={62} height={62} style={{ position: "absolute", top: 8, left: 8, width: 50, opacity: 0.95 }} />
+                      <Image src="/letter-corner.png" alt="" width={62} height={62} style={{ position: "absolute", top: 8, right: 8, width: 50, opacity: 0.95, transform: "scaleX(-1)" }} />
+                      <Image src="/letter-corner.png" alt="" width={62} height={62} style={{ position: "absolute", bottom: 8, left: 8, width: 50, opacity: 0.95, transform: "scaleY(-1)" }} />
+                      <Image src="/letter-corner.png" alt="" width={62} height={62} style={{ position: "absolute", bottom: 8, right: 8, width: 50, opacity: 0.95, transform: "scale(-1,-1)" }} />
+                    </>
+                  )}
+                  <div style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", gap: 6, paddingBottom: 14 }}>
+                    <Image src="/logo-icon.png" alt="" width={38} height={38} style={{ objectFit: "contain" }} />
+                    <span style={{ fontFamily: "var(--serif)", fontSize: 24, letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--coffee)" }}>Cubelle</span>
+                    <div style={{ fontSize: 8, letterSpacing: "0.22em", color: "var(--gold)" }}>BOUTIQUE GIFTING ATELIER</div>
+                  </div>
+                  <div style={{ position: "relative", padding: "18px 20px", minHeight: 100 }}>
+                    <p style={{ margin: 0, fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 15, lineHeight: 1.7, color: "var(--coffee-soft)", whiteSpace: "pre-wrap", overflowWrap: "break-word", wordBreak: "break-word" }}>
+                      {previewText}
+                    </p>
+                  </div>
+                  <div style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", gap: 8, paddingTop: 16 }}>
+                    <span style={{ width: 150, height: 1, background: "rgba(185,138,61,.7)" }} />
+                    <span style={{ fontFamily: "Cormorant Garamond, Georgia, serif", fontSize: 13, color: "var(--gold)" }}>{previewDate}</span>
+                  </div>
+                </div>
+                <p style={{ margin: "10px 0 0", fontSize: 12, color: "#8a7a68" }}>
+                  Anniversary and Hostess letters use the ornate frame. Congratulations letters use the plain rule frame.
+                </p>
+              </div>
+            )}
           </div>
         )}
 
         {key === "addon" && product.addon && (
           <div className="field">
-            <label className="checkbox-row" style={{ marginBottom: 16 }}>
-              <input type="checkbox" checked={addonSelected} onChange={(e) => setAddonSelected(e.target.checked)} />
-              Add {product.addon.label} (+RM{PRICE_ADDON} per box)
-            </label>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
+              <button
+                type="button"
+                onClick={() => setAddonSelected(true)}
+                className="card"
+                style={{ padding: "14px 16px", textAlign: "left", boxShadow: "none", border: addonSelected ? "2px solid var(--gold)" : "1px solid var(--cream-deep)" }}
+              >
+                <div style={{ fontWeight: 600, fontSize: 14, color: "var(--coffee)" }}>Yes, add {product.addon.label.toLowerCase()}</div>
+                <div style={{ fontSize: 12, color: "#8a7a68" }}>+RM{PRICE_ADDON} per box</div>
+              </button>
+              <button
+                type="button"
+                onClick={() => setAddonSelected(false)}
+                className="card"
+                style={{ padding: "14px 16px", textAlign: "left", boxShadow: "none", border: !addonSelected ? "2px solid var(--gold)" : "1px solid var(--cream-deep)" }}
+              >
+                <div style={{ fontWeight: 600, fontSize: 14, color: "var(--coffee)" }}>No {product.addon.label.toLowerCase()}</div>
+                <div style={{ fontSize: 12, color: "#8a7a68" }}>Just the box and card</div>
+              </button>
+            </div>
 
             {addonSelected && product.addon.type === "flowers" && (
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))", gap: 12 }}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(110px, 1fr))", gap: 12 }}>
                 {FLOWER_OPTIONS.map((f) => (
-                  <label
+                  <button
                     key={f.name}
+                    type="button"
+                    onClick={() => setFlowerChoice(f.name)}
                     className="card"
-                    style={{
-                      padding: 8,
-                      cursor: "pointer",
-                      textAlign: "center",
-                      boxShadow: "none",
-                      border: flowerChoice === f.name ? "2px solid var(--gold)" : "1px solid var(--cream-deep)",
-                    }}
+                    style={{ padding: 8, textAlign: "center", boxShadow: "none", border: flowerChoice === f.name ? "2px solid var(--gold)" : "1px solid var(--cream-deep)" }}
                   >
-                    <input
-                      type="radio"
-                      name="flowerChoice"
-                      value={f.name}
-                      checked={flowerChoice === f.name}
-                      onChange={() => setFlowerChoice(f.name)}
-                      style={{ display: "none" }}
-                    />
-                    <div
-                      style={{
-                        width: "100%",
-                        aspectRatio: "1",
-                        borderRadius: 8,
-                        marginBottom: 6,
-                        background: f.color,
-                        border: "1px solid rgba(43,28,20,0.1)",
-                      }}
-                    />
-                    <span style={{ fontSize: 12 }}>{f.name}</span>
-                  </label>
+                    <div style={{ width: "100%", aspectRatio: "1", borderRadius: 8, marginBottom: 6, background: f.color, border: "1px solid rgba(43,28,20,.1)" }} />
+                    <span style={{ fontSize: 11, color: "var(--coffee-soft)" }}>{f.name}</span>
+                  </button>
                 ))}
               </div>
             )}
 
             {addonSelected && product.addon.type === "achievementToken" && (
-              <p className="hint">A small engraved token marking the achievement, tucked in beside the card.</p>
+              <p className="hint">Engraved metal, sealed separately from the tray — a small keepsake beside the card.</p>
             )}
           </div>
         )}
@@ -344,110 +474,148 @@ export default function OrderForm({ product }) {
           <>
             <div className="field">
               <label htmlFor="recipient">Recipient's name</label>
-              <input id="recipient" value={recipientName} onChange={(e) => setRecipientName(e.target.value)} required />
+              <input id="recipient" placeholder="Who it's for" value={recipientName} onChange={(e) => setRecipientName(e.target.value)} required />
             </div>
-            <div className="field">
-              <label htmlFor="date">
-                {product.occasionDateLabel}
-                {product.occasionDateRequired ? "" : " (optional)"}
-              </label>
-              <input
-                id="date"
-                type="date"
-                value={occasionDate}
-                onChange={(e) => setOccasionDate(e.target.value)}
-                required={product.occasionDateRequired}
-              />
+
+            <div style={{ border: "1px solid var(--cream-deep)", borderRadius: 10, background: "var(--cream)", padding: 18, marginBottom: 18 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 14 }}>
+                <span style={{ fontWeight: 600, fontSize: 12, color: "var(--coffee-soft)" }}>{product.occasionDateLabel}</span>
+                <span style={{ fontSize: 11, color: "#8a7a68" }}>{calendar.monthLabel} · {LEAD_TIME_DAYS}-day lead time</span>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", gap: 5, marginBottom: 12 }}>
+                {WEEKDAYS.map((w, i) => (
+                  <span key={i} style={{ textAlign: "center", fontSize: 9, fontWeight: 600, letterSpacing: "0.08em", color: "#8a7a68" }}>
+                    {w}
+                  </span>
+                ))}
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", gap: 5 }}>
+                {calendar.cells.map((c, i) =>
+                  c === null ? (
+                    <span key={i} />
+                  ) : (
+                    <button
+                      key={i}
+                      type="button"
+                      disabled={c.disabled}
+                      onClick={() => setOccasionDate(c.date)}
+                      style={{
+                        aspectRatio: "1/1",
+                        borderRadius: 999,
+                        border: "none",
+                        fontSize: 13,
+                        fontFamily: "var(--sans)",
+                        cursor: c.disabled ? "not-allowed" : "pointer",
+                        background:
+                          occasionDate && occasionDate.toDateString() === c.date.toDateString() ? "var(--coffee)" : "transparent",
+                        color: c.disabled ? "#c9bfae" : occasionDate && occasionDate.toDateString() === c.date.toDateString() ? "var(--cream)" : "var(--coffee-soft)",
+                      }}
+                    >
+                      {c.n}
+                    </button>
+                  )
+                )}
+              </div>
+              <div style={{ marginTop: 14, fontSize: 12, color: "#5a4a3c" }}>
+                {occasionDate ? `Landing ${previewDate}` : "Pick a date"} — need it{" "}
+                <a
+                  href={`https://wa.me/60106509189?text=${encodeURIComponent(
+                    occasionDate
+                      ? `Hi Cubelle, can you rush my order to land by ${previewDate}? That's earlier than the site's earliest available date.`
+                      : "Hi Cubelle, I need a box sooner than the earliest available date — can you help?"
+                  )}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{ color: "#5a4a3c", textDecoration: "underline" }}
+                >
+                  sooner
+                </a>
+                ?
+              </div>
             </div>
+
             <div className="field">
-              <label htmlFor="street">Street address / house unit number</label>
-              <input id="street" value={street} onChange={(e) => setStreet(e.target.value)} required />
+              <label htmlFor="street">Street address / unit</label>
+              <input id="street" placeholder="8, Lorong SKD 7/1" value={street} onChange={(e) => setStreet(e.target.value)} required />
             </div>
             <div className="field-row">
               <div className="field">
                 <label htmlFor="city">City</label>
-                <input id="city" placeholder="e.g., Kuantan" value={city} onChange={(e) => setCity(e.target.value)} required />
+                <input id="city" placeholder="Kuantan" value={city} onChange={(e) => setCity(e.target.value)} required />
               </div>
               <div className="field">
                 <label htmlFor="state">State</label>
-                <input id="state" placeholder="e.g., Pahang" value={state} onChange={(e) => setState(e.target.value)} required />
+                <input id="state" placeholder="Pahang" value={state} onChange={(e) => setState(e.target.value)} required />
               </div>
-            </div>
-            <div className="field">
-              <label htmlFor="postcode">Postcode</label>
-              <input id="postcode" value={postcode} onChange={(e) => setPostcode(e.target.value)} required />
+              <div className="field">
+                <label htmlFor="postcode">Postcode</label>
+                <input id="postcode" placeholder="26100" value={postcode} onChange={(e) => setPostcode(e.target.value)} required />
+              </div>
             </div>
           </>
         )}
 
         {key === "review" && (
           <div>
-            <dl style={{ fontSize: 14, color: "var(--coffee-soft)", display: "grid", gap: 12, marginBottom: 24 }}>
-              <div>
-                <dt style={{ fontWeight: 600 }}>Boxes</dt>
-                <dd style={{ margin: "2px 0 0" }}>
-                  {boxes.map((f, i) => `Box ${i + 1}: ${f.join(" + ")}`).join(" · ")}
-                </dd>
-              </div>
-              <div>
-                <dt style={{ fontWeight: 600 }}>Message</dt>
-                <dd style={{ margin: "2px 0 0" }}>{messageMode === "letter" ? "Full letter" : "Short card message"}</dd>
-              </div>
-              {product.addon && (
-                <div>
-                  <dt style={{ fontWeight: 600 }}>Extra gift</dt>
-                  <dd style={{ margin: "2px 0 0" }}>
-                    {addonSelected ? `${product.addon.label}${flowerChoice && product.addon.type === "flowers" ? ` — ${flowerChoice}` : ""}` : "None"}
-                  </dd>
+            <div style={{ border: "1px solid var(--cream-deep)", borderRadius: 10, background: "var(--cream)", padding: "22px 22px 18px" }}>
+              {[
+                ["Boxes", boxes.map((b, i) => `Box ${i + 1}: ${FLAVORS.filter((f) => b[f] > 0).map((f) => `${b[f]} ${f}`).join(", ")}`).join(" · ")],
+                ["Message", messageMode === "letter" ? "Full letter" : "Short card message"],
+                ...(product.addon ? [["Extra gift", addonSelected ? `${product.addon.label}${product.addon.type === "flowers" ? ` — ${flowerChoice}` : ""}` : "None"]] : []),
+                ["Recipient", recipientName],
+                ["Delivering to", `${street}, ${city}, ${state} ${postcode}`],
+              ].map(([k, v]) => (
+                <div key={k} style={{ display: "flex", justifyContent: "space-between", gap: 20, padding: "11px 0", borderBottom: "1px solid rgba(43,28,20,.08)" }}>
+                  <span style={{ fontSize: 12, letterSpacing: "0.06em", textTransform: "uppercase", color: "#8a7a68", flexShrink: 0 }}>{k}</span>
+                  <span style={{ fontSize: 14, color: "var(--coffee)", textAlign: "right" }}>{v}</span>
                 </div>
-              )}
-              <div>
-                <dt style={{ fontWeight: 600 }}>Recipient</dt>
-                <dd style={{ margin: "2px 0 0" }}>{recipientName}</dd>
+              ))}
+              <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", paddingTop: 18 }}>
+                <div>
+                  <div style={{ fontFamily: "var(--serif)", fontSize: 24, color: "var(--coffee)" }}>Total</div>
+                  <div style={{ fontSize: 12, color: "#8a7a68", marginTop: 4 }}>RM{perBox} × {boxes.length} box{boxes.length > 1 ? "es" : ""}</div>
+                </div>
+                <div style={{ fontFamily: "var(--serif)", fontSize: 32, color: "var(--coffee)" }}>RM{total}</div>
               </div>
-              <div>
-                <dt style={{ fontWeight: 600 }}>Delivering to</dt>
-                <dd style={{ margin: "2px 0 0" }}>
-                  {street}, {city}, {state} {postcode}
-                </dd>
-              </div>
-            </dl>
-
-            <div style={{ padding: "16px 0", borderTop: "1px solid var(--cream-deep)", marginBottom: 4 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13, color: "#8a7a68", marginBottom: 4 }}>
-                <span>RM{perBox} per box × {boxes.length}</span>
-              </div>
-              <div style={{ display: "flex", justifyContent: "space-between", fontFamily: "var(--serif)", fontSize: 22 }}>
-                <span>Total</span>
-                <span>RM{total}</span>
-              </div>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 16, fontSize: 12, color: "#8a7a68" }}>
+              Secured by ToyyibPay · FPX &amp; cards
             </div>
           </div>
         )}
 
         {error && <p className="error-text" style={{ marginTop: 16 }}>{error}</p>}
 
-        <div style={{ display: "flex", gap: 12, marginTop: 28 }}>
+        <div style={{ display: "flex", gap: 12, marginTop: 30 }}>
           {step > 0 && (
-            <button type="button" className="btn-outline btn" onClick={goBack} style={{ flex: "none" }}>
+            <button type="button" onClick={goBack} className="btn-outline btn">
               Back
             </button>
           )}
           {key !== "review" ? (
-            <button type="button" className="btn" onClick={goNext} style={{ flex: 1, justifyContent: "center" }}>
+            <button type="button" onClick={goNext} className="btn" style={{ flex: 1, justifyContent: "center" }}>
               Continue
             </button>
           ) : (
-            <button
-              type="button"
-              className="btn"
-              onClick={handleSubmit}
-              disabled={submitting}
-              style={{ flex: 1, justifyContent: "center" }}
-            >
+            <button type="button" onClick={handleSubmit} disabled={submitting} className="btn" style={{ flex: 1, justifyContent: "center" }}>
               {submitting ? "Preparing your payment…" : `Pay — RM${total}`}
             </button>
           )}
+        </div>
+
+        <div style={{ display: "flex", gap: 6, marginTop: 22, justifyContent: "center" }}>
+          {steps.map((_, i) => (
+            <span
+              key={i}
+              style={{
+                width: i === step ? 18 : 6,
+                height: 6,
+                borderRadius: 999,
+                background: i === step ? "var(--gold)" : "var(--cream-deep)",
+                transition: "width 0.3s var(--ease-premium)",
+              }}
+            />
+          ))}
         </div>
       </div>
     </Reveal>

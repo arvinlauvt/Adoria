@@ -152,8 +152,14 @@ button {
 
 .field-row {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
   gap: 16px;
+}
+
+@media (max-width: 480px) {
+  .field-row {
+    grid-template-columns: 1fr;
+  }
 }
 
 .checkbox-row {
@@ -244,6 +250,35 @@ button {
   animation: floatY 4s ease-in-out infinite;
 }
 
+/* --- Responsive collapses for the mockup-based layouts --- */
+@media (max-width: 760px) {
+  .responsive-two-col {
+    grid-template-columns: 1fr !important;
+  }
+  .catalog-row {
+    grid-template-columns: 1fr !important;
+  }
+  .catalog-row-inner {
+    grid-template-columns: 1fr !important;
+  }
+  .catalog-row-inner > div:last-child {
+    text-align: left !important;
+    margin-top: 16px;
+  }
+  .footer-grid {
+    grid-template-columns: 1fr 1fr !important;
+  }
+  header nav {
+    display: none !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .footer-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
@@ -251,5 +286,38 @@ button {
   * {
     animation: none !important;
     transition: none !important;
+  }
+}
+
+.stepper-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  border: 1px solid rgba(43, 28, 20, 0.2);
+  background: #fffaf0;
+  font-weight: 600;
+  font-size: 15px;
+  color: #5a4a3c;
+  cursor: pointer;
+  transition: border-color 0.2s var(--ease-premium), color 0.2s var(--ease-premium);
+}
+.stepper-btn:hover:not(:disabled) {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+.stepper-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.product-grid {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 520px);
+}
+.product-grid > div {
+  min-width: 0;
+}
+@media (max-width: 900px) {
+  .product-grid {
+    grid-template-columns: 1fr !important;
   }
 }

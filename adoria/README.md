@@ -14,10 +14,12 @@ matches an option in Airtable's **Product Edition** field.
 ## Pricing
 
 Set centrally in `lib/products.js` (`PRICE_CARD`, `PRICE_LETTER`,
-`PRICE_ADDON`, `computeTotalRM`). Per box: RM79 with a short card message,
-RM89 with a full letter instead, +RM25 on top of either for an add-on
-(Flowers on the Anniversary/Hostess boxes, Achievement Token on the
-Congratulations box), all multiplied by quantity. **This is always computed
+`PRICE_ADDON`, `CUBE_CAP`, `LEAD_TIME_DAYS`, `computeTotalRM`). Per box: RM79
+with a short card message, RM89 with a full letter instead, +RM25 on top of
+either for an add-on (Flowers on the Anniversary/Hostess boxes, Achievement
+Token on the Congratulations box), all multiplied by quantity — each box can
+hold up to 25 cubes (mixed flavors), which doesn't change the price. **This
+is always computed
 server-side** in `/api/create-order` from the message type/add-on/quantity
 the browser reports — the client-supplied total is never trusted for the
 actual charge, and `/api/checkout` reads the price back from the Airtable
@@ -78,25 +80,46 @@ a full order without moving real money. Switch `TOYYIBPAY_BASE_URL` back to
 
 ## How the pieces fit together
 
-- `/` — hero explaining Cubelle in one screen (full viewport height, with
-  "What is Cubelle?" and "Browse the catalog" buttons), then a catalog grid
-  (image + name only, no prices, per your call on not wanting customers
-  price-comparing across occasions). The Festive box shows as "Coming Soon"
-  and isn't orderable yet.
-- `/about` — brand story page, linked from the hero.
-- `/products/[slug]` — one page per edition (`lib/products.js`): description
-  first, order form below it (styled as a clipboard). Message type (card vs.
-  letter) and any add-on are chosen here. On submit it calls
-  `/api/create-order` (computes the real price server-side, writes a
-  "Pending" row to Airtable tagged with that product's edition) then
-  `/api/checkout` (re-reads that price from Airtable, creates the ToyyibPay
-  bill), then redirects to ToyyibPay to pay.
+- `components/Header.js` / `components/Footer.js` — persistent nav and
+  footer, included once in `app/layout.js` so every page gets them
+  automatically.
+- `/` — full editorial redesign based on a Claude Design mockup: type-led
+  hero (no product photo needed), a stat strip, "The box" specs section,
+  and the catalog as filterable list rows (All occasions / Romance / Career
+  / Visiting) instead of a card grid.
+- `/about` — narrative brand story page.
+- `/allergens` — ingredients & allergens page. The allergen table is
+  intentionally all "TBC" placeholders — replace with real data once
+  confirmed with the kitchen, never publish guessed allergen claims.
+- `/products/[slug]` — sticky product image/spec panel on the left, a
+  6-step checkout wizard on the right (Details → Boxes → Message → Add-on →
+  Delivery → Review & Pay). Boxes use per-flavor cube-count steppers capped
+  at `CUBE_CAP` (25) with a live visual fill grid. The message step shows a
+  live preview — a dark gold-ink card for short messages, or a full framed
+  letter (ornate corners for Anniversary/Hostess, plain rule for
+  Congratulations) for full letters. Delivery uses a real calendar date
+  picker that disables anything inside the `LEAD_TIME_DAYS` lead time. On
+  submit it calls `/api/create-order` (computes the real price server-side,
+  writes a "Pending" row to Airtable) then `/api/checkout` (re-reads that
+  price from Airtable, creates the ToyyibPay bill), then redirects to
+  ToyyibPay to pay.
 - `/api/toyyibpay-callback` — ToyyibPay calls this server-to-server after
   payment. It re-checks the payment directly with ToyyibPay (never trusts the
   callback body alone) and marks the Airtable row Paid/Failed.
 - `/thank-you` — where ToyyibPay redirects the customer. Also re-checks
   payment status itself, and shows the "receipt sent to your Gmail" note.
-- `/track` — customer enters their email, sees every order's card message,
-  address, and shipping progress. Reads live from Airtable, so updating
-  **Fulfillment Status** / **Tracking Number** / **Courier** in Airtable
-  updates the site immediately — no redeploy needed.
+- `/track` — customer enters their email, sees a 5-stage vertical timeline
+  (Order Confirmed → Baked & Packed → Card Written → Out for Delivery →
+  Delivered) plus card message, address, and tracking number. Reads live
+  from Airtable, so updating **Fulfillment Status** / **Tracking Number** /
+  **Courier** in Airtable updates the site immediately — no redeploy needed.
+
+## Known simplifications from the mockup
+
+- The footer newsletter email field is decorative only — not wired to
+  collect emails anywhere yet.
+- The nav collapses to just the logo on mobile (no hamburger menu) rather
+  than a full mobile nav drawer.
+- Product photography is still placeholder textures — swap the
+  `repeating-linear-gradient` blocks in `app/page.js` and
+  `app/products/[slug]/page.js` for real `<Image>` tags once photos exist.

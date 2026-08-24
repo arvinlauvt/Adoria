@@ -1,12 +1,21 @@
 // Consumer-facing catalog. `edition` must match a "Product Edition" option
-// in Airtable exactly. Swap `accent` and copy per drop as needed — the
-// Seasonal box in particular is meant to be re-skinned a few times a year.
+// in Airtable exactly. Swap `accent` and copy per drop as needed.
 
 // Pricing: per box = base (by message type) + add-on (if selected), all
 // multiplied by quantity. Base RM79 (card) / RM89 (letter). Add-on flat +RM25.
 export const PRICE_CARD = 79;
 export const PRICE_LETTER = 89;
 export const PRICE_ADDON = 25;
+
+// Real capacity of the 15x15cm box, confirmed by the founder.
+export const CUBE_CAP = 25;
+
+// Real lead time from order to delivery — keep this in sync with the
+// date picker in the checkout, and with the "Order Confirmed" stage of
+// the tracker.
+export const LEAD_TIME_DAYS = 7;
+
+export const FLAVORS = ["Dark", "Milk", "White"];
 
 export const FLOWER_OPTIONS = [
   { name: "Midnight Lavender", color: "#4b3a63" },
@@ -20,37 +29,52 @@ export const PRODUCTS = [
     slug: "anniversary",
     name: "The Anniversary Box",
     edition: "Milestone & Anniversary Edition",
+    occasionTag: "Romance",
     tagline: "For the date you never want to forget.",
+    shortDescription:
+      "Engagements, first dates remembered, the small private dates only the two of you keep. Add pressed flowers in one of four colours; the card does the rest.",
     description:
-      "Our original box, built for anniversaries and the milestones that come with a relationship — engagements, first dates remembered, the small private dates only the two of you keep. A gold-ink note carries the message; the box is just the excuse to say it.",
+      "Our original box. Twenty-five hand-baked cubes over your words in gold ink — a short card message, or a full letter of up to 1,300 characters, your choice at checkout. Add pressed flowers if the moment calls for them. Choose the date — we build the lead time in.",
     accent: "#8a5a34",
     occasionDateLabel: "Anniversary date",
     occasionDateRequired: true,
     addon: { type: "flowers", label: "Flowers" },
+    letterFrame: "ornate",
+    badges: ["Pressed flowers +RM25", "Date required"],
   },
   {
     slug: "congratulations",
     name: "The Congratulations Box",
     edition: "Celebration Edition",
-    tagline: "For promotions, new homes, and graduations.",
+    occasionTag: "Career",
+    tagline: "For the wins that deserve more than a text.",
+    shortDescription:
+      "A new job, a new home, a degree finally finished. Same box, same craft — a card written for pride instead of romance, and an engraved token if you want it kept.",
     description:
-      "A sleeker, congratulatory tone for the wins worth marking properly — a new job, a new home, a degree finally finished. Same box, same craftsmanship, a card written for pride instead of romance.",
+      "A sleeker, congratulatory tone for the wins worth marking properly. Twenty-five hand-baked cubes, a card written for pride instead of romance, and an optional engraved Achievement Token to keep long after the box is empty.",
     accent: "#4a3524",
     occasionDateLabel: "Send / delivery date (optional)",
     occasionDateRequired: false,
     addon: { type: "achievementToken", label: "Achievement Token" },
+    letterFrame: "plain",
+    badges: ["Achievement token +RM25", "Engraved, kept for years"],
   },
   {
     slug: "hostess",
     name: "The Hostess Box",
     edition: "Host & Visiting Edition",
+    occasionTag: "Visiting",
     tagline: "A better guest than a fruit basket.",
+    shortDescription:
+      "For dinner parties, visiting family, and thanking someone who hosted you well. Smaller gesture, same box — arrives ready to hand over.",
     description:
-      "For visiting family, dropping in on a dinner party, or thanking someone who hosted you well. Smaller gesture, same box — an elevated alternative to whatever's usually picked up on the way over.",
+      "For visiting family, dropping in on a dinner party, or thanking someone who hosted you well. Twenty-five hand-baked cubes, matte black box, your message in gold ink — an elevated alternative to whatever's usually picked up on the way over.",
     accent: "#3b2417",
     occasionDateLabel: "Delivery date (optional)",
     occasionDateRequired: false,
     addon: { type: "flowers", label: "Flowers" },
+    letterFrame: "ornate",
+    badges: ["Pressed flowers +RM25", "Same-week delivery"],
   },
 ];
 

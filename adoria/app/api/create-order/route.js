@@ -63,7 +63,7 @@ export async function POST(req) {
       Postcode: postcode,
       "Order Total": amountRM,
       "Payment Status": "Pending",
-      "Fulfillment Status": "Processing",
+      "Fulfillment Status": "Order Confirmed",
       "Order Date": new Date().toISOString(),
     };
     if (occasionDate) fields["Occasion Date"] = occasionDate;
