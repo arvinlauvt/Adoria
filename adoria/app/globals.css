@@ -20,6 +20,15 @@
   box-sizing: border-box;
 }
 
+/* Mobile browsers flash a default gray/black overlay on tap for any
+   interactive element unless this is disabled — shows up as buttons
+   going "really black" on press, only on touch devices. */
+a,
+button,
+[role="button"] {
+  -webkit-tap-highlight-color: transparent;
+}
+
 html {
   background-color: var(--cream);
   scroll-behavior: smooth;
@@ -323,7 +332,8 @@ button {
   }
   .stat-strip,
   .the-box-section,
-  .quote-line {
+  .quote-line,
+  .hero-phantom {
     display: none !important;
   }
 }

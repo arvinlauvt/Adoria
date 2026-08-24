@@ -391,7 +391,7 @@ export default function OrderForm({ product }) {
                 <div style={{ fontSize: 9, letterSpacing: "0.3em", textTransform: "uppercase", color: "rgba(217,171,92,.6)", marginBottom: 14 }}>
                   Card preview · gold ink on black stock
                 </div>
-                <p style={{ margin: 0, fontFamily: "'Cormorant Garamond', Georgia, serif", fontStyle: "italic", fontWeight: 500, fontSize: 22, lineHeight: 1.5, color: "var(--gold-bright)", overflowWrap: "break-word", wordBreak: "break-word" }}>{previewText}</p>
+                <p style={{ margin: 0, fontFamily: "'Cormorant Garamond', Georgia, serif", fontStyle: "italic", fontWeight: 500, fontSize: 22, lineHeight: 1.5, color: "var(--gold-bright)", whiteSpace: "pre-wrap", overflowWrap: "break-word", wordBreak: "break-word" }}>{previewText}</p>
               </div>
             ) : (
               <div style={{ marginTop: 20 }}>
