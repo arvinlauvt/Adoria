@@ -46,16 +46,6 @@ function buildCalendar(minDate) {
 function StepHeader({ index, total, name, title, subtitle }) {
   return (
     <div style={{ marginBottom: 26 }}>
-      <div style={{ height: 3, background: "var(--cream-deep)", borderRadius: 2, overflow: "hidden", marginBottom: 26 }}>
-        <div
-          style={{
-            height: "100%",
-            width: `${((index + 1) / total) * 100}%`,
-            background: "var(--gold)",
-            transition: "width 0.4s var(--ease-premium)",
-          }}
-        />
-      </div>
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 6 }}>
         <div style={{ fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--gold)" }}>
           Step {index + 1} of {total}

@@ -31,11 +31,11 @@ export default function Home() {
         <Image
           src="/logo-icon.png"
           alt=""
-          width={1000}
-          height={1000}
+          width={1390}
+          height={922}
           aria-hidden="true"
           className="float"
-          style={{ position: "absolute", right: "-3vw", top: "50%", transform: "translateY(-50%)", width: "58vw", maxWidth: 980, minWidth: 460, height: "auto", opacity: 0.16 }}
+          style={{ position: "absolute", right: "-4vw", top: "41%", transform: "translateY(-50%)", width: "64vw", maxWidth: 1150, minWidth: 500, height: "auto", opacity: 0.16 }}
         />
         <div className="wrap" style={{ maxWidth: 900, position: "relative", width: "100%" }}>
           <div

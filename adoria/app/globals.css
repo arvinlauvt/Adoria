@@ -23,6 +23,13 @@
 html {
   background-color: var(--cream);
   scroll-behavior: smooth;
+  /* The hero is a flex-centered min-height:88vh block, so when the web
+     fonts swap in (font-display:swap) and reflow its height, the browser's
+     scroll anchoring can silently shift an already-at-top scroll position
+     down to compensate — landing on the stat strip instead of the hero on
+     load. Scroll anchoring is meant for infinite-scroll-style content
+     changes, not this; turn it off. */
+  overflow-anchor: none;
 }
 
 html,
