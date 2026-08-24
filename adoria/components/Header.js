@@ -32,8 +32,8 @@ export default function Header() {
           gap: 16,
         }}
       >
-        <Link href="/" style={{ display: "flex", alignItems: "center", gap: 14, textDecoration: "none" }} onClick={() => setOpen(false)}>
-          <Image src="/logo-icon.png" alt="" width={42} height={42} style={{ objectFit: "contain" }} />
+        <Link href="/" style={{ display: "flex", alignItems: "center", gap: 12, textDecoration: "none" }} onClick={() => setOpen(false)}>
+          <Image src="/logo-icon.png" alt="" width={52} height={52} style={{ objectFit: "contain" }} />
           <span
             style={{
               fontFamily: "var(--serif)",

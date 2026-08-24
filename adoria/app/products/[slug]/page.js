@@ -12,7 +12,7 @@ export default function ProductPage({ params }) {
 
   return (
     <main>
-      <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) 520px" }} className="product-grid">
+      <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) 520px", maxWidth: 1440, margin: "0 auto" }} className="product-grid">
         <div
           style={{
             padding: "56px 32px 72px",
@@ -20,7 +20,7 @@ export default function ProductPage({ params }) {
             backgroundSize: "24px 24px",
           }}
         >
-          <div style={{ position: "sticky", top: 20, maxWidth: 640 }}>
+          <div style={{ position: "sticky", top: 20 }}>
             <div
               style={{
                 aspectRatio: "1/1",

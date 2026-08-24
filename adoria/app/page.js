@@ -23,18 +23,21 @@ export default function Home() {
           backgroundSize: "24px 24px",
           overflow: "hidden",
           padding: "104px 32px 88px",
+          minHeight: "88vh",
+          display: "flex",
+          alignItems: "center",
         }}
       >
         <Image
           src="/logo-icon.png"
           alt=""
-          width={420}
-          height={420}
+          width={620}
+          height={620}
           aria-hidden="true"
           className="float"
-          style={{ position: "absolute", right: -60, top: 20, width: 460, height: "auto", opacity: 0.1 }}
+          style={{ position: "absolute", right: "-6vw", top: "50%", transform: "translateY(-50%)", width: "40vw", maxWidth: 660, minWidth: 340, height: "auto", opacity: 0.14 }}
         />
-        <div className="wrap" style={{ maxWidth: 900, position: "relative" }}>
+        <div className="wrap" style={{ maxWidth: 900, position: "relative", width: "100%" }}>
           <div
             className="animate-in"
             style={{ fontSize: 11, letterSpacing: "0.32em", textTransform: "uppercase", color: "var(--gold)", marginBottom: 34 }}
@@ -140,7 +143,7 @@ export default function Home() {
       </section>
 
       {/* Catalog — list rows with filter pills */}
-      <section id="catalog" style={{ padding: "0 32px 96px" }}>
+      <section id="catalog" style={{ padding: "72px 32px 96px", background: "#fff" }}>
         <div className="wrap" style={{ maxWidth: 1100 }}>
           <div style={{ fontSize: 11, letterSpacing: "0.32em", textTransform: "uppercase", color: "var(--gold)", marginBottom: 20 }}>
             The catalog
@@ -168,6 +171,7 @@ export default function Home() {
             ))}
           </div>
 
+          <div style={{ marginTop: 44 }}>
           {visible.map((p, i) => (
             <Reveal key={p.slug} delay={i * 0.06}>
               <Link
@@ -220,6 +224,7 @@ export default function Home() {
               </Link>
             </Reveal>
           ))}
+          </div>
         </div>
       </section>
 
