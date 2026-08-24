@@ -19,7 +19,7 @@ export default function Footer() {
         className="footer-grid"
       >
         <div>
-          <div style={{ fontFamily: "var(--serif)", fontWeight: 600, fontSize: 26, letterSpacing: "0.18em", textTransform: "uppercase", color: "var(--gold-bright)" }}>
+          <div style={{ fontFamily: "var(--serif)", fontWeight: 600, fontSize: 30, letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--gold-bright)" }}>
             Cubelle
           </div>
           <div style={{ marginTop: 8, fontSize: 9, letterSpacing: "0.28em", color: "rgba(217,171,92,.62)" }}>

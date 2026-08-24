@@ -44,7 +44,7 @@ export default function ProductPage({ params }) {
             <div style={{ fontSize: 10, letterSpacing: "0.26em", textTransform: "uppercase", color: "var(--gold)" }}>
               {product.edition}
             </div>
-            <h1 style={{ margin: "14px 0 10px", fontWeight: 400, fontSize: 38, lineHeight: 1.08, color: "var(--coffee)" }}>
+            <h1 style={{ margin: "14px 0 10px", fontWeight: 400, fontSize: "clamp(1.875rem, 6vw, 2.625rem)", lineHeight: 1.08, color: "var(--coffee)" }}>
               {product.name}
             </h1>
             <p style={{ margin: "0 0 22px", fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 18, color: "var(--gold)" }}>
@@ -60,7 +60,7 @@ export default function ProductPage({ params }) {
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 9, fontWeight: 300, fontSize: 14, color: "#5a4a3c" }}>
                 <span>Up to {CUBE_CAP} cubes — Dark, Milk, White, mixed as you like</span>
-                <span>Matte black 15×15cm box</span>
+                <span>Matte black 15×15cm box, gold foil seal</span>
                 <span>Your choice: black-stock card, or a full letter</span>
                 {product.addon?.type === "flowers" && <span>Optional pressed flowers, four colourways</span>}
                 {product.addon?.type === "achievementToken" && <span>Optional engraved Achievement Token</span>}

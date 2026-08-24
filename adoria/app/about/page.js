@@ -22,7 +22,7 @@ export default function AboutPage() {
           className="animate-in"
           style={{ opacity: 0.9, marginBottom: 26 }}
         />
-        <h1 className="animate-in" style={{ margin: 0, fontWeight: 300, fontSize: 44, color: "var(--cream)" }}>
+        <h1 className="animate-in" style={{ margin: 0, fontWeight: 300, fontSize: "clamp(2.125rem, 7vw, 3rem)", color: "var(--cream)" }}>
           What is Cubelle?
         </h1>
         <p className="animate-in" style={{ margin: "16px 0 0", fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 18, color: "var(--gold-bright)" }}>

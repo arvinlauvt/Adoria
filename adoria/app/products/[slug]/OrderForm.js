@@ -17,6 +17,7 @@ import Reveal from "../../../components/Reveal";
 const MAX_CARD_MESSAGE = 200;
 const MAX_LETTER = 1300;
 const WEEKDAYS = ["S", "M", "T", "W", "T", "F", "S"];
+const FLAVOR_SWATCH = { Dark: "#2b1c14", Milk: "#8a5a34", White: "#efe3cd" };
 
 function emptyBox() {
   return { Dark: 0, Milk: 0, White: 0 };
@@ -42,7 +43,7 @@ function buildCalendar(minDate) {
   return { cells, monthLabel };
 }
 
-function StepHeader({ index, total, title, subtitle }) {
+function StepHeader({ index, total, name, title, subtitle }) {
   return (
     <div style={{ marginBottom: 26 }}>
       <div style={{ height: 3, background: "var(--cream-deep)", borderRadius: 2, overflow: "hidden", marginBottom: 26 }}>
@@ -55,13 +56,14 @@ function StepHeader({ index, total, title, subtitle }) {
           }}
         />
       </div>
-      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 6 }}>
         <div style={{ fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--gold)" }}>
           Step {index + 1} of {total}
         </div>
-        <div style={{ fontSize: 12, color: "#8a7a68" }}>{subtitle}</div>
+        <div style={{ fontSize: 12, color: "#8a7a68" }}>{name}</div>
       </div>
       <h2 style={{ margin: "10px 0 6px", fontWeight: 400, fontSize: 28, color: "var(--coffee)" }}>{title}</h2>
+      <p style={{ margin: "0 0 28px", fontWeight: 300, fontSize: 14, lineHeight: 1.6, color: "#8a7a68" }}>{subtitle}</p>
     </div>
   );
 }
@@ -225,14 +227,24 @@ export default function OrderForm({ product }) {
         <StepHeader
           index={step}
           total={steps.length}
-          title={
+          name={
             {
               details: "Your details",
               boxes: "Your boxes",
               message: "Your message",
-              addon: `Add ${product.addon?.label || "an extra gift"}?`,
+              addon: `Add ${product.addon?.label || "an extra gift"}`,
               delivery: "Recipient & delivery",
               review: "Review & pay",
+            }[key]
+          }
+          title={
+            {
+              details: "Who's sending",
+              boxes: "Build the tray",
+              message: "What it should say",
+              addon: `${product.addon?.label || "An extra gift"}?`,
+              delivery: "Where it lands",
+              review: "Before you pay",
             }[key]
           }
           subtitle={
@@ -241,8 +253,8 @@ export default function OrderForm({ product }) {
               boxes: `Up to ${CUBE_CAP} cubes per box — mix flavors however you like.`,
               message: "A short line, or a full letter — your call.",
               addon: "Dried and pressed in-house, tucked in beside the card.",
-              delivery: "Who it's for, and where it's going.",
-              review: "Everything before you pay.",
+              delivery: "Pick the date; we work the lead time backwards.",
+              review: "Everything as it will be made.",
             }[key]
           }
         />
@@ -293,7 +305,10 @@ export default function OrderForm({ product }) {
 
                   {FLAVORS.map((f) => (
                     <div key={f} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "9px 0", borderBottom: "1px solid rgba(43,28,20,.07)" }}>
-                      <span style={{ fontSize: 14, color: "var(--coffee-soft)" }}>{f}</span>
+                      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                        <span style={{ width: 22, height: 22, borderRadius: 4, background: FLAVOR_SWATCH[f], border: "1px solid rgba(43,28,20,.18)" }} />
+                        <span style={{ fontSize: 14, color: "var(--coffee-soft)" }}>{f}</span>
+                      </div>
                       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                         <button type="button" onClick={() => setFlavorQty(i, f, -1)} className="stepper-btn">−</button>
                         <input
@@ -395,18 +410,22 @@ export default function OrderForm({ product }) {
                 <div style={{ position: "relative", background: "#fffdf7", border: "1px solid rgba(185,138,61,.35)", borderRadius: 3, padding: "30px 40px 26px", boxShadow: "0 10px 26px rgba(43,28,20,.1)", overflow: "hidden" }}>
                   {product.letterFrame === "ornate" && (
                     <>
-                      <Image src="/letter-corner.png" alt="" width={62} height={62} style={{ position: "absolute", top: 8, left: 8, width: 50, opacity: 0.95 }} />
-                      <Image src="/letter-corner.png" alt="" width={62} height={62} style={{ position: "absolute", top: 8, right: 8, width: 50, opacity: 0.95, transform: "scaleX(-1)" }} />
-                      <Image src="/letter-corner.png" alt="" width={62} height={62} style={{ position: "absolute", bottom: 8, left: 8, width: 50, opacity: 0.95, transform: "scaleY(-1)" }} />
-                      <Image src="/letter-corner.png" alt="" width={62} height={62} style={{ position: "absolute", bottom: 8, right: 8, width: 50, opacity: 0.95, transform: "scale(-1,-1)" }} />
+                      <Image src="/letter-corner.png" alt="" width={62} height={62} style={{ position: "absolute", top: 8, left: 8, width: 62, opacity: 0.95 }} />
+                      <Image src="/letter-corner.png" alt="" width={62} height={62} style={{ position: "absolute", top: 8, right: 8, width: 62, opacity: 0.95, transform: "scaleX(-1)" }} />
+                      <Image src="/letter-corner.png" alt="" width={62} height={62} style={{ position: "absolute", bottom: 8, left: 8, width: 62, opacity: 0.95, transform: "scaleY(-1)" }} />
+                      <Image src="/letter-corner.png" alt="" width={62} height={62} style={{ position: "absolute", bottom: 8, right: 8, width: 62, opacity: 0.95, transform: "scale(-1,-1)" }} />
+                      <span style={{ position: "absolute", left: 18, top: 76, bottom: 76, width: 1, background: "rgba(185,138,61,.7)" }} />
+                      <span style={{ position: "absolute", right: 18, top: 76, bottom: 76, width: 1, background: "rgba(185,138,61,.7)" }} />
+                      <span style={{ position: "absolute", top: 14, left: 72, right: 72, height: 1, background: "rgba(185,138,61,.7)" }} />
+                      <span style={{ position: "absolute", bottom: 14, left: 72, right: 72, height: 0, borderTop: "1px solid rgba(185,138,61,.7)", transform: "translateY(-0.5px)" }} />
                     </>
                   )}
                   <div style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", gap: 6, paddingBottom: 14 }}>
                     <Image src="/logo-icon.png" alt="" width={38} height={38} style={{ objectFit: "contain" }} />
-                    <span style={{ fontFamily: "var(--serif)", fontSize: 24, letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--coffee)" }}>Cubelle</span>
-                    <div style={{ fontSize: 8, letterSpacing: "0.22em", color: "var(--gold)" }}>BOUTIQUE GIFTING ATELIER</div>
+                    <span style={{ fontFamily: "var(--serif)", fontSize: 27, letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--coffee)" }}>Cubelle</span>
+                    <div style={{ fontSize: 8, fontWeight: 700, letterSpacing: "0.22em", color: "var(--gold)" }}>BOUTIQUE GIFTING ATELIER</div>
                   </div>
-                  <div style={{ position: "relative", padding: "18px 20px", minHeight: 100 }}>
+                  <div style={{ position: "relative", padding: "18px 30px", minHeight: 110 }}>
                     <p style={{ margin: 0, fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 15, lineHeight: 1.7, color: "var(--coffee-soft)", whiteSpace: "pre-wrap", overflowWrap: "break-word", wordBreak: "break-word" }}>
                       {previewText}
                     </p>

@@ -250,6 +250,14 @@ button {
   animation: floatY 4s ease-in-out infinite;
 }
 
+/* --- Mobile nav: drawer replaces the inline links + CTA --- */
+.mobile-menu-btn {
+  display: none;
+}
+.mobile-menu-drawer {
+  display: none;
+}
+
 /* --- Responsive collapses for the mockup-based layouts --- */
 @media (max-width: 760px) {
   .responsive-two-col {
@@ -257,18 +265,50 @@ button {
   }
   .catalog-row {
     grid-template-columns: 1fr !important;
+    gap: 0 !important;
+    padding: 0 0 18px !important;
+    border-top: none !important;
+    background: #fffaf0;
+    border: 1px solid rgba(43, 28, 20, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+    margin-top: 16px;
+  }
+  .catalog-row > div:first-child {
+    border-radius: 0 !important;
+    aspect-ratio: 4 / 3 !important;
   }
   .catalog-row-inner {
     grid-template-columns: 1fr !important;
+    padding: 16px 18px 18px;
   }
   .catalog-row-inner > div:last-child {
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
     text-align: left !important;
-    margin-top: 16px;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(43, 28, 20, 0.1);
+  }
+  .catalog-row-inner > div:last-child > div:first-child > div:last-child {
+    margin-bottom: 0 !important;
   }
   .footer-grid {
     grid-template-columns: 1fr 1fr !important;
   }
-  header nav {
+  .desktop-nav {
+    display: none !important;
+  }
+  .mobile-menu-btn {
+    display: block !important;
+  }
+  .mobile-menu-drawer {
+    display: flex !important;
+  }
+  .stat-strip,
+  .the-box-section,
+  .quote-line {
     display: none !important;
   }
 }
