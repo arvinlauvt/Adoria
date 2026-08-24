@@ -1,6 +1,7 @@
 import "./globals.css";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import PageTransition from "../components/PageTransition";
 
 export const metadata = {
   title: "Cubelle — For The Moments Worth Archiving",
@@ -25,7 +26,7 @@ export default function RootLayout({ children }) {
       </head>
       <body>
         <Header />
-        {children}
+        <PageTransition>{children}</PageTransition>
         <Footer />
       </body>
     </html>

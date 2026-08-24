@@ -32,13 +32,13 @@ export default function Header() {
           gap: 16,
         }}
       >
-        <Link href="/" style={{ display: "flex", alignItems: "center", gap: 12, textDecoration: "none" }} onClick={() => setOpen(false)}>
-          <Image src="/logo-icon.png" alt="" width={30} height={30} style={{ objectFit: "contain" }} />
+        <Link href="/" style={{ display: "flex", alignItems: "center", gap: 14, textDecoration: "none" }} onClick={() => setOpen(false)}>
+          <Image src="/logo-icon.png" alt="" width={42} height={42} style={{ objectFit: "contain" }} />
           <span
             style={{
               fontFamily: "var(--serif)",
               fontWeight: 400,
-              fontSize: 21,
+              fontSize: 27,
               letterSpacing: "0.16em",
               textTransform: "uppercase",
               color: "var(--cream)",

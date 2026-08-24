@@ -246,6 +246,10 @@ button {
   animation: fadeInUp 0.8s var(--ease-premium) both;
 }
 
+.page-transition {
+  animation: fadeInUp 0.5s var(--ease-premium) both;
+}
+
 .float {
   animation: floatY 4s ease-in-out infinite;
 }

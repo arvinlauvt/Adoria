@@ -47,7 +47,7 @@ export default function Footer() {
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 9, fontSize: 13, color: "rgba(247,240,228,.7)" }}>
             <a href="/track" style={{ color: "inherit", textDecoration: "none" }}>Track your order</a>
-            <a href="/allergens" style={{ color: "inherit", textDecoration: "none" }}>Delivery &amp; dates</a>
+            <a href="/about#delivery-and-dates" style={{ color: "inherit", textDecoration: "none" }}>Delivery &amp; dates</a>
             <a href="/allergens" style={{ color: "inherit", textDecoration: "none" }}>Allergens</a>
             <a href="https://wa.me/60106509189" target="_blank" rel="noreferrer" style={{ color: "inherit", textDecoration: "none" }}>Contact</a>
           </div>

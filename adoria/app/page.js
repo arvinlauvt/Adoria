@@ -32,7 +32,7 @@ export default function Home() {
           height={420}
           aria-hidden="true"
           className="float"
-          style={{ position: "absolute", right: -40, top: 40, width: 320, height: "auto", opacity: 0.07 }}
+          style={{ position: "absolute", right: -60, top: 20, width: 460, height: "auto", opacity: 0.1 }}
         />
         <div className="wrap" style={{ maxWidth: 900, position: "relative" }}>
           <div
@@ -87,7 +87,7 @@ export default function Home() {
       </div>
 
       {/* The box — stats grid. Desktop only; the mobile home goes straight from hero to catalog. */}
-      <section className="the-box-section" style={{ padding: "96px 32px" }}>
+      <section id="the-box" className="the-box-section" style={{ padding: "96px 32px" }}>
         <div className="wrap" style={{ maxWidth: 1100 }}>
           <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) minmax(0,1.05fr)", gap: 72, alignItems: "center" }} className="responsive-two-col">
             <Reveal>

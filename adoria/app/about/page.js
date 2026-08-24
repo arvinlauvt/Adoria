@@ -59,7 +59,7 @@ export default function AboutPage() {
             an upgrade on fruit and flowers when visiting someone.
           </p>
 
-          <h2 style={{ margin: "0 0 12px", fontWeight: 400, fontSize: 24, color: "var(--coffee)" }}>Why the date matters</h2>
+          <h2 id="delivery-and-dates" style={{ margin: "0 0 12px", fontWeight: 400, fontSize: 24, color: "var(--coffee)" }}>Why the date matters</h2>
           <p style={{ margin: "0 0 40px", fontWeight: 300, fontSize: 16, lineHeight: 1.8, color: "#5a4a3c" }}>
             Most gifts arrive whenever the courier gets round to it. We take the date first and
             work backwards — baking, writing, and dispatch are all scheduled against the day it

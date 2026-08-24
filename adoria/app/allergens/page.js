@@ -1,3 +1,5 @@
+import Reveal from "../../components/Reveal";
+
 const FLAVOR_COLUMNS = ["Dark", "Milk", "White"];
 
 const ALWAYS_PRESENT = [
@@ -58,6 +60,7 @@ export default function AllergensPage() {
         }}
       >
         <div className="wrap" style={{ maxWidth: 900, paddingBottom: 96 }}>
+          <Reveal>
           <h2 style={{ margin: "0 0 8px", fontWeight: 400, fontSize: 22, color: "var(--coffee)" }}>Always present</h2>
           <p style={{ margin: "0 0 22px", fontWeight: 300, fontSize: 14, lineHeight: 1.7, color: "#5a4a3c" }}>
             In every cube, every flavour, every box.
@@ -82,7 +85,9 @@ export default function AllergensPage() {
               </div>
             ))}
           </div>
+          </Reveal>
 
+          <Reveal delay={0.05}>
           <h2 style={{ margin: "0 0 8px", fontWeight: 400, fontSize: 22, color: "var(--coffee)" }}>By flavour</h2>
           <p style={{ margin: "0 0 22px", fontWeight: 300, fontSize: 14, lineHeight: 1.7, color: "#5a4a3c" }}>
             Mix cubes freely — but the box travels as one tray, so treat the strictest column as
@@ -129,7 +134,9 @@ export default function AllergensPage() {
               a severe or anaphylactic allergy, please don&apos;t send a box.
             </p>
           </div>
+          </Reveal>
 
+          <Reveal delay={0.05}>
           <h2 style={{ margin: "44px 0 8px", fontWeight: 400, fontSize: 22, color: "var(--coffee)" }}>Add-ons &amp; packaging</h2>
           <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 6 }}>
             {[
@@ -143,13 +150,16 @@ export default function AllergensPage() {
               </div>
             ))}
           </div>
+          </Reveal>
 
+          <Reveal delay={0.05}>
           <h2 style={{ margin: "44px 0 8px", fontWeight: 400, fontSize: 22, color: "var(--coffee)" }}>Keeping them</h2>
           <p style={{ margin: 0, fontWeight: 300, fontSize: 15, lineHeight: 1.8, color: "#5a4a3c" }}>
             Best within 7 days of delivery. Store sealed, cool and dry, out of direct sun —
             Malaysian humidity will soften a cube faster than anything else. Do not refrigerate;
             the chocolate will bloom.
           </p>
+          </Reveal>
         </div>
       </section>
 

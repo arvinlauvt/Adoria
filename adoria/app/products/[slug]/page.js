@@ -20,7 +20,7 @@ export default function ProductPage({ params }) {
             backgroundSize: "24px 24px",
           }}
         >
-          <div style={{ position: "sticky", top: 20 }}>
+          <div style={{ position: "sticky", top: 20, maxWidth: 640 }}>
             <div
               style={{
                 aspectRatio: "1/1",
