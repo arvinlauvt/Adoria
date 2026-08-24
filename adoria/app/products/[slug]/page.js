@@ -73,7 +73,6 @@ export default function ProductPage({ params }) {
           style={{
             backgroundImage: "radial-gradient(rgba(185, 138, 61, 0.3) 1px, transparent 1px)",
             backgroundSize: "24px 24px",
-            borderLeft: "1px solid rgba(43,28,20,.12)",
           }}
         >
           <div style={{ marginTop: 56, padding: "40px 32px 56px", background: "#fffaf0", borderRadius: "28px 28px 0 0", minHeight: 700 }}>

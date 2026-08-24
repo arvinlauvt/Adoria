@@ -23,7 +23,7 @@ export default function Home() {
           backgroundSize: "24px 24px",
           overflow: "hidden",
           padding: "104px 32px 88px",
-          minHeight: "88vh",
+          minHeight: "78vh",
           display: "flex",
           alignItems: "center",
         }}
@@ -35,7 +35,7 @@ export default function Home() {
           height={922}
           aria-hidden="true"
           className="float"
-          style={{ position: "absolute", right: "-4vw", top: "41%", transform: "translateY(-50%)", width: "64vw", maxWidth: 1150, minWidth: 500, height: "auto", opacity: 0.16 }}
+          style={{ position: "absolute", right: "-7vw", top: "37%", transform: "translateY(-50%)", width: "64vw", maxWidth: 1150, minWidth: 500, height: "auto", opacity: 0.16 }}
         />
         <div className="wrap" style={{ maxWidth: 900, position: "relative", width: "100%" }}>
           <div
