@@ -257,6 +257,10 @@ button {
   animation: fadeInUp 0.5s var(--ease-premium) both;
 }
 
+.step-transition {
+  animation: fadeInUp 0.45s var(--ease-premium) both;
+}
+
 .float {
   animation: floatY 4s ease-in-out infinite;
 }

@@ -214,6 +214,7 @@ export default function OrderForm({ product }) {
   return (
     <Reveal>
       <div className="card" style={{ padding: "36px 32px", boxShadow: "none", border: "none", background: "transparent" }}>
+        <div key={step} className="step-transition">
         <StepHeader
           index={step}
           total={steps.length}
@@ -592,6 +593,7 @@ export default function OrderForm({ product }) {
             </div>
           </div>
         )}
+        </div>
 
         {error && <p className="error-text" style={{ marginTop: 16 }}>{error}</p>}
 

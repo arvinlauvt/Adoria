@@ -18,9 +18,9 @@ export default function AboutPage() {
           src="/logo-icon.png"
           alt=""
           width={54}
-          height={54}
+          height={36}
           className="animate-in"
-          style={{ opacity: 0.9, marginBottom: 26 }}
+          style={{ objectFit: "contain", opacity: 0.9, marginBottom: 26 }}
         />
         <h1 className="animate-in" style={{ margin: 0, fontWeight: 300, fontSize: "clamp(2.125rem, 7vw, 3rem)", color: "var(--cream)" }}>
           What is Cubelle?
