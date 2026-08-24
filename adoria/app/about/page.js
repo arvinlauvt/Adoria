@@ -17,8 +17,8 @@ export default function AboutPage() {
         <Image
           src="/logo-icon.png"
           alt=""
-          width={54}
-          height={36}
+          width={96}
+          height={64}
           className="animate-in"
           style={{ objectFit: "contain", opacity: 0.9, marginBottom: 26 }}
         />
