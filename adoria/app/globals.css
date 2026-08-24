@@ -123,6 +123,15 @@ button {
   box-shadow: none;
 }
 
+/* .btn:hover fills with a dark solid background — on touch devices,
+   tapping a button often triggers :hover as well as :active, and
+   .btn:hover's higher specificity was winning over .btn-outline's
+   transparent background, making outline buttons flash solid dark on
+   tap (reported as the checkout "Back" button "going really black"). */
+.btn-outline:hover {
+  background: transparent;
+}
+
 .field {
   display: flex;
   flex-direction: column;
