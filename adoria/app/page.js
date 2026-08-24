@@ -31,11 +31,11 @@ export default function Home() {
         <Image
           src="/logo-icon.png"
           alt=""
-          width={620}
-          height={620}
+          width={1000}
+          height={1000}
           aria-hidden="true"
           className="float"
-          style={{ position: "absolute", right: "-6vw", top: "50%", transform: "translateY(-50%)", width: "40vw", maxWidth: 660, minWidth: 340, height: "auto", opacity: 0.14 }}
+          style={{ position: "absolute", right: "-3vw", top: "50%", transform: "translateY(-50%)", width: "58vw", maxWidth: 980, minWidth: 460, height: "auto", opacity: 0.16 }}
         />
         <div className="wrap" style={{ maxWidth: 900, position: "relative", width: "100%" }}>
           <div
@@ -229,7 +229,7 @@ export default function Home() {
       </section>
 
       {/* Quote line — desktop only, per the mobile home spec */}
-      <section className="quote-line" style={{ padding: "0 32px 88px", textAlign: "center" }}>
+      <section className="quote-line" style={{ padding: "0 32px 88px", textAlign: "center", background: "#fff" }}>
         <Reveal>
           <p style={{ fontFamily: "Parisienne, cursive", fontSize: 34, lineHeight: 1.5, color: "var(--gold)", maxWidth: 480, margin: "0 auto" }}>
             Some things deserve more than a text message.

@@ -69,15 +69,23 @@ export default function ProductPage({ params }) {
           </div>
         </div>
 
-        <div style={{ padding: "40px 32px 56px", background: "#fffaf0", borderLeft: "1px solid rgba(43,28,20,.12)", minHeight: 700 }}>
-          {product.comingSoon ? (
-            <div className="card" style={{ textAlign: "center" }}>
-              <p style={{ fontFamily: "var(--serif)", fontSize: 18, color: "var(--coffee)" }}>Coming soon.</p>
-              <p style={{ color: "#5a4a3c", fontSize: 14 }}>This edition isn't open for orders yet — check back soon.</p>
-            </div>
-          ) : (
-            <OrderForm product={product} />
-          )}
+        <div
+          style={{
+            backgroundImage: "radial-gradient(rgba(185, 138, 61, 0.3) 1px, transparent 1px)",
+            backgroundSize: "24px 24px",
+            borderLeft: "1px solid rgba(43,28,20,.12)",
+          }}
+        >
+          <div style={{ marginTop: 56, padding: "40px 32px 56px", background: "#fffaf0", borderRadius: "28px 28px 0 0", minHeight: 700 }}>
+            {product.comingSoon ? (
+              <div className="card" style={{ textAlign: "center" }}>
+                <p style={{ fontFamily: "var(--serif)", fontSize: 18, color: "var(--coffee)" }}>Coming soon.</p>
+                <p style={{ color: "#5a4a3c", fontSize: 14 }}>This edition isn't open for orders yet — check back soon.</p>
+              </div>
+            ) : (
+              <OrderForm product={product} />
+            )}
+          </div>
         </div>
       </div>
     </main>
