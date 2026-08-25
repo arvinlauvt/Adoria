@@ -26,14 +26,15 @@ function boxTotal(box) {
   return box.Dark + box.Milk + box.White;
 }
 
-function buildCalendar(minDate) {
+function buildCalendar(minDate, monthOffset) {
   const today = new Date();
-  const month = today.getMonth();
-  const year = today.getFullYear();
+  const base = new Date(today.getFullYear(), today.getMonth() + monthOffset, 1);
+  const month = base.getMonth();
+  const year = base.getFullYear();
   const first = new Date(year, month, 1);
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const startWeekday = first.getDay();
-  const monthLabel = today.toLocaleDateString("en-MY", { month: "long", year: "numeric" });
+  const monthLabel = base.toLocaleDateString("en-MY", { month: "long", year: "numeric" });
   const cells = [];
   for (let i = 0; i < startWeekday; i++) cells.push(null);
   for (let d = 1; d <= daysInMonth; d++) {
@@ -89,7 +90,8 @@ export default function OrderForm({ product }) {
     d.setDate(d.getDate() + LEAD_TIME_DAYS);
     return d;
   }, []);
-  const calendar = useMemo(() => buildCalendar(minDate), [minDate]);
+  const [monthOffset, setMonthOffset] = useState(0);
+  const calendar = useMemo(() => buildCalendar(minDate, monthOffset), [minDate, monthOffset]);
 
   function addBox() {
     if (boxes.length >= 12) return;
@@ -490,7 +492,27 @@ export default function OrderForm({ product }) {
             <div style={{ border: "1px solid var(--cream-deep)", borderRadius: 10, background: "var(--cream)", padding: 18, marginBottom: 18 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 14 }}>
                 <span style={{ fontWeight: 600, fontSize: 12, color: "var(--coffee-soft)" }}>{product.occasionDateLabel}</span>
-                <span style={{ fontSize: 11, color: "#8a7a68" }}>{calendar.monthLabel} · {LEAD_TIME_DAYS}-day lead time</span>
+                <span style={{ fontSize: 11, color: "#8a7a68" }}>{LEAD_TIME_DAYS}-day lead time</span>
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+                <button
+                  type="button"
+                  className="stepper-btn"
+                  disabled={monthOffset <= 0}
+                  onClick={() => setMonthOffset((m) => m - 1)}
+                  aria-label="Previous month"
+                >
+                  ‹
+                </button>
+                <span style={{ fontSize: 12, fontWeight: 600, color: "var(--coffee)" }}>{calendar.monthLabel}</span>
+                <button
+                  type="button"
+                  className="stepper-btn"
+                  onClick={() => setMonthOffset((m) => m + 1)}
+                  aria-label="Next month"
+                >
+                  ›
+                </button>
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", gap: 5, marginBottom: 12 }}>
                 {WEEKDAYS.map((w, i) => (
