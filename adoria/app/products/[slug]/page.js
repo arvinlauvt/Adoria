@@ -16,7 +16,7 @@ export default function ProductPage({ params }) {
         <div
           style={{
             padding: "56px 32px 72px",
-            backgroundImage: "radial-gradient(rgba(185, 138, 61, 0.3) 1px, transparent 1px)",
+            backgroundImage: "radial-gradient(var(--dot-texture) 1px, transparent 1px)",
             backgroundSize: "24px 24px",
           }}
         >
@@ -41,24 +41,24 @@ export default function ProductPage({ params }) {
                 />
               ))}
             </div>
-            <div style={{ fontSize: 10, letterSpacing: "0.26em", textTransform: "uppercase", color: "var(--gold)" }}>
+            <div style={{ fontSize: 10, letterSpacing: "0.26em", textTransform: "uppercase", color: "var(--accent-text)" }}>
               {product.edition}
             </div>
-            <h1 style={{ margin: "14px 0 10px", fontWeight: 400, fontSize: "clamp(1.875rem, 6vw, 2.625rem)", lineHeight: 1.08, color: "var(--coffee)" }}>
+            <h1 style={{ margin: "14px 0 10px", fontWeight: 400, fontSize: "clamp(1.875rem, 6vw, 2.625rem)", lineHeight: 1.08, color: "var(--text-heading)" }}>
               {product.name}
             </h1>
-            <p style={{ margin: "0 0 22px", fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 18, color: "var(--gold)" }}>
+            <p style={{ margin: "0 0 22px", fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 18, color: "var(--accent-text)" }}>
               {product.tagline}
             </p>
-            <p style={{ margin: 0, maxWidth: 460, fontWeight: 300, fontSize: 15, lineHeight: 1.75, color: "#5a4a3c" }}>
+            <p style={{ margin: 0, maxWidth: 460, fontWeight: 300, fontSize: 15, lineHeight: 1.75, color: "var(--text-body)" }}>
               {product.description}
             </p>
 
-            <div style={{ marginTop: 30, borderTop: "1px solid rgba(43,28,20,.14)", paddingTop: 22 }}>
-              <div style={{ fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--gold)", marginBottom: 14 }}>
+            <div style={{ marginTop: 30, borderTop: "1px solid var(--border-panel)", paddingTop: 22 }}>
+              <div style={{ fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--accent-text)", marginBottom: 14 }}>
                 What's inside
               </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 9, fontWeight: 300, fontSize: 14, color: "#5a4a3c" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 9, fontWeight: 300, fontSize: 14, color: "var(--text-body)" }}>
                 <span>Up to {CUBE_CAP} cubes — Noir Cubes, Cacao Sepia, mixed as you like</span>
                 <span>Matte black 15×15cm box</span>
                 <span>Your choice: black-stock card, or a full letter</span>
@@ -71,15 +71,15 @@ export default function ProductPage({ params }) {
 
         <div
           style={{
-            backgroundImage: "radial-gradient(rgba(185, 138, 61, 0.3) 1px, transparent 1px)",
+            backgroundImage: "radial-gradient(var(--dot-texture) 1px, transparent 1px)",
             backgroundSize: "24px 24px",
           }}
         >
-          <div style={{ marginTop: 56, padding: "40px 32px 56px", background: "#fffaf0", borderRadius: "28px 28px 0 0", minHeight: 700 }}>
+          <div style={{ marginTop: 56, padding: "40px 32px 56px", background: "var(--bg-panel)", borderRadius: "28px 28px 0 0", minHeight: 700, transition: "background-color 0.25s var(--ease-premium)" }}>
             {product.comingSoon ? (
               <div className="card" style={{ textAlign: "center" }}>
-                <p style={{ fontFamily: "var(--serif)", fontSize: 18, color: "var(--coffee)" }}>Coming soon.</p>
-                <p style={{ color: "#5a4a3c", fontSize: 14 }}>This edition isn't open for orders yet — check back soon.</p>
+                <p style={{ fontFamily: "var(--serif)", fontSize: 18, color: "var(--text-heading)" }}>Coming soon.</p>
+                <p style={{ color: "var(--text-body)", fontSize: 14 }}>This edition isn't open for orders yet — check back soon.</p>
               </div>
             ) : (
               <OrderForm product={product} />

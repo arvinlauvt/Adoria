@@ -21,9 +21,9 @@ const BY_FLAVOUR = [
 ];
 
 function cellColor(value) {
-  if (value === "No") return "#a39684";
-  if (value === "May contain") return "#8a7a68";
-  return "#8a5a34";
+  if (value === "No") return "var(--allergen-no)";
+  if (value === "May contain") return "var(--text-muted)";
+  return "var(--allergen-yes)";
 }
 
 export default function AllergensPage() {
@@ -31,10 +31,11 @@ export default function AllergensPage() {
     <main>
       <section
         style={{
-          backgroundColor: "var(--coffee)",
+          backgroundColor: "var(--bg-deep)",
           backgroundImage: "radial-gradient(rgba(217, 171, 92, 0.2) 1px, transparent 1px)",
           backgroundSize: "24px 24px",
           padding: "64px 32px 52px",
+          transition: "background-color 0.25s var(--ease-premium)",
         }}
       >
         <div className="wrap" style={{ maxWidth: 900 }}>
@@ -55,14 +56,14 @@ export default function AllergensPage() {
       <section
         style={{
           padding: "52px 32px 0",
-          backgroundImage: "radial-gradient(rgba(185, 138, 61, 0.3) 1px, transparent 1px)",
+          backgroundImage: "radial-gradient(var(--dot-texture) 1px, transparent 1px)",
           backgroundSize: "24px 24px",
         }}
       >
         <div className="wrap" style={{ maxWidth: 900, paddingBottom: 96 }}>
           <Reveal>
-          <h2 style={{ margin: "0 0 8px", fontWeight: 400, fontSize: 22, color: "var(--coffee)" }}>Always present</h2>
-          <p style={{ margin: "0 0 22px", fontWeight: 300, fontSize: 14, lineHeight: 1.7, color: "#5a4a3c" }}>
+          <h2 style={{ margin: "0 0 8px", fontWeight: 400, fontSize: 22, color: "var(--text-heading)" }}>Always present</h2>
+          <p style={{ margin: "0 0 22px", fontWeight: 300, fontSize: 14, lineHeight: 1.7, color: "var(--text-body)" }}>
             In every cube, every flavour, every box.
           </p>
           <div
@@ -70,8 +71,8 @@ export default function AllergensPage() {
               display: "grid",
               gridTemplateColumns: "repeat(2, minmax(0,1fr))",
               gap: 1,
-              background: "rgba(43,28,20,.12)",
-              border: "1px solid rgba(43,28,20,.12)",
+              background: "var(--border-panel)",
+              border: "1px solid var(--border-panel)",
               borderRadius: 8,
               overflow: "hidden",
               marginBottom: 44,
@@ -79,22 +80,22 @@ export default function AllergensPage() {
             className="allergen-always-grid"
           >
             {ALWAYS_PRESENT.map(([name, note]) => (
-              <div key={name} style={{ background: "#fffaf0", padding: "18px 20px" }}>
-                <div style={{ fontWeight: 600, fontSize: 14, color: "var(--coffee)" }}>{name}</div>
-                <div style={{ fontWeight: 300, fontSize: 13, color: "#8a7a68", marginTop: 5 }}>{note}</div>
+              <div key={name} style={{ background: "var(--bg-panel)", padding: "18px 20px" }}>
+                <div style={{ fontWeight: 600, fontSize: 14, color: "var(--text-heading)" }}>{name}</div>
+                <div style={{ fontWeight: 300, fontSize: 13, color: "var(--text-muted)", marginTop: 5 }}>{note}</div>
               </div>
             ))}
           </div>
           </Reveal>
 
           <Reveal delay={0.05}>
-          <h2 style={{ margin: "0 0 8px", fontWeight: 400, fontSize: 22, color: "var(--coffee)" }}>By flavour</h2>
-          <p style={{ margin: "0 0 22px", fontWeight: 300, fontSize: 14, lineHeight: 1.7, color: "#5a4a3c" }}>
+          <h2 style={{ margin: "0 0 8px", fontWeight: 400, fontSize: 22, color: "var(--text-heading)" }}>By flavour</h2>
+          <p style={{ margin: "0 0 22px", fontWeight: 300, fontSize: 14, lineHeight: 1.7, color: "var(--text-body)" }}>
             Mix cubes freely — but the box travels as one tray, so treat the strictest column as
             the whole box.
           </p>
-          <div style={{ border: "1px solid rgba(43,28,20,.12)", borderRadius: 8, overflow: "hidden", background: "#fffaf0" }}>
-            <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1.5fr) repeat(2,minmax(0,1fr))", background: "var(--coffee)" }}>
+          <div style={{ border: "1px solid var(--border-panel)", borderRadius: 8, overflow: "hidden", background: "var(--bg-panel)" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1.5fr) repeat(2,minmax(0,1fr))", background: "var(--bg-deep)" }}>
               <div style={{ padding: "13px 18px", fontSize: 11, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(247,240,228,.6)" }}>
                 Allergen
               </div>
@@ -110,11 +111,11 @@ export default function AllergensPage() {
                 style={{
                   display: "grid",
                   gridTemplateColumns: "minmax(0,1.5fr) repeat(2,minmax(0,1fr))",
-                  borderBottom: i < BY_FLAVOUR.length - 1 ? "1px solid rgba(43,28,20,.08)" : "none",
-                  background: i % 2 ? "var(--cream)" : "transparent",
+                  borderBottom: i < BY_FLAVOUR.length - 1 ? "1px solid var(--border-panel)" : "none",
+                  background: i % 2 ? "var(--bg-page)" : "transparent",
                 }}
               >
-                <div style={{ padding: "14px 18px", fontSize: 14, color: "var(--coffee-soft)" }}>{allergen}</div>
+                <div style={{ padding: "14px 18px", fontSize: 14, color: "var(--text-body)" }}>{allergen}</div>
                 {values.map((v, vi) => (
                   <div key={vi} style={{ padding: "14px 12px", textAlign: "center", fontSize: v === "May contain" ? 13 : 13, fontWeight: v === "May contain" ? 400 : 600, color: cellColor(v) }}>
                     {v}
@@ -124,11 +125,11 @@ export default function AllergensPage() {
             ))}
           </div>
 
-          <div style={{ margin: "36px 0 0", padding: "24px 26px", border: "1px solid var(--gold)", borderRadius: 8, background: "#fdf6e6" }}>
-            <div style={{ fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", color: "#8a5a34", marginBottom: 12 }}>
+          <div style={{ margin: "36px 0 0", padding: "24px 26px", border: "1px solid var(--accent-text)", borderRadius: 8, background: "var(--bg-panel)" }}>
+            <div style={{ fontSize: 11, letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--allergen-yes)", marginBottom: 12 }}>
               Cross-contact
             </div>
-            <p style={{ margin: 0, fontWeight: 300, fontSize: 14, lineHeight: 1.7, color: "#5a4a3c" }}>
+            <p style={{ margin: 0, fontWeight: 300, fontSize: 14, lineHeight: 1.7, color: "var(--text-body)" }}>
               One kitchen, shared equipment. Nuts, peanuts and sesame are handled on the same
               surfaces as every batch, so we cannot call any Cubelle nut-free. If the recipient has
               a severe or anaphylactic allergy, please don&apos;t send a box.
@@ -137,24 +138,24 @@ export default function AllergensPage() {
           </Reveal>
 
           <Reveal delay={0.05}>
-          <h2 style={{ margin: "44px 0 8px", fontWeight: 400, fontSize: 22, color: "var(--coffee)" }}>Add-ons &amp; packaging</h2>
+          <h2 style={{ margin: "44px 0 8px", fontWeight: 400, fontSize: 22, color: "var(--text-heading)" }}>Add-ons &amp; packaging</h2>
           <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 6 }}>
             {[
               ["Flower Frame Kit", "Decorative only — not food grade, not for eating."],
               ["Custom Brass Bookmark", "Engraved metal, sealed separately from the tray."],
               ["Card & gold ink", "Non-toxic ink on black stock; keep the card out of the tray if storing."],
             ].map(([k, v]) => (
-              <div key={k} style={{ display: "flex", gap: 14, padding: "14px 0", borderBottom: "1px solid rgba(43,28,20,.1)" }}>
-                <span style={{ minWidth: 160, fontWeight: 600, fontSize: 13, color: "var(--coffee)" }}>{k}</span>
-                <span style={{ fontWeight: 300, fontSize: 14, color: "#5a4a3c" }}>{v}</span>
+              <div key={k} style={{ display: "flex", gap: 14, padding: "14px 0", borderBottom: "1px solid var(--border-panel)" }}>
+                <span style={{ minWidth: 160, fontWeight: 600, fontSize: 13, color: "var(--text-heading)" }}>{k}</span>
+                <span style={{ fontWeight: 300, fontSize: 14, color: "var(--text-body)" }}>{v}</span>
               </div>
             ))}
           </div>
           </Reveal>
 
           <Reveal delay={0.05}>
-          <h2 style={{ margin: "44px 0 8px", fontWeight: 400, fontSize: 22, color: "var(--coffee)" }}>Keeping them</h2>
-          <p style={{ margin: 0, fontWeight: 300, fontSize: 15, lineHeight: 1.8, color: "#5a4a3c" }}>
+          <h2 style={{ margin: "44px 0 8px", fontWeight: 400, fontSize: 22, color: "var(--text-heading)" }}>Keeping them</h2>
+          <p style={{ margin: 0, fontWeight: 300, fontSize: 15, lineHeight: 1.8, color: "var(--text-body)" }}>
             Best within 7 days of delivery. Store sealed, cool and dry, out of direct sun —
             Malaysian humidity will soften a cube faster than anything else. Do not refrigerate;
             the chocolate will bloom.
@@ -163,8 +164,8 @@ export default function AllergensPage() {
         </div>
       </section>
 
-      <div style={{ padding: "34px 32px 40px", background: "#fffaf0", borderTop: "1px solid rgba(43,28,20,.1)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 24, flexWrap: "wrap" }}>
-        <p style={{ margin: 0, maxWidth: 440, fontWeight: 300, fontSize: 13, lineHeight: 1.6, color: "#8a7a68" }}>
+      <div style={{ padding: "34px 32px 40px", background: "var(--bg-panel)", borderTop: "1px solid var(--border-panel)", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 24, flexWrap: "wrap" }}>
+        <p style={{ margin: 0, maxWidth: 440, fontWeight: 300, fontSize: 13, lineHeight: 1.6, color: "var(--text-muted)" }}>
           Unsure about an ingredient? Message us before ordering — we&apos;ll check the batch that
           would be baked for your date.
         </p>

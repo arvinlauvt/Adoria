@@ -18,7 +18,11 @@ import Reveal from "../../../components/Reveal";
 const MAX_CARD_MESSAGE = 200;
 const MAX_LETTER = 1300;
 const WEEKDAYS = ["S", "M", "T", "W", "T", "F", "S"];
-const FLAVOR_SWATCH = { "Noir Cubes": "#2b1c14", "Cacao Sepia": "#8a5a34" };
+// "Noir Cubes" uses --coffee-soft rather than the near-black --coffee — on
+// the dark theme's near-black panels, --coffee's own value is barely
+// distinguishable from the background, making the swatch and the cube-fill
+// grid below it look unfilled even when selected.
+const FLAVOR_SWATCH = { "Noir Cubes": "var(--coffee-soft)", "Cacao Sepia": "#8a5a34" };
 
 function emptyBox() {
   return Object.fromEntries(FLAVORS.map((f) => [f, 0]));
@@ -61,13 +65,13 @@ function StepHeader({ index, total, name, title, subtitle }) {
   return (
     <div style={{ marginBottom: 26 }}>
       <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", marginBottom: 6 }}>
-        <div style={{ fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--gold)" }}>
+        <div style={{ fontSize: 11, letterSpacing: "0.22em", textTransform: "uppercase", color: "var(--accent-text)" }}>
           Step {index + 1} of {total}
         </div>
-        <div style={{ fontSize: 12, color: "#8a7a68" }}>{name}</div>
+        <div style={{ fontSize: 12, color: "var(--text-muted)" }}>{name}</div>
       </div>
-      <h2 style={{ margin: "10px 0 6px", fontWeight: 400, fontSize: 28, color: "var(--coffee)" }}>{title}</h2>
-      <p style={{ margin: "0 0 28px", fontWeight: 300, fontSize: 14, lineHeight: 1.6, color: "#8a7a68" }}>{subtitle}</p>
+      <h2 style={{ margin: "10px 0 6px", fontWeight: 400, fontSize: 28, color: "var(--text-heading)" }}>{title}</h2>
+      <p style={{ margin: "0 0 28px", fontWeight: 300, fontSize: 14, lineHeight: 1.6, color: "var(--text-muted)" }}>{subtitle}</p>
     </div>
   );
 }
@@ -311,11 +315,11 @@ export default function OrderForm({ product }) {
             {boxes.map((box, i) => {
               const remaining = CUBE_CAP - boxTotal(box);
               return (
-                <div key={i} style={{ border: "1px solid var(--cream-deep)", borderRadius: 10, padding: 20, marginBottom: 14, background: "var(--cream)" }}>
+                <div key={i} style={{ border: "1px solid var(--cream-deep)", borderRadius: 10, padding: 20, marginBottom: 14, background: "var(--bg-panel)" }}>
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
-                    <strong style={{ fontSize: 14, color: "var(--coffee)" }}>Box {i + 1}</strong>
+                    <strong style={{ fontSize: 14, color: "var(--text-heading)" }}>Box {i + 1}</strong>
                     <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                      <span style={{ fontSize: 12, color: remaining === 0 ? "var(--gold)" : "#8a7a68" }}>
+                      <span style={{ fontSize: 12, color: remaining === 0 ? "var(--accent-text)" : "var(--text-muted)" }}>
                         {remaining === 0 ? "Full" : `${remaining} of ${CUBE_CAP} left`}
                       </span>
                       <button
@@ -331,10 +335,10 @@ export default function OrderForm({ product }) {
                   </div>
 
                   {FLAVORS.map((f) => (
-                    <div key={f} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "9px 0", borderBottom: "1px solid rgba(43,28,20,.07)" }}>
+                    <div key={f} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "9px 0", borderBottom: "1px solid var(--border-panel)" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                        <span style={{ width: 22, height: 22, borderRadius: 4, background: FLAVOR_SWATCH[f], border: "1px solid rgba(43,28,20,.18)" }} />
-                        <span style={{ fontSize: 14, color: "var(--coffee-soft)" }}>{f}</span>
+                        <span style={{ width: 22, height: 22, borderRadius: 4, background: FLAVOR_SWATCH[f], border: "1px solid var(--border-panel-strong)" }} />
+                        <span style={{ fontSize: 14, color: "var(--text-label)" }}>{f}</span>
                       </div>
                       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                         <button type="button" onClick={() => setFlavorQty(i, f, -1)} className="stepper-btn">−</button>
@@ -350,10 +354,10 @@ export default function OrderForm({ product }) {
                             textAlign: "center",
                             fontFamily: "var(--serif)",
                             fontSize: 17,
-                            color: "var(--coffee)",
+                            color: "var(--text-heading)",
                             background: "transparent",
                             border: "none",
-                            borderBottom: "1px solid rgba(43,28,20,.22)",
+                            borderBottom: "1px solid var(--border-panel-strong)",
                             outline: "none",
                           }}
                         />
@@ -364,7 +368,7 @@ export default function OrderForm({ product }) {
 
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: 5, marginTop: 16, maxWidth: 180 }}>
                     {Array.from({ length: CUBE_CAP }).map((_, ci) => {
-                      let color = "rgba(43,28,20,.08)";
+                      let color = "var(--border-panel)";
                       let runningEnd = 0;
                       for (const f of FLAVORS) {
                         runningEnd += box[f];
@@ -373,14 +377,14 @@ export default function OrderForm({ product }) {
                           break;
                         }
                       }
-                      return <span key={ci} style={{ aspectRatio: "1/1", borderRadius: 3, background: color, border: "1px solid rgba(43,28,20,.12)" }} />;
+                      return <span key={ci} style={{ aspectRatio: "1/1", borderRadius: 3, background: color, border: "1px solid var(--border-panel)" }} />;
                     })}
                   </div>
                 </div>
               );
             })}
             {boxes.length < MAX_BOXES_PER_ORDER ? (
-              <button type="button" onClick={addBox} className="btn-outline btn" style={{ width: "100%", justifyContent: "center", border: "1px dashed rgba(43,28,20,.3)" }}>
+              <button type="button" onClick={addBox} className="btn-outline btn" style={{ width: "100%", justifyContent: "center", border: "1px dashed var(--border-panel-strong)" }}>
                 + Add another box
               </button>
             ) : (
@@ -403,8 +407,8 @@ export default function OrderForm({ product }) {
                 className="card"
                 style={{ padding: "14px 16px", textAlign: "left", boxShadow: "none", border: messageMode === "card" ? "2px solid var(--gold)" : "1px solid var(--cream-deep)" }}
               >
-                <div style={{ fontWeight: 600, fontSize: 13, color: "var(--coffee)" }}>Short card message</div>
-                <div style={{ fontSize: 12, color: "#8a7a68" }}>RM{PRICE_CARD} / box · 200 characters</div>
+                <div style={{ fontWeight: 600, fontSize: 13, color: "var(--text-heading)" }}>Short card message</div>
+                <div style={{ fontSize: 12, color: "var(--text-muted)" }}>RM{PRICE_CARD} / box · 200 characters</div>
               </button>
               <button
                 type="button"
@@ -412,8 +416,8 @@ export default function OrderForm({ product }) {
                 className="card"
                 style={{ padding: "14px 16px", textAlign: "left", boxShadow: "none", border: messageMode === "letter" ? "2px solid var(--gold)" : "1px solid var(--cream-deep)" }}
               >
-                <div style={{ fontWeight: 600, fontSize: 13, color: "var(--coffee)" }}>Full letter</div>
-                <div style={{ fontSize: 12, color: "#8a7a68" }}>RM{PRICE_LETTER} / box · 1,300 characters</div>
+                <div style={{ fontWeight: 600, fontSize: 13, color: "var(--text-heading)" }}>Full letter</div>
+                <div style={{ fontSize: 12, color: "var(--text-muted)" }}>RM{PRICE_LETTER} / box · 1,300 characters</div>
               </button>
             </div>
 
@@ -439,10 +443,10 @@ export default function OrderForm({ product }) {
               </div>
             ) : (
               <div style={{ marginTop: 20 }}>
-                <div style={{ fontSize: 9, letterSpacing: "0.3em", textTransform: "uppercase", color: "var(--gold)", marginBottom: 10 }}>
+                <div style={{ fontSize: 9, letterSpacing: "0.3em", textTransform: "uppercase", color: "var(--accent-text)", marginBottom: 10 }}>
                   Letter preview · {product.letterFrame === "ornate" ? "Milestone frame" : "Plain frame"}
                 </div>
-                <div style={{ position: "relative", background: "#fffdf7", border: "1px solid rgba(185,138,61,.35)", borderRadius: 3, padding: "30px 40px 26px", boxShadow: "0 10px 26px rgba(43,28,20,.1)", overflow: "hidden" }}>
+                <div style={{ position: "relative", background: "var(--surface-letter)", border: "1px solid rgba(185,138,61,.35)", borderRadius: 3, padding: "30px 40px 26px", boxShadow: "0 10px 26px rgba(43,28,20,.1)", overflow: "hidden", transition: "background-color 0.25s var(--ease-premium)" }}>
                   {product.letterFrame === "ornate" && (
                     <>
                       <Image src="/letter-corner.png" alt="" width={62} height={62} style={{ position: "absolute", top: 8, left: 8, width: 62, opacity: 0.95 }} />
@@ -457,11 +461,11 @@ export default function OrderForm({ product }) {
                   )}
                   <div style={{ position: "relative", display: "flex", flexDirection: "column", alignItems: "center", gap: 6, paddingBottom: 14 }}>
                     <Image src="/logo-icon.png" alt="" width={38} height={38} style={{ objectFit: "contain" }} />
-                    <span style={{ fontFamily: "var(--serif)", fontSize: 27, letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--coffee)" }}>Cubelle</span>
+                    <span style={{ fontFamily: "var(--serif)", fontSize: 27, letterSpacing: "0.2em", textTransform: "uppercase", color: "var(--text-heading)" }}>Cubelle</span>
                     <div style={{ fontSize: 8, fontWeight: 700, letterSpacing: "0.22em", color: "var(--gold)" }}>BOUTIQUE GIFTING ATELIER</div>
                   </div>
                   <div style={{ position: "relative", padding: "18px 30px", minHeight: 110 }}>
-                    <p style={{ margin: 0, fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 15, lineHeight: 1.7, color: "var(--coffee-soft)", whiteSpace: "pre-wrap", overflowWrap: "break-word", wordBreak: "break-word" }}>
+                    <p style={{ margin: 0, fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 15, lineHeight: 1.7, color: "var(--text-body)", whiteSpace: "pre-wrap", overflowWrap: "break-word", wordBreak: "break-word" }}>
                       {previewText}
                     </p>
                   </div>
@@ -470,7 +474,7 @@ export default function OrderForm({ product }) {
                     <span style={{ fontFamily: "Cormorant Garamond, Georgia, serif", fontSize: 13, color: "var(--gold)" }}>{previewDate}</span>
                   </div>
                 </div>
-                <p style={{ margin: "10px 0 0", fontSize: 12, color: "#8a7a68" }}>
+                <p style={{ margin: "10px 0 0", fontSize: 12, color: "var(--text-muted)" }}>
                   Anniversary and Hostess letters use the ornate frame. Congratulations letters use the plain rule frame.
                 </p>
               </div>
@@ -487,8 +491,8 @@ export default function OrderForm({ product }) {
                 className="card"
                 style={{ padding: "14px 16px", textAlign: "left", boxShadow: "none", border: addonSelected ? "2px solid var(--gold)" : "1px solid var(--cream-deep)" }}
               >
-                <div style={{ fontWeight: 600, fontSize: 14, color: "var(--coffee)" }}>Yes, add {product.addon.label.toLowerCase()}</div>
-                <div style={{ fontSize: 12, color: "#8a7a68" }}>+RM{ADDON_PRICES[product.addon.type]} per box</div>
+                <div style={{ fontWeight: 600, fontSize: 14, color: "var(--text-heading)" }}>Yes, add {product.addon.label.toLowerCase()}</div>
+                <div style={{ fontSize: 12, color: "var(--text-muted)" }}>+RM{ADDON_PRICES[product.addon.type]} per box</div>
               </button>
               <button
                 type="button"
@@ -496,8 +500,8 @@ export default function OrderForm({ product }) {
                 className="card"
                 style={{ padding: "14px 16px", textAlign: "left", boxShadow: "none", border: !addonSelected ? "2px solid var(--gold)" : "1px solid var(--cream-deep)" }}
               >
-                <div style={{ fontWeight: 600, fontSize: 14, color: "var(--coffee)" }}>No {product.addon.label.toLowerCase()}</div>
-                <div style={{ fontSize: 12, color: "#8a7a68" }}>Just the box and card</div>
+                <div style={{ fontWeight: 600, fontSize: 14, color: "var(--text-heading)" }}>No {product.addon.label.toLowerCase()}</div>
+                <div style={{ fontSize: 12, color: "var(--text-muted)" }}>Just the box and card</div>
               </button>
             </div>
 
@@ -511,8 +515,8 @@ export default function OrderForm({ product }) {
                     className="card"
                     style={{ padding: 8, textAlign: "center", boxShadow: "none", border: flowerChoice === f.name ? "2px solid var(--gold)" : "1px solid var(--cream-deep)" }}
                   >
-                    <div style={{ width: "100%", aspectRatio: "1", borderRadius: 8, marginBottom: 6, background: f.color, border: "1px solid rgba(43,28,20,.1)" }} />
-                    <span style={{ fontSize: 11, color: "var(--coffee-soft)" }}>{f.name}</span>
+                    <div style={{ width: "100%", aspectRatio: "1", borderRadius: 8, marginBottom: 6, background: f.color, border: "1px solid var(--border-panel)" }} />
+                    <span style={{ fontSize: 11, color: "var(--text-label)" }}>{f.name}</span>
                   </button>
                 ))}
               </div>
@@ -531,10 +535,10 @@ export default function OrderForm({ product }) {
               <input id="recipient" placeholder="Who it's for" value={recipientName} onChange={(e) => setRecipientName(e.target.value)} required />
             </div>
 
-            <div style={{ border: "1px solid var(--cream-deep)", borderRadius: 10, background: "var(--cream)", padding: 18, marginBottom: 18 }}>
+            <div style={{ border: "1px solid var(--cream-deep)", borderRadius: 10, background: "var(--bg-panel)", padding: 18, marginBottom: 18, transition: "background-color 0.25s var(--ease-premium)" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 14 }}>
-                <span style={{ fontWeight: 600, fontSize: 12, color: "var(--coffee-soft)" }}>{product.occasionDateLabel}</span>
-                <span style={{ fontSize: 11, color: "#8a7a68" }}>{LEAD_TIME_DAYS}-day lead time · crossed-out dates are fully booked</span>
+                <span style={{ fontWeight: 600, fontSize: 12, color: "var(--text-label)" }}>{product.occasionDateLabel}</span>
+                <span style={{ fontSize: 11, color: "var(--text-muted)" }}>{LEAD_TIME_DAYS}-day lead time · crossed-out dates are fully booked</span>
               </div>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
                 <button
@@ -546,7 +550,7 @@ export default function OrderForm({ product }) {
                 >
                   ‹
                 </button>
-                <span style={{ fontSize: 12, fontWeight: 600, color: "var(--coffee)" }}>{calendar.monthLabel}</span>
+                <span style={{ fontSize: 12, fontWeight: 600, color: "var(--text-heading)" }}>{calendar.monthLabel}</span>
                 <button
                   type="button"
                   className="stepper-btn"
@@ -558,7 +562,7 @@ export default function OrderForm({ product }) {
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", gap: 5, marginBottom: 12 }}>
                 {WEEKDAYS.map((w, i) => (
-                  <span key={i} style={{ textAlign: "center", fontSize: 9, fontWeight: 600, letterSpacing: "0.08em", color: "#8a7a68" }}>
+                  <span key={i} style={{ textAlign: "center", fontSize: 9, fontWeight: 600, letterSpacing: "0.08em", color: "var(--text-muted)" }}>
                     {w}
                   </span>
                 ))}
@@ -584,8 +588,8 @@ export default function OrderForm({ product }) {
                         fontFamily: "var(--sans)",
                         cursor: disabled ? "not-allowed" : "pointer",
                         textDecoration: isFull ? "line-through" : "none",
-                        background: selected ? "var(--coffee)" : "transparent",
-                        color: disabled ? "#c9bfae" : selected ? "var(--cream)" : "var(--coffee-soft)",
+                        background: selected ? "var(--btn-primary-bg)" : "transparent",
+                        color: disabled ? "var(--text-muted)" : selected ? "var(--btn-primary-text)" : "var(--text-label)",
                       }}
                     >
                       {c.n}
@@ -593,7 +597,7 @@ export default function OrderForm({ product }) {
                   );
                 })}
               </div>
-              <div style={{ marginTop: 14, fontSize: 12, color: "#5a4a3c" }}>
+              <div style={{ marginTop: 14, fontSize: 12, color: "var(--text-body)" }}>
                 {occasionDate ? `Landing ${previewDate}` : "Pick a date"} — need it{" "}
                 <a
                   href={`https://wa.me/60106509189?text=${encodeURIComponent(
@@ -603,7 +607,7 @@ export default function OrderForm({ product }) {
                   )}`}
                   target="_blank"
                   rel="noreferrer"
-                  style={{ color: "#5a4a3c", textDecoration: "underline" }}
+                  style={{ color: "var(--text-body)", textDecoration: "underline" }}
                 >
                   sooner
                 </a>
@@ -634,7 +638,7 @@ export default function OrderForm({ product }) {
 
         {key === "review" && (
           <div>
-            <div style={{ border: "1px solid var(--cream-deep)", borderRadius: 10, background: "var(--cream)", padding: "22px 22px 18px" }}>
+            <div style={{ border: "1px solid var(--cream-deep)", borderRadius: 10, background: "var(--bg-panel)", padding: "22px 22px 18px", transition: "background-color 0.25s var(--ease-premium)" }}>
               {[
                 ["Boxes", boxes.map((b, i) => `Box ${i + 1}: ${FLAVORS.filter((f) => b[f] > 0).map((f) => `${b[f]} ${f}`).join(", ")}`).join(" · ")],
                 ["Message", messageMode === "letter" ? "Full letter" : "Short card message"],
@@ -642,20 +646,20 @@ export default function OrderForm({ product }) {
                 ["Recipient", recipientName],
                 ["Delivering to", `${street}, ${city}, ${state} ${postcode}`],
               ].map(([k, v]) => (
-                <div key={k} style={{ display: "flex", justifyContent: "space-between", gap: 20, padding: "11px 0", borderBottom: "1px solid rgba(43,28,20,.08)" }}>
-                  <span style={{ fontSize: 12, letterSpacing: "0.06em", textTransform: "uppercase", color: "#8a7a68", flexShrink: 0 }}>{k}</span>
-                  <span style={{ fontSize: 14, color: "var(--coffee)", textAlign: "right" }}>{v}</span>
+                <div key={k} style={{ display: "flex", justifyContent: "space-between", gap: 20, padding: "11px 0", borderBottom: "1px solid var(--border-panel)" }}>
+                  <span style={{ fontSize: 12, letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--text-muted)", flexShrink: 0 }}>{k}</span>
+                  <span style={{ fontSize: 14, color: "var(--text-heading)", textAlign: "right" }}>{v}</span>
                 </div>
               ))}
               <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", paddingTop: 18 }}>
                 <div>
-                  <div style={{ fontFamily: "var(--serif)", fontSize: 24, color: "var(--coffee)" }}>Total</div>
-                  <div style={{ fontSize: 12, color: "#8a7a68", marginTop: 4 }}>RM{perBox} × {boxes.length} box{boxes.length > 1 ? "es" : ""}</div>
+                  <div style={{ fontFamily: "var(--serif)", fontSize: 24, color: "var(--text-heading)" }}>Total</div>
+                  <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 4 }}>RM{perBox} × {boxes.length} box{boxes.length > 1 ? "es" : ""}</div>
                 </div>
-                <div style={{ fontFamily: "var(--serif)", fontSize: 32, color: "var(--coffee)" }}>RM{total}</div>
+                <div style={{ fontFamily: "var(--serif)", fontSize: 32, color: "var(--text-heading)" }}>RM{total}</div>
               </div>
             </div>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 16, fontSize: 12, color: "#8a7a68" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 16, fontSize: 12, color: "var(--text-muted)" }}>
               Secured by ToyyibPay · FPX &amp; cards
             </div>
           </div>
@@ -689,7 +693,7 @@ export default function OrderForm({ product }) {
                 width: i === step ? 18 : 6,
                 height: 6,
                 borderRadius: 999,
-                background: i === step ? "var(--gold)" : "var(--cream-deep)",
+                background: i === step ? "var(--gold)" : "var(--border-panel-strong)",
                 transition: "width 0.3s var(--ease-premium)",
               }}
             />

@@ -1,4 +1,10 @@
 :root {
+  /* Fixed brand colors — always the same value regardless of theme. Do not
+     reference these directly for anything that needs to invert in dark
+     mode (background/text/border roles) — use the semantic tokens below
+     instead, which route to these (or to a dedicated dark value) per
+     theme. --gold/--gold-bright/--coffee-soft are deliberately reused
+     unchanged in dark mode too (confirmed against the dark-mode design). */
   --coffee: #2b1c14;
   --coffee-soft: #3f2c20;
   --cream: #f7f0e4;
@@ -9,11 +15,102 @@
   --blush: #f3d9d0;
   --sage: #dce6d5;
   --sky: #dbe6ef;
+  --danger: #a3372a;
 
   --serif: "Fraunces", Georgia, serif;
   --sans: "Manrope", -apple-system, sans-serif;
   --script: "Herr Von Muellerhoff", cursive;
   --ease-premium: cubic-bezier(0.16, 1, 0.3, 1);
+
+  /* --- Semantic tokens: these are what components should actually use. --- */
+  --bg-page: var(--cream);
+  --bg-deep: var(--coffee);
+  --bg-panel: #fffaf0;
+  --text-heading: var(--coffee);
+  --text-body: #5a4a3c;
+  --text-muted: #8a7a68;
+  --text-label: var(--coffee-soft);
+  --accent-text: var(--gold);
+  --border-panel: rgba(43, 28, 20, 0.1);
+  --border-panel-strong: rgba(43, 28, 20, 0.2);
+  --btn-primary-bg: var(--coffee);
+  --btn-primary-text: var(--cream);
+  --btn-outline-border: var(--coffee);
+  --btn-outline-hover-bg: transparent;
+  --surface-letter: #fffdf7;
+  --bg-stat-strip: var(--coffee-soft);
+  --chip-bg: #f2e8d4;
+  --chip-text: #7a6448;
+  --allergen-yes: #8a5a34;
+  --allergen-no: #a39684;
+  --shadow-btn: 0 8px 20px rgba(43, 28, 20, 0.18);
+  --shadow-btn-hover: 0 12px 26px rgba(43, 28, 20, 0.22);
+  --shadow-card: 0 10px 30px rgba(43, 28, 20, 0.06);
+  --shadow-card-hover: 0 16px 36px rgba(43, 28, 20, 0.11);
+  --dot-texture: rgba(185, 138, 61, 0.35);
+}
+
+/* Dark theme: an explicit choice ([data-theme="dark"]) always wins; with
+   no explicit choice, follow the OS/browser preference. Every value here
+   was pulled from the founder's own dark-mode mockup, not guessed — see
+   commit message for the handful of spots we deliberately deviated from
+   it (an unconverted-looking hover color, decorative swatches that
+   shouldn't theme at all). */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg-page: #191310;
+    --bg-deep: #0d0906;
+    --bg-panel: #221a15;
+    --text-heading: #f2e7d5;
+    --text-body: #bcab98;
+    --text-muted: #9d8c79;
+    --text-label: #e0d3bf;
+    --accent-text: #d3a55c;
+    --border-panel: rgba(240, 231, 213, 0.14);
+    --border-panel-strong: rgba(240, 231, 213, 0.22);
+    --btn-primary-bg: var(--gold-bright);
+    --btn-primary-text: #170f0a;
+    --btn-outline-border: #f2e7d5;
+    --btn-outline-hover-bg: rgba(247, 240, 228, 0.08);
+    --surface-letter: #261d17;
+    --bg-stat-strip: #241a13;
+    --chip-bg: #2c2219;
+    --chip-text: #bcab98;
+    --allergen-yes: #c08f4e;
+    --allergen-no: #8e8070;
+    --shadow-btn: 0 8px 20px rgba(0, 0, 0, 0.5);
+    --shadow-btn-hover: 0 12px 26px rgba(0, 0, 0, 0.63);
+    --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.28);
+    --shadow-card-hover: 0 16px 36px rgba(0, 0, 0, 0.35);
+    --dot-texture: rgba(217, 171, 92, 0.22);
+  }
+}
+:root[data-theme="dark"] {
+  --bg-page: #191310;
+  --bg-deep: #0d0906;
+  --bg-panel: #221a15;
+  --text-heading: #f2e7d5;
+  --text-body: #bcab98;
+  --text-muted: #9d8c79;
+  --text-label: #e0d3bf;
+  --accent-text: #d3a55c;
+  --border-panel: rgba(240, 231, 213, 0.14);
+  --border-panel-strong: rgba(240, 231, 213, 0.22);
+  --btn-primary-bg: var(--gold-bright);
+  --btn-primary-text: #170f0a;
+  --btn-outline-border: #f2e7d5;
+  --btn-outline-hover-bg: rgba(247, 240, 228, 0.08);
+  --surface-letter: #261d17;
+  --bg-stat-strip: #241a13;
+  --chip-bg: #2c2219;
+  --chip-text: #bcab98;
+  --allergen-yes: #c08f4e;
+  --allergen-no: #8e8070;
+  --shadow-btn: 0 8px 20px rgba(0, 0, 0, 0.5);
+  --shadow-btn-hover: 0 12px 26px rgba(0, 0, 0, 0.63);
+  --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.28);
+  --shadow-card-hover: 0 16px 36px rgba(0, 0, 0, 0.35);
+  --dot-texture: rgba(217, 171, 92, 0.22);
 }
 
 * {
@@ -30,7 +127,7 @@ button,
 }
 
 html {
-  background-color: var(--cream);
+  background-color: var(--bg-page);
   scroll-behavior: smooth;
   /* The hero is a flex-centered min-height:88vh block, so when the web
      fonts swap in (font-display:swap) and reflow its height, the browser's
@@ -49,19 +146,20 @@ body {
 }
 
 body {
-  background-color: var(--cream);
-  background-image: radial-gradient(rgba(185, 138, 61, 0.35) 1px, transparent 1px);
+  background-color: var(--bg-page);
+  background-image: radial-gradient(var(--dot-texture) 1px, transparent 1px);
   background-size: 24px 24px;
-  color: var(--ink);
+  color: var(--text-body);
   font-family: var(--sans);
   line-height: 1.55;
+  transition: background-color 0.25s var(--ease-premium), color 0.25s var(--ease-premium);
 }
 
 h1,
 h2,
 h3 {
   font-family: var(--serif);
-  color: var(--coffee);
+  color: var(--text-heading);
   margin: 0 0 0.4em;
   font-weight: 500;
 }
@@ -85,8 +183,8 @@ button {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  background: var(--coffee);
-  color: var(--cream);
+  background: var(--btn-primary-bg);
+  color: var(--btn-primary-text);
   border: none;
   padding: 14px 30px;
   border-radius: 999px;
@@ -94,7 +192,7 @@ button {
   font-weight: 700;
   letter-spacing: 0.02em;
   text-decoration: none;
-  box-shadow: 0 8px 20px rgba(43, 28, 20, 0.18);
+  box-shadow: var(--shadow-btn);
   transition: background 0.3s var(--ease-premium), transform 0.3s var(--ease-premium),
     box-shadow 0.3s var(--ease-premium);
 }
@@ -102,7 +200,7 @@ button {
 .btn:hover {
   background: var(--coffee-soft);
   transform: translateY(-2px);
-  box-shadow: 0 12px 26px rgba(43, 28, 20, 0.22);
+  box-shadow: var(--shadow-btn-hover);
 }
 
 .btn:active {
@@ -118,8 +216,8 @@ button {
 
 .btn-outline {
   background: transparent;
-  color: var(--coffee);
-  border: 1px solid var(--coffee);
+  color: var(--btn-outline-border);
+  border: 1px solid var(--btn-outline-border);
   box-shadow: none;
 }
 
@@ -127,9 +225,11 @@ button {
    tapping a button often triggers :hover as well as :active, and
    .btn:hover's higher specificity was winning over .btn-outline's
    transparent background, making outline buttons flash solid dark on
-   tap (reported as the checkout "Back" button "going really black"). */
+   tap (reported as the checkout "Back" button "going really black"). In
+   dark mode this is a faint light tint instead of fully transparent, so
+   the button still shows a visible hover state against a dark page. */
 .btn-outline:hover {
-  background: transparent;
+  background: var(--btn-outline-hover-bg);
 }
 
 .field {
@@ -143,7 +243,7 @@ button {
 .field label {
   font-size: 13px;
   font-weight: 600;
-  color: var(--coffee-soft);
+  color: var(--text-label);
   letter-spacing: 0.02em;
 }
 
@@ -156,10 +256,11 @@ button {
   font-size: 15px;
   padding: 12px 14px;
   border: 1px solid var(--cream-deep);
-  background: #fffaf0;
+  background: var(--bg-panel);
   border-radius: 8px;
-  color: var(--ink);
-  transition: border-color 0.2s var(--ease-premium), box-shadow 0.2s var(--ease-premium);
+  color: var(--text-heading);
+  transition: border-color 0.2s var(--ease-premium), box-shadow 0.2s var(--ease-premium),
+    background-color 0.25s var(--ease-premium);
 }
 
 .field input:focus,
@@ -172,7 +273,7 @@ button {
 
 .field .hint {
   font-size: 12px;
-  color: #8a7a68;
+  color: var(--text-muted);
 }
 
 .field-row {
@@ -199,17 +300,18 @@ button {
 }
 
 .card {
-  background: #fffaf0;
+  background: var(--bg-panel);
   border: 1px solid var(--cream-deep);
   border-radius: 12px;
   padding: 32px 28px;
-  box-shadow: 0 10px 30px rgba(43, 28, 20, 0.06);
-  transition: transform 0.35s var(--ease-premium), box-shadow 0.35s var(--ease-premium);
+  box-shadow: var(--shadow-card);
+  transition: transform 0.35s var(--ease-premium), box-shadow 0.35s var(--ease-premium),
+    background-color 0.25s var(--ease-premium);
 }
 
 .card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 16px 36px rgba(43, 28, 20, 0.11);
+  box-shadow: var(--shadow-card-hover);
 }
 
 .error-text {
@@ -301,8 +403,8 @@ button {
     gap: 0 !important;
     padding: 0 0 18px !important;
     border-top: none !important;
-    background: #fffaf0;
-    border: 1px solid rgba(43, 28, 20, 0.1);
+    background: var(--bg-panel);
+    border: 1px solid var(--border-panel);
     border-radius: 8px;
     overflow: hidden;
     margin-top: 16px;
@@ -322,7 +424,7 @@ button {
     text-align: left !important;
     margin-top: 14px;
     padding-top: 14px;
-    border-top: 1px solid rgba(43, 28, 20, 0.1);
+    border-top: 1px solid var(--border-panel);
   }
   .catalog-row-inner > div:last-child > div:first-child > div:last-child {
     margin-bottom: 0 !important;
@@ -334,7 +436,7 @@ button {
     display: none !important;
   }
   .mobile-menu-btn {
-    display: block !important;
+    display: flex !important;
   }
   .mobile-menu-drawer {
     display: flex !important;
@@ -367,13 +469,14 @@ button {
   width: 28px;
   height: 28px;
   border-radius: 999px;
-  border: 1px solid rgba(43, 28, 20, 0.2);
-  background: #fffaf0;
+  border: 1px solid var(--border-panel-strong);
+  background: var(--bg-panel);
   font-weight: 600;
   font-size: 15px;
-  color: #5a4a3c;
+  color: var(--text-body);
   cursor: pointer;
-  transition: border-color 0.2s var(--ease-premium), color 0.2s var(--ease-premium);
+  transition: border-color 0.2s var(--ease-premium), color 0.2s var(--ease-premium),
+    background-color 0.25s var(--ease-premium);
 }
 .stepper-btn:hover:not(:disabled) {
   border-color: var(--gold);

@@ -13,6 +13,17 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
+        {/* Runs before first paint so the page never flashes the wrong
+            theme on load — reads the stored choice (if the visitor has
+            toggled before) and sets it as an attribute the CSS keys off.
+            With no stored choice, CSS falls back to prefers-color-scheme
+            on its own, so nothing needs to run here for that case. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              '(function(){try{var t=localStorage.getItem("cubelle-theme");if(t==="light"||t==="dark"){document.documentElement.setAttribute("data-theme",t);}}catch(e){}})();',
+          }}
+        />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
           rel="preconnect"

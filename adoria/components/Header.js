@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import ThemeToggle from "./ThemeToggle";
 
 const NAV_LINKS = [
   { href: "/#catalog", label: "The Catalog" },
@@ -18,8 +19,9 @@ export default function Header() {
     <header
       style={{
         position: "relative",
-        background: "var(--coffee)",
+        background: "var(--bg-deep)",
         borderBottom: "1px solid rgba(217,171,92,.18)",
+        transition: "background-color 0.25s var(--ease-premium)",
       }}
     >
       <div
@@ -69,6 +71,7 @@ export default function Header() {
 
         <div className="desktop-nav" style={{ display: "flex", alignItems: "center", gap: 18 }}>
           <span style={{ fontSize: 12, letterSpacing: "0.1em", color: "rgba(247,240,228,.6)" }}>MYR</span>
+          <ThemeToggle />
           <Link
             href="/#catalog"
             className="btn"
@@ -85,25 +88,26 @@ export default function Header() {
           </Link>
         </div>
 
-        <button
-          type="button"
-          className="mobile-menu-btn"
-          onClick={() => setOpen((v) => !v)}
-          aria-expanded={open}
-          aria-label={open ? "Close menu" : "Open menu"}
-          style={{
-            display: "none",
-            background: "none",
-            border: "none",
-            padding: 0,
-            font: "600 11px/1 Manrope, sans-serif",
-            letterSpacing: "0.14em",
-            color: "var(--gold-bright)",
-            cursor: "pointer",
-          }}
-        >
-          {open ? "CLOSE" : "MENU"}
-        </button>
+        <div className="mobile-menu-btn" style={{ display: "none", alignItems: "center", gap: 16 }}>
+          <ThemeToggle />
+          <button
+            type="button"
+            onClick={() => setOpen((v) => !v)}
+            aria-expanded={open}
+            aria-label={open ? "Close menu" : "Open menu"}
+            style={{
+              background: "none",
+              border: "none",
+              padding: 0,
+              font: "600 11px/1 Manrope, sans-serif",
+              letterSpacing: "0.14em",
+              color: "var(--gold-bright)",
+              cursor: "pointer",
+            }}
+          >
+            {open ? "CLOSE" : "MENU"}
+          </button>
+        </div>
       </div>
 
       {open && (
@@ -113,7 +117,7 @@ export default function Header() {
             display: "none",
             flexDirection: "column",
             padding: "8px 32px 28px",
-            background: "var(--coffee)",
+            background: "var(--bg-deep)",
             borderTop: "1px solid rgba(217,171,92,.14)",
           }}
         >
@@ -143,7 +147,7 @@ export default function Header() {
               marginTop: 20,
               justifyContent: "center",
               background: "var(--gold-bright)",
-              color: "var(--coffee)",
+              color: "var(--btn-primary-text)",
             }}
           >
             Start a box

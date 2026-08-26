@@ -2,10 +2,11 @@ export default function Footer() {
   return (
     <footer
       style={{
-        backgroundColor: "var(--coffee)",
+        backgroundColor: "var(--bg-deep)",
         backgroundImage: "radial-gradient(rgba(217, 171, 92, 0.18) 1px, transparent 1px)",
         backgroundSize: "24px 24px",
         padding: "64px 32px 40px",
+        transition: "background-color 0.25s var(--ease-premium)",
       }}
     >
       <div

@@ -18,7 +18,7 @@ export default function Home() {
       <section
         style={{
           position: "relative",
-          backgroundColor: "var(--coffee)",
+          backgroundColor: "var(--bg-deep)",
           backgroundImage: "radial-gradient(rgba(217, 171, 92, 0.22) 1px, transparent 1px)",
           backgroundSize: "24px 24px",
           overflow: "hidden",
@@ -26,6 +26,7 @@ export default function Home() {
           minHeight: "78vh",
           display: "flex",
           alignItems: "center",
+          transition: "background-color 0.25s var(--ease-premium)",
         }}
       >
         <Image
@@ -59,7 +60,7 @@ export default function Home() {
             real gold ink. One considered gift, timed to land on the date that matters.
           </p>
           <div className="animate-in" style={{ display: "flex", gap: 14, marginTop: 44, flexWrap: "wrap" }}>
-            <a href="#catalog" className="btn" style={{ padding: "16px 34px", fontSize: 14, background: "var(--gold-bright)", color: "var(--coffee)" }}>
+            <a href="#catalog" className="btn" style={{ padding: "16px 34px", fontSize: 14, background: "var(--gold-bright)", color: "var(--btn-primary-text)" }}>
               Choose your box
             </a>
             <Link href="/about" className="btn-outline btn" style={{ padding: "16px 34px", fontSize: 14, borderColor: "rgba(247,240,228,.34)", color: "var(--cream)" }}>
@@ -70,7 +71,7 @@ export default function Home() {
       </section>
 
       {/* Stat strip — desktop only; the mobile home skips straight from hero to catalog */}
-      <div className="stat-strip" style={{ display: "flex", flexWrap: "wrap", background: "var(--coffee-soft)", color: "rgba(247,240,228,.8)" }}>
+      <div className="stat-strip" style={{ display: "flex", flexWrap: "wrap", background: "var(--bg-stat-strip)", color: "rgba(247,240,228,.8)", transition: "background-color 0.25s var(--ease-premium)" }}>
         {["Small-batch baked", "Your words, on real paper", "Delivered on the date", "Kuantan delivery"].map((t) => (
           <div
             key={t}
@@ -112,27 +113,27 @@ export default function Home() {
             </Reveal>
             <Reveal delay={0.1}>
               <div>
-                <div style={{ fontSize: 11, letterSpacing: "0.3em", textTransform: "uppercase", color: "var(--gold)", marginBottom: 22 }}>
+                <div style={{ fontSize: 11, letterSpacing: "0.3em", textTransform: "uppercase", color: "var(--accent-text)", marginBottom: 22 }}>
                   The box
                 </div>
-                <h2 style={{ margin: 0, fontWeight: 400, fontSize: 44, lineHeight: 1.1, letterSpacing: "-0.01em", color: "var(--coffee)" }}>
+                <h2 style={{ margin: 0, fontWeight: 400, fontSize: 44, lineHeight: 1.1, letterSpacing: "-0.01em", color: "var(--text-heading)" }}>
                   Twenty-five cubes,<br />one card, zero shortcuts.
                 </h2>
-                <p style={{ margin: "26px 0 0", fontWeight: 300, fontSize: 16, lineHeight: 1.75, color: "#5a4a3c", maxWidth: 440 }}>
+                <p style={{ margin: "26px 0 0", fontWeight: 300, fontSize: 16, lineHeight: 1.75, color: "var(--text-body)", maxWidth: 440 }}>
                   Every box is 15×15cm, matte black, and packed by hand: up to {CUBE_CAP} cubes in
                   Noir Cubes or Cacao Sepia — as many as you want, mixed however you like — over a
                   black-stock card written in gold ink while the order is being packed.
                 </p>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1, marginTop: 38, background: "rgba(43,28,20,.12)" }}>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1, marginTop: 38, background: "var(--border-panel)" }}>
                   {[
                     [`up to ${CUBE_CAP}`, "cubes per box, mixed freely"],
                     ["1,300", "characters in a full letter, or 200 on the card"],
                     [`RM${PRICE_CARD}`, "per box, before add-ons"],
                     [`${LEAD_TIME_DAYS} day`, "lead time, date-locked delivery"],
                   ].map(([big, small]) => (
-                    <div key={big} style={{ background: "var(--cream)", padding: "20px 22px" }}>
-                      <div style={{ fontFamily: "var(--serif)", fontSize: 30, color: "var(--coffee)" }}>{big}</div>
-                      <div style={{ fontSize: 12, color: "#8a7a68", marginTop: 4 }}>{small}</div>
+                    <div key={big} style={{ background: "var(--bg-panel)", padding: "20px 22px" }}>
+                      <div style={{ fontFamily: "var(--serif)", fontSize: 30, color: "var(--text-heading)" }}>{big}</div>
+                      <div style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 4 }}>{small}</div>
                     </div>
                   ))}
                 </div>
@@ -143,12 +144,12 @@ export default function Home() {
       </section>
 
       {/* Catalog — list rows with filter pills */}
-      <section id="catalog" style={{ padding: "72px 32px 96px", background: "#fff" }}>
+      <section id="catalog" style={{ padding: "72px 32px 96px", background: "var(--bg-page)", transition: "background-color 0.25s var(--ease-premium)" }}>
         <div className="wrap" style={{ maxWidth: 1100 }}>
-          <div style={{ fontSize: 11, letterSpacing: "0.32em", textTransform: "uppercase", color: "var(--gold)", marginBottom: 20 }}>
+          <div style={{ fontSize: 11, letterSpacing: "0.32em", textTransform: "uppercase", color: "var(--accent-text)", marginBottom: 20 }}>
             The catalog
           </div>
-          <h2 style={{ margin: 0, fontWeight: 300, fontSize: "clamp(1.8rem, 4.6vw, 3.25rem)", lineHeight: 1.06, letterSpacing: "-0.02em", color: "var(--coffee)" }}>
+          <h2 style={{ margin: 0, fontWeight: 300, fontSize: "clamp(1.8rem, 4.6vw, 3.25rem)", lineHeight: 1.06, letterSpacing: "-0.02em", color: "var(--text-heading)" }}>
             Three boxes.<br />Same craft, different occasion.
           </h2>
           <div style={{ display: "flex", gap: 10, marginTop: 32, flexWrap: "wrap" }}>
@@ -161,9 +162,9 @@ export default function Home() {
                   padding: "10px 20px",
                   fontSize: 12,
                   boxShadow: "none",
-                  background: filter === f ? "var(--coffee)" : "transparent",
-                  color: filter === f ? "var(--cream)" : "#5a4a3c",
-                  border: filter === f ? "none" : "1px solid rgba(43,28,20,.24)",
+                  background: filter === f ? "var(--btn-primary-bg)" : "transparent",
+                  color: filter === f ? "var(--btn-primary-text)" : "var(--text-body)",
+                  border: filter === f ? "none" : "1px solid var(--border-panel-strong)",
                 }}
               >
                 {f}
@@ -181,7 +182,7 @@ export default function Home() {
                   gridTemplateColumns: "230px minmax(0,1fr)",
                   gap: 40,
                   padding: "40px 0",
-                  borderTop: "1px solid rgba(43,28,20,.12)",
+                  borderTop: "1px solid var(--border-panel)",
                   alignItems: "center",
                   textDecoration: "none",
                   color: "inherit",
@@ -197,17 +198,17 @@ export default function Home() {
                 />
                 <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) 170px", gap: 36, alignItems: "center" }} className="catalog-row-inner">
                   <div>
-                    <div style={{ fontSize: 10, letterSpacing: "0.26em", textTransform: "uppercase", color: "var(--gold)" }}>
+                    <div style={{ fontSize: 10, letterSpacing: "0.26em", textTransform: "uppercase", color: "var(--accent-text)" }}>
                       {p.edition}
                     </div>
-                    <h3 style={{ margin: "11px 0 8px", fontWeight: 400, fontSize: 29, color: "var(--coffee)" }}>{p.name}</h3>
-                    <p style={{ margin: "0 0 12px", fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 16, color: "var(--gold)" }}>
+                    <h3 style={{ margin: "11px 0 8px", fontWeight: 400, fontSize: 29, color: "var(--text-heading)" }}>{p.name}</h3>
+                    <p style={{ margin: "0 0 12px", fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 16, color: "var(--accent-text)" }}>
                       {p.tagline}
                     </p>
-                    <p style={{ margin: 0, fontWeight: 300, fontSize: 14, lineHeight: 1.7, color: "#5a4a3c" }}>{p.shortDescription}</p>
+                    <p style={{ margin: 0, fontWeight: 300, fontSize: 14, lineHeight: 1.7, color: "var(--text-body)" }}>{p.shortDescription}</p>
                     <div style={{ display: "flex", gap: 8, marginTop: 18, flexWrap: "wrap" }}>
                       {p.badges.map((b) => (
-                        <span key={b} style={{ padding: "6px 12px", borderRadius: 4, background: "#f2e8d4", fontSize: 11, color: "#7a6448" }}>
+                        <span key={b} style={{ padding: "6px 12px", borderRadius: 4, background: "var(--chip-bg)", fontSize: 11, color: "var(--chip-text)" }}>
                           {b}
                         </span>
                       ))}
@@ -215,8 +216,8 @@ export default function Home() {
                   </div>
                   <div style={{ textAlign: "right" }}>
                     <div>
-                      <div style={{ fontFamily: "var(--serif)", fontSize: 27, color: "var(--coffee)" }}>RM{PRICE_CARD}</div>
-                      <div style={{ fontSize: 12, color: "#8a7a68", marginBottom: 16 }}>per box</div>
+                      <div style={{ fontFamily: "var(--serif)", fontSize: 27, color: "var(--text-heading)" }}>RM{PRICE_CARD}</div>
+                      <div style={{ fontSize: 12, color: "var(--text-muted)", marginBottom: 16 }}>per box</div>
                     </div>
                     <span className="btn" style={{ padding: "13px 24px", fontSize: 13 }}>Build this box</span>
                   </div>
@@ -229,9 +230,9 @@ export default function Home() {
       </section>
 
       {/* Quote line — desktop only, per the mobile home spec */}
-      <section className="quote-line" style={{ padding: "0 32px 88px", textAlign: "center", background: "#fff" }}>
+      <section className="quote-line" style={{ padding: "0 32px 88px", textAlign: "center", background: "var(--bg-page)", transition: "background-color 0.25s var(--ease-premium)" }}>
         <Reveal>
-          <p style={{ fontFamily: "Parisienne, cursive", fontSize: 34, lineHeight: 1.5, color: "var(--gold)", maxWidth: 480, margin: "0 auto" }}>
+          <p style={{ fontFamily: "Parisienne, cursive", fontSize: 34, lineHeight: 1.5, color: "var(--accent-text)", maxWidth: 480, margin: "0 auto" }}>
             Some things deserve more than a text message.
           </p>
         </Reveal>

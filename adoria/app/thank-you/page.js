@@ -23,7 +23,7 @@ export default async function ThankYouPage({ searchParams }) {
         {paid ? (
           <>
             <h1 style={{ fontSize: 28 }}>Your box is on its way to being made</h1>
-            <p style={{ color: "#5a4a3c" }}>
+            <p style={{ color: "var(--text-body)" }}>
               Order <strong>{orderId}</strong> is confirmed. We'll box it and get it
               moving in time for the date you gave us.
             </p>
@@ -31,10 +31,10 @@ export default async function ThankYouPage({ searchParams }) {
               style={{
                 marginTop: 24,
                 padding: "14px 18px",
-                background: "var(--cream-deep)",
+                background: "var(--bg-panel)",
                 borderRadius: 4,
                 fontSize: 14,
-                color: "var(--coffee-soft)",
+                color: "var(--text-label)",
               }}
             >
               Your payment receipt has been sent to your Gmail — check your inbox (and spam
@@ -44,7 +44,7 @@ export default async function ThankYouPage({ searchParams }) {
         ) : checked ? (
           <>
             <h1 style={{ fontSize: 28 }}>We couldn't confirm that payment</h1>
-            <p style={{ color: "#5a4a3c" }}>
+            <p style={{ color: "var(--text-body)" }}>
               If money left your account, it should reconcile shortly — otherwise, please try
               again.
             </p>
@@ -55,7 +55,7 @@ export default async function ThankYouPage({ searchParams }) {
         ) : (
           <>
             <h1 style={{ fontSize: 28 }}>Thanks — almost there</h1>
-            <p style={{ color: "#5a4a3c" }}>
+            <p style={{ color: "var(--text-body)" }}>
               We're confirming your payment. This page updates automatically once it clears — no
               need to do anything else.
             </p>

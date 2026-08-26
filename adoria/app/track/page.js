@@ -34,18 +34,18 @@ function Timeline({ status }) {
                   height: 11,
                   borderRadius: 999,
                   marginTop: 5,
-                  background: done || current ? "var(--gold)" : "var(--cream)",
-                  border: done || current ? "none" : "2px solid rgba(43,28,20,.22)",
+                  background: done || current ? "var(--gold)" : "var(--bg-panel)",
+                  border: done || current ? "none" : "2px solid var(--border-panel-strong)",
                 }}
               />
               {i < STAGES.length - 1 && (
-                <span style={{ flex: 1, width: 1, background: done ? "var(--gold)" : "rgba(43,28,20,.16)" }} />
+                <span style={{ flex: 1, width: 1, background: done ? "var(--gold)" : "var(--border-panel)" }} />
               )}
             </div>
             <div style={{ paddingBottom: 26 }}>
-              <div style={{ fontWeight: 600, fontSize: 14, color: done || current ? "var(--coffee)" : "#8a7a68" }}>{s.label}</div>
-              {current && s.note && <div style={{ fontSize: 13, color: "#8a7a68", marginTop: 4 }}>In progress</div>}
-              {done && s.note && <div style={{ fontSize: 13, color: "#8a7a68", marginTop: 4 }}>{s.note}</div>}
+              <div style={{ fontWeight: 600, fontSize: 14, color: done || current ? "var(--text-heading)" : "var(--text-muted)" }}>{s.label}</div>
+              {current && s.note && <div style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 4 }}>In progress</div>}
+              {done && s.note && <div style={{ fontSize: 13, color: "var(--text-muted)", marginTop: 4 }}>{s.note}</div>}
             </div>
           </div>
         );
@@ -57,14 +57,14 @@ function Timeline({ status }) {
 function OrderCard({ order }) {
   const arrival = estimateArrival(order.orderDate);
   return (
-    <div style={{ background: "#fffaf0", border: "1px solid rgba(43,28,20,.12)", borderRadius: 10, boxShadow: "0 2px 6px rgba(43,28,20,.08)", padding: "44px 40px 48px", marginBottom: 24 }}>
-      <div style={{ fontSize: 11, letterSpacing: "0.28em", textTransform: "uppercase", color: "var(--gold)" }}>
+    <div style={{ background: "var(--bg-panel)", border: "1px solid var(--border-panel)", borderRadius: 10, boxShadow: "var(--shadow-card)", padding: "44px 40px 48px", marginBottom: 24, transition: "background-color 0.25s var(--ease-premium)" }}>
+      <div style={{ fontSize: 11, letterSpacing: "0.28em", textTransform: "uppercase", color: "var(--accent-text)" }}>
         Order {order.orderId}
       </div>
-      <h1 style={{ margin: "14px 0 6px", fontWeight: 400, fontSize: 30, color: "var(--coffee)" }}>
+      <h1 style={{ margin: "14px 0 6px", fontWeight: 400, fontSize: 30, color: "var(--text-heading)" }}>
         {order.fulfillmentStatus === "Delivered" ? "Delivered" : arrival ? `Landing ${arrival}` : "On its way"}
       </h1>
-      <p style={{ margin: "0 0 30px", fontSize: 14, color: "#8a7a68" }}>
+      <p style={{ margin: "0 0 30px", fontSize: 14, color: "var(--text-muted)" }}>
         {order.chocolateBreakdown}
         {order.addonType && order.addonType !== "None" ? ` · ${order.addonType}${order.addonDetail ? `, ${order.addonDetail}` : ""}` : ""}
         {" · to "}
@@ -74,12 +74,12 @@ function OrderCard({ order }) {
       <Timeline status={order.fulfillmentStatus} />
 
       {order.trackingNumber && (
-        <p style={{ margin: "8px 0 0", fontSize: 13, color: "#8a7a68" }}>
+        <p style={{ margin: "8px 0 0", fontSize: 13, color: "var(--text-muted)" }}>
           {order.courier} — {order.trackingNumber}
         </p>
       )}
 
-      <div style={{ marginTop: 34, paddingTop: 22, borderTop: "1px solid rgba(43,28,20,.12)", display: "flex", gap: 12, flexWrap: "wrap" }}>
+      <div style={{ marginTop: 34, paddingTop: 22, borderTop: "1px solid var(--border-panel)", display: "flex", gap: 12, flexWrap: "wrap" }}>
         <a
           href="https://wa.me/60106509189?text=Hi%20Cubelle%2C%20I%27d%20like%20to%20change%20the%20date%20on%20an%20order."
           target="_blank"
@@ -124,10 +124,10 @@ export default function TrackPage() {
   }
 
   return (
-    <main style={{ padding: "56px 32px 96px", backgroundImage: "radial-gradient(rgba(185,138,61,.3) 1px, transparent 1px)", backgroundSize: "24px 24px" }}>
+    <main style={{ padding: "56px 32px 96px", backgroundImage: "radial-gradient(var(--dot-texture) 1px, transparent 1px)", backgroundSize: "24px 24px" }}>
       <div className="wrap" style={{ maxWidth: 620 }}>
         <h1 style={{ fontSize: 30, marginBottom: 8 }}>Track your order</h1>
-        <p style={{ color: "#5a4a3c", marginBottom: 32 }}>
+        <p style={{ color: "var(--text-body)", marginBottom: 32 }}>
           Enter the email you ordered with to see your card message, shipping details, and progress.
         </p>
 
