@@ -16,6 +16,13 @@ export const CUBE_CAP = 25;
 // the tracker.
 export const LEAD_TIME_DAYS = 7;
 
+// Order and production caps. MAX_BOXES_PER_ORDER limits a single checkout;
+// MAX_BOXES_PER_DAY is the kitchen's shared daily capacity across every
+// product's Paid orders for the same delivery date — see /api/availability
+// and the delivery-date check in /api/create-order.
+export const MAX_BOXES_PER_ORDER = 3;
+export const MAX_BOXES_PER_DAY = 5;
+
 export const FLAVORS = ["Noir Cubes", "Cacao Sepia"];
 
 export const FLOWER_OPTIONS = [

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Image from "next/image";
 import {
   PRICE_CARD,
@@ -10,6 +10,7 @@ import {
   FLAVORS,
   CUBE_CAP,
   LEAD_TIME_DAYS,
+  MAX_BOXES_PER_ORDER,
   computeTotalRM,
 } from "../../../lib/products";
 import Reveal from "../../../components/Reveal";
@@ -24,6 +25,18 @@ function emptyBox() {
 }
 function boxTotal(box) {
   return FLAVORS.reduce((sum, f) => sum + box[f], 0);
+}
+
+// Local YYYY-MM-DD, not toISOString() — toISOString() shifts to UTC first,
+// which rolls a local-midnight date back a day for any timezone ahead of
+// UTC (Malaysia is UTC+8), so it would misreport the date the customer
+// actually clicked. Used both for the calendar's per-cell key and for what
+// gets sent to the server as the delivery date.
+function toDateKey(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const d = String(date.getDate()).padStart(2, "0");
+  return `${y}-${m}-${d}`;
 }
 
 function buildCalendar(minDate, monthOffset) {
@@ -94,8 +107,28 @@ export default function OrderForm({ product }) {
   const [monthOffset, setMonthOffset] = useState(0);
   const calendar = useMemo(() => buildCalendar(minDate, monthOffset), [minDate, monthOffset]);
 
+  const [fullDates, setFullDates] = useState([]);
+  useEffect(() => {
+    const anyCell = calendar.cells.find(Boolean);
+    if (!anyCell) return;
+    const y = anyCell.date.getFullYear();
+    const m = String(anyCell.date.getMonth() + 1).padStart(2, "0");
+    let cancelled = false;
+    fetch(`/api/availability?month=${y}-${m}`)
+      .then((r) => r.json())
+      .then((data) => {
+        if (!cancelled) setFullDates(data.full || []);
+      })
+      .catch(() => {
+        if (!cancelled) setFullDates([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [calendar]);
+
   function addBox() {
-    if (boxes.length >= 12) return;
+    if (boxes.length >= MAX_BOXES_PER_ORDER) return;
     setBoxes([...boxes, emptyBox()]);
   }
   function removeBox(i) {
@@ -165,7 +198,7 @@ export default function OrderForm({ product }) {
         })
         .join("; ");
 
-      const occasionDateStr = occasionDate ? occasionDate.toISOString().slice(0, 10) : null;
+      const occasionDateStr = occasionDate ? toDateKey(occasionDate) : null;
 
       const orderRes = await fetch("/api/create-order", {
         method: "POST",
@@ -346,9 +379,15 @@ export default function OrderForm({ product }) {
                 </div>
               );
             })}
-            <button type="button" onClick={addBox} className="btn-outline btn" style={{ width: "100%", justifyContent: "center", border: "1px dashed rgba(43,28,20,.3)" }}>
-              + Add another box
-            </button>
+            {boxes.length < MAX_BOXES_PER_ORDER ? (
+              <button type="button" onClick={addBox} className="btn-outline btn" style={{ width: "100%", justifyContent: "center", border: "1px dashed rgba(43,28,20,.3)" }}>
+                + Add another box
+              </button>
+            ) : (
+              <p className="hint" style={{ textAlign: "center" }}>
+                {MAX_BOXES_PER_ORDER} boxes is the limit per order — place a second order for more.
+              </p>
+            )}
           </div>
         )}
 
@@ -495,7 +534,7 @@ export default function OrderForm({ product }) {
             <div style={{ border: "1px solid var(--cream-deep)", borderRadius: 10, background: "var(--cream)", padding: 18, marginBottom: 18 }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 14 }}>
                 <span style={{ fontWeight: 600, fontSize: 12, color: "var(--coffee-soft)" }}>{product.occasionDateLabel}</span>
-                <span style={{ fontSize: 11, color: "#8a7a68" }}>{LEAD_TIME_DAYS}-day lead time</span>
+                <span style={{ fontSize: 11, color: "#8a7a68" }}>{LEAD_TIME_DAYS}-day lead time · crossed-out dates are fully booked</span>
               </div>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
                 <button
@@ -525,14 +564,17 @@ export default function OrderForm({ product }) {
                 ))}
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(7,1fr)", gap: 5 }}>
-                {calendar.cells.map((c, i) =>
-                  c === null ? (
-                    <span key={i} />
-                  ) : (
+                {calendar.cells.map((c, i) => {
+                  if (c === null) return <span key={i} />;
+                  const isFull = !c.disabled && fullDates.includes(toDateKey(c.date));
+                  const disabled = c.disabled || isFull;
+                  const selected = occasionDate && occasionDate.toDateString() === c.date.toDateString();
+                  return (
                     <button
                       key={i}
                       type="button"
-                      disabled={c.disabled}
+                      disabled={disabled}
+                      title={isFull ? "Fully booked — please pick another date" : undefined}
                       onClick={() => setOccasionDate(c.date)}
                       style={{
                         aspectRatio: "1/1",
@@ -540,16 +582,16 @@ export default function OrderForm({ product }) {
                         border: "none",
                         fontSize: 13,
                         fontFamily: "var(--sans)",
-                        cursor: c.disabled ? "not-allowed" : "pointer",
-                        background:
-                          occasionDate && occasionDate.toDateString() === c.date.toDateString() ? "var(--coffee)" : "transparent",
-                        color: c.disabled ? "#c9bfae" : occasionDate && occasionDate.toDateString() === c.date.toDateString() ? "var(--cream)" : "var(--coffee-soft)",
+                        cursor: disabled ? "not-allowed" : "pointer",
+                        textDecoration: isFull ? "line-through" : "none",
+                        background: selected ? "var(--coffee)" : "transparent",
+                        color: disabled ? "#c9bfae" : selected ? "var(--cream)" : "var(--coffee-soft)",
                       }}
                     >
                       {c.n}
                     </button>
-                  )
-                )}
+                  );
+                })}
               </div>
               <div style={{ marginTop: 14, fontSize: 12, color: "#5a4a3c" }}>
                 {occasionDate ? `Landing ${previewDate}` : "Pick a date"} — need it{" "}

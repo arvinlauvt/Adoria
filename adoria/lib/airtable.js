@@ -84,3 +84,49 @@ export async function findOrdersByEmail(email) {
   const data = await res.json();
   return data.records;
 }
+
+// Total boxes already Paid for a single delivery date, across every
+// product (the kitchen's daily capacity is shared) — used to reject a
+// checkout that would push that date over MAX_BOXES_PER_DAY. `dateISO`
+// must already be validated as YYYY-MM-DD by the caller before this runs,
+// since it's interpolated directly into the filter formula.
+export async function getCommittedBoxesForDate(dateISO) {
+  const formula = encodeURIComponent(
+    `AND({Payment Status} = "Paid", {Occasion Date} = "${dateISO}")`
+  );
+  const res = await fetch(`${API_URL}?filterByFormula=${formula}`, {
+    headers: headers(),
+  });
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`Airtable capacity lookup failed: ${res.status} ${body}`);
+  }
+  const data = await res.json();
+  return data.records.reduce((sum, r) => sum + (r.fields["Quantity"] || 0), 0);
+}
+
+// Same as getCommittedBoxesForDate but for a whole date range in one call —
+// used to paint a full calendar month at once instead of one request per
+// day. Returns { "YYYY-MM-DD": totalBoxes }, only for dates with a Paid
+// order. `startISO`/`endISO` must already be validated as YYYY-MM-DD.
+export async function getCommittedBoxesForRange(startISO, endISO) {
+  const formula = encodeURIComponent(
+    `AND({Payment Status} = "Paid", NOT({Occasion Date} = ""), IS_AFTER({Occasion Date}, DATEADD(DATETIME_PARSE("${startISO}", 'YYYY-MM-DD'), -1, 'days')), IS_BEFORE({Occasion Date}, DATEADD(DATETIME_PARSE("${endISO}", 'YYYY-MM-DD'), 1, 'days')))`
+  );
+  const res = await fetch(
+    `${API_URL}?filterByFormula=${formula}&fields%5B%5D=Occasion%20Date&fields%5B%5D=Quantity`,
+    { headers: headers() }
+  );
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`Airtable range capacity lookup failed: ${res.status} ${body}`);
+  }
+  const data = await res.json();
+  const totals = {};
+  for (const r of data.records) {
+    const date = r.fields["Occasion Date"];
+    if (!date) continue;
+    totals[date] = (totals[date] || 0) + (r.fields["Quantity"] || 0);
+  }
+  return totals;
+}

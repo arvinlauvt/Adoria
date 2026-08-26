@@ -1,5 +1,7 @@
-import { createOrder } from "../../../lib/airtable";
-import { computeTotalRM, getProductByEdition } from "../../../lib/products";
+import { createOrder, getCommittedBoxesForDate } from "../../../lib/airtable";
+import { computeTotalRM, getProductByEdition, MAX_BOXES_PER_ORDER, MAX_BOXES_PER_DAY } from "../../../lib/products";
+
+const DATE_ONLY = /^\d{4}-\d{2}-\d{2}$/;
 
 function makeOrderId() {
   const d = new Date();
@@ -34,6 +36,27 @@ export async function POST(req) {
 
     if (!name || !phone || !email || !recipientName || !productEdition || !street || !city || !state || !postcode) {
       return Response.json({ error: "Missing required fields." }, { status: 400 });
+    }
+
+    if (!Number.isFinite(quantity) || quantity < 1 || quantity > MAX_BOXES_PER_ORDER) {
+      return Response.json({ error: `Orders are limited to ${MAX_BOXES_PER_ORDER} boxes.` }, { status: 400 });
+    }
+
+    // The delivery-date calendar already hides fully-booked dates, but that
+    // list can go stale between page-load and submit (another order could
+    // fill the last slot in between) — re-check here, right before writing
+    // the order, so a tampered or late request can't slip past the cap.
+    if (occasionDate) {
+      if (!DATE_ONLY.test(occasionDate)) {
+        return Response.json({ error: "Invalid delivery date." }, { status: 400 });
+      }
+      const committed = await getCommittedBoxesForDate(occasionDate);
+      if (committed + quantity > MAX_BOXES_PER_DAY) {
+        return Response.json(
+          { error: "That delivery date just filled up — please pick another date." },
+          { status: 409 }
+        );
+      }
     }
 
     // Never trust a client-supplied price — recompute from the same rules
