@@ -66,6 +66,40 @@ export default function AboutPage() {
             needs to land.
           </p>
 
+          <h2 style={{ margin: "0 0 16px", fontWeight: 400, fontSize: 24, color: "var(--coffee)" }}>From the founder</h2>
+          <div
+            style={{
+              margin: "0 0 40px",
+              padding: "28px 26px",
+              background: "#fffaf0",
+              border: "1px solid var(--cream-deep)",
+              borderRadius: 12,
+              boxShadow: "0 10px 30px rgba(43, 28, 20, 0.06)",
+            }}
+          >
+            <p style={{ margin: "0 0 18px", fontWeight: 300, fontSize: 16, lineHeight: 1.8, color: "#5a4a3c" }}>
+              Most gifting feels transactional — too loud, too generic, built to be forgotten by
+              tomorrow. I started Cubelle simply because I wanted something better: a tactile
+              experience that feels intentional. From the Cubelles themselves to hand-tied letters
+              and custom brass keepsakes, every detail is designed to slow things down and make
+              someone feel genuinely remembered.
+            </p>
+            <p style={{ margin: "0 0 18px", fontWeight: 300, fontSize: 16, lineHeight: 1.8, color: "#5a4a3c" }}>
+              Growing up, I didn&apos;t receive many gifts — and the ones I did were never really
+              thought through. Part of why I&apos;m building this is so more people get the chance
+              to feel what a properly considered gift feels like, not just the ones who already do.
+            </p>
+            <p style={{ margin: "0 0 20px", fontWeight: 300, fontSize: 16, lineHeight: 1.8, color: "#5a4a3c" }}>
+              Being remembered is the greatest gift of all. Welcome to Cubelle.
+            </p>
+            <p style={{ margin: 0, fontFamily: "var(--script)", fontSize: 30, color: "var(--gold)" }}>
+              Arvin
+            </p>
+            <p style={{ margin: "2px 0 0", fontSize: 12, letterSpacing: "0.1em", textTransform: "uppercase", color: "#8a7a68" }}>
+              Founder, Cubelle — Kuantan, Pahang
+            </p>
+          </div>
+
           <div style={{ textAlign: "center" }}>
             <Link href="/#catalog" className="btn">
               Browse the catalog
