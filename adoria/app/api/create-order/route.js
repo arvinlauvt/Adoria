@@ -1,5 +1,5 @@
 import { createOrder } from "../../../lib/airtable";
-import { computeTotalRM } from "../../../lib/products";
+import { computeTotalRM, getProductByEdition } from "../../../lib/products";
 
 function makeOrderId() {
   const d = new Date();
@@ -37,10 +37,15 @@ export async function POST(req) {
     }
 
     // Never trust a client-supplied price — recompute from the same rules
-    // the form used to display it, and charge that instead.
+    // the form used to display it, and charge that instead. The add-on
+    // *type* (and therefore its price) comes from the product's own config
+    // via productEdition, not from the client-supplied addonType label, so
+    // a tampered request can't pick a cheaper add-on's price.
     const messageMode = messageType === "Full Letter" ? "letter" : "card";
     const addonSelected = !!addonType && addonType !== "None";
-    const amountRM = computeTotalRM({ messageMode, addonSelected, quantity });
+    const product = getProductByEdition(productEdition);
+    const resolvedAddonType = addonSelected ? product?.addon?.type : null;
+    const amountRM = computeTotalRM({ messageMode, addonType: resolvedAddonType, quantity });
 
     const orderId = makeOrderId();
 

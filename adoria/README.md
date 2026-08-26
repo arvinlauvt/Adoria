@@ -14,12 +14,12 @@ matches an option in Airtable's **Product Edition** field.
 ## Pricing
 
 Set centrally in `lib/products.js` (`PRICE_CARD`, `PRICE_LETTER`,
-`PRICE_ADDON`, `CUBE_CAP`, `LEAD_TIME_DAYS`, `computeTotalRM`). Per box: RM79
-with a short card message, RM89 with a full letter instead, +RM25 on top of
-either for an add-on (Flowers on the Anniversary/Hostess boxes, Achievement
-Token on the Congratulations box), all multiplied by quantity — each box can
-hold up to 25 cubes (mixed flavors), which doesn't change the price. **This
-is always computed
+`ADDON_PRICES`, `CUBE_CAP`, `LEAD_TIME_DAYS`, `computeTotalRM`). Per box: RM79
+with a short card message, RM89 with a full letter instead, plus an add-on
+on top of either — +RM25 for the Flower Frame Kit (Anniversary/Hostess
+boxes) or +RM30 for the Custom Brass Bookmark (Congratulations box) — all
+multiplied by quantity — each box can hold up to 25 cubes (mixed flavors),
+which doesn't change the price. **This is always computed
 server-side** in `/api/create-order` from the message type/add-on/quantity
 the browser reports — the client-supplied total is never trusted for the
 actual charge, and `/api/checkout` reads the price back from the Airtable

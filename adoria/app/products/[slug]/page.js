@@ -59,11 +59,11 @@ export default function ProductPage({ params }) {
                 What's inside
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 9, fontWeight: 300, fontSize: 14, color: "#5a4a3c" }}>
-                <span>Up to {CUBE_CAP} cubes — Dark, Milk, White, mixed as you like</span>
-                <span>Matte black 15×15cm box, gold foil seal</span>
+                <span>Up to {CUBE_CAP} cubes — Noir Cubes, Cacao Sepia, mixed as you like</span>
+                <span>Matte black 15×15cm box</span>
                 <span>Your choice: black-stock card, or a full letter</span>
-                {product.addon?.type === "flowers" && <span>Optional pressed flowers, four colourways</span>}
-                {product.addon?.type === "achievementToken" && <span>Optional engraved Achievement Token</span>}
+                {product.addon?.type === "flowers" && <span>Optional Flower Frame Kit, four colourways</span>}
+                {product.addon?.type === "brassBookmark" && <span>Optional engraved Custom Brass Bookmark</span>}
               </div>
             </div>
           </div>

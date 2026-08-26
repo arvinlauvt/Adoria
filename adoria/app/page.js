@@ -120,7 +120,7 @@ export default function Home() {
                 </h2>
                 <p style={{ margin: "26px 0 0", fontWeight: 300, fontSize: 16, lineHeight: 1.75, color: "#5a4a3c", maxWidth: 440 }}>
                   Every box is 15×15cm, matte black, and packed by hand: up to {CUBE_CAP} cubes in
-                  Dark, Milk or White — as many as you want, mixed however you like — over a
+                  Noir Cubes or Cacao Sepia — as many as you want, mixed however you like — over a
                   black-stock card written in gold ink while the order is being packed.
                 </p>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1, marginTop: 38, background: "rgba(43,28,20,.12)" }}>

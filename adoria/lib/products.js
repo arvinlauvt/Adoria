@@ -2,10 +2,11 @@
 // in Airtable exactly. Swap `accent` and copy per drop as needed.
 
 // Pricing: per box = base (by message type) + add-on (if selected), all
-// multiplied by quantity. Base RM79 (card) / RM89 (letter). Add-on flat +RM25.
+// multiplied by quantity. Base RM79 (card) / RM89 (letter). Add-on price
+// depends on which add-on the product offers — see ADDON_PRICES.
 export const PRICE_CARD = 79;
 export const PRICE_LETTER = 89;
-export const PRICE_ADDON = 25;
+export const ADDON_PRICES = { flowers: 25, brassBookmark: 30 };
 
 // Real capacity of the 15x15cm box, confirmed by the founder.
 export const CUBE_CAP = 25;
@@ -15,7 +16,7 @@ export const CUBE_CAP = 25;
 // the tracker.
 export const LEAD_TIME_DAYS = 7;
 
-export const FLAVORS = ["Dark", "Milk", "White"];
+export const FLAVORS = ["Noir Cubes", "Cacao Sepia"];
 
 export const FLOWER_OPTIONS = [
   { name: "Midnight Lavender", color: "#4b3a63" },
@@ -38,9 +39,9 @@ export const PRODUCTS = [
     accent: "#8a5a34",
     occasionDateLabel: "Anniversary date",
     occasionDateRequired: true,
-    addon: { type: "flowers", label: "Flowers" },
+    addon: { type: "flowers", label: "Flower Frame Kit" },
     letterFrame: "ornate",
-    badges: ["Pressed flowers +RM25", "Date required"],
+    badges: ["Flower Frame Kit +RM25", "Date required"],
   },
   {
     slug: "congratulations",
@@ -51,13 +52,13 @@ export const PRODUCTS = [
     shortDescription:
       "A new job, a new home, a degree finally finished. Same box, same craft — a card written for pride instead of romance, and an engraved token if you want it kept.",
     description:
-      "A sleeker, congratulatory tone for the wins worth marking properly. Twenty-five hand-baked cubes, a card written for pride instead of romance, and an optional engraved Achievement Token to keep long after the box is empty.",
+      "A sleeker, congratulatory tone for the wins worth marking properly. Twenty-five hand-baked cubes, a card written for pride instead of romance, and an optional engraved Custom Brass Bookmark to keep long after the box is empty.",
     accent: "#4a3524",
     occasionDateLabel: "Send / delivery date (optional)",
     occasionDateRequired: false,
-    addon: { type: "achievementToken", label: "Achievement Token" },
+    addon: { type: "brassBookmark", label: "Custom Brass Bookmark" },
     letterFrame: "plain",
-    badges: ["Achievement token +RM25", "Engraved, kept for years"],
+    badges: ["Custom Brass Bookmark +RM30", "Engraved, kept for years"],
   },
   {
     slug: "hostess",
@@ -72,9 +73,9 @@ export const PRODUCTS = [
     accent: "#3b2417",
     occasionDateLabel: "Delivery date (optional)",
     occasionDateRequired: false,
-    addon: { type: "flowers", label: "Flowers" },
+    addon: { type: "flowers", label: "Flower Frame Kit" },
     letterFrame: "ornate",
-    badges: ["Pressed flowers +RM25", "Same-week delivery"],
+    badges: ["Flower Frame Kit +RM25", "Same-week delivery"],
   },
 ];
 
@@ -82,10 +83,18 @@ export function getProduct(slug) {
   return PRODUCTS.find((p) => p.slug === slug) || null;
 }
 
+export function getProductByEdition(edition) {
+  return PRODUCTS.find((p) => p.edition === edition) || null;
+}
+
 // Server + client both call this so the charged amount always matches
 // what the UI displayed — never trust a client-supplied total alone.
-export function computeTotalRM({ messageMode, addonSelected, quantity }) {
+// `addonType` is the add-on's internal key (e.g. "flowers", "brassBookmark"),
+// not its display label, so the price always comes from ADDON_PRICES here
+// rather than anything the client sends.
+export function computeTotalRM({ messageMode, addonType, quantity }) {
   const base = messageMode === "letter" ? PRICE_LETTER : PRICE_CARD;
-  const perBox = base + (addonSelected ? PRICE_ADDON : 0);
+  const addonPrice = addonType ? ADDON_PRICES[addonType] || 0 : 0;
+  const perBox = base + addonPrice;
   return perBox * Math.max(1, quantity || 1);
 }

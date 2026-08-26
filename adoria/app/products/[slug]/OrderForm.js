@@ -5,7 +5,7 @@ import Image from "next/image";
 import {
   PRICE_CARD,
   PRICE_LETTER,
-  PRICE_ADDON,
+  ADDON_PRICES,
   FLOWER_OPTIONS,
   FLAVORS,
   CUBE_CAP,
@@ -17,13 +17,13 @@ import Reveal from "../../../components/Reveal";
 const MAX_CARD_MESSAGE = 200;
 const MAX_LETTER = 1300;
 const WEEKDAYS = ["S", "M", "T", "W", "T", "F", "S"];
-const FLAVOR_SWATCH = { Dark: "#2b1c14", Milk: "#8a5a34", White: "#efe3cd" };
+const FLAVOR_SWATCH = { "Noir Cubes": "#2b1c14", "Cacao Sepia": "#8a5a34" };
 
 function emptyBox() {
-  return { Dark: 0, Milk: 0, White: 0 };
+  return Object.fromEntries(FLAVORS.map((f) => [f, 0]));
 }
 function boxTotal(box) {
-  return box.Dark + box.Milk + box.White;
+  return FLAVORS.reduce((sum, f) => sum + box[f], 0);
 }
 
 function buildCalendar(minDate, monthOffset) {
@@ -80,8 +80,9 @@ export default function OrderForm({ product }) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
 
-  const total = computeTotalRM({ messageMode, addonSelected, quantity: boxes.length });
-  const perBox = (messageMode === "letter" ? PRICE_LETTER : PRICE_CARD) + (addonSelected ? PRICE_ADDON : 0);
+  const activeAddonType = addonSelected && product.addon ? product.addon.type : null;
+  const total = computeTotalRM({ messageMode, addonType: activeAddonType, quantity: boxes.length });
+  const perBox = (messageMode === "letter" ? PRICE_LETTER : PRICE_CARD) + (activeAddonType ? ADDON_PRICES[activeAddonType] || 0 : 0);
   const maxChars = messageMode === "letter" ? MAX_LETTER : MAX_CARD_MESSAGE;
 
   const minDate = useMemo(() => {
@@ -330,12 +331,14 @@ export default function OrderForm({ product }) {
 
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: 5, marginTop: 16, maxWidth: 180 }}>
                     {Array.from({ length: CUBE_CAP }).map((_, ci) => {
-                      const filled = ci < boxTotal(box);
                       let color = "rgba(43,28,20,.08)";
-                      if (filled) {
-                        const darkEnd = box.Dark;
-                        const milkEnd = darkEnd + box.Milk;
-                        color = ci < darkEnd ? "#3b2417" : ci < milkEnd ? "#8a5a34" : "#f0e2c8";
+                      let runningEnd = 0;
+                      for (const f of FLAVORS) {
+                        runningEnd += box[f];
+                        if (ci < runningEnd) {
+                          color = FLAVOR_SWATCH[f];
+                          break;
+                        }
                       }
                       return <span key={ci} style={{ aspectRatio: "1/1", borderRadius: 3, background: color, border: "1px solid rgba(43,28,20,.12)" }} />;
                     })}
@@ -446,7 +449,7 @@ export default function OrderForm({ product }) {
                 style={{ padding: "14px 16px", textAlign: "left", boxShadow: "none", border: addonSelected ? "2px solid var(--gold)" : "1px solid var(--cream-deep)" }}
               >
                 <div style={{ fontWeight: 600, fontSize: 14, color: "var(--coffee)" }}>Yes, add {product.addon.label.toLowerCase()}</div>
-                <div style={{ fontSize: 12, color: "#8a7a68" }}>+RM{PRICE_ADDON} per box</div>
+                <div style={{ fontSize: 12, color: "#8a7a68" }}>+RM{ADDON_PRICES[product.addon.type]} per box</div>
               </button>
               <button
                 type="button"
@@ -476,7 +479,7 @@ export default function OrderForm({ product }) {
               </div>
             )}
 
-            {addonSelected && product.addon.type === "achievementToken" && (
+            {addonSelected && product.addon.type === "brassBookmark" && (
               <p className="hint">Engraved metal, sealed separately from the tray — a small keepsake beside the card.</p>
             )}
           </div>

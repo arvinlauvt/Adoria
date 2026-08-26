@@ -1,6 +1,6 @@
 import Reveal from "../../components/Reveal";
 
-const FLAVOR_COLUMNS = ["Dark", "Milk", "White"];
+const FLAVOR_COLUMNS = ["Noir Cubes", "Cacao Sepia"];
 
 const ALWAYS_PRESENT = [
   ["Wheat", "Plain flour base"],
@@ -10,14 +10,14 @@ const ALWAYS_PRESENT = [
 ];
 
 const BY_FLAVOUR = [
-  ["Wheat / gluten", "Yes", "Yes", "Yes"],
-  ["Egg", "Yes", "Yes", "Yes"],
-  ["Milk / dairy", "Yes", "Yes", "Yes"],
-  ["Soy", "Yes", "Yes", "Yes"],
-  ["Tree nuts (almond, hazelnut)", "May contain", "May contain", "May contain"],
-  ["Peanuts", "May contain", "May contain", "May contain"],
-  ["Sesame", "May contain", "May contain", "May contain"],
-  ["Sulphites (dried fruit)", "May contain", "No", "No"],
+  ["Wheat / gluten", "Yes", "Yes"],
+  ["Egg", "Yes", "Yes"],
+  ["Milk / dairy", "Yes", "Yes"],
+  ["Soy", "Yes", "Yes"],
+  ["Tree nuts (almond, hazelnut)", "May contain", "May contain"],
+  ["Peanuts", "May contain", "May contain"],
+  ["Sesame", "May contain", "May contain"],
+  ["Sulphites (dried fruit)", "May contain", "No"],
 ];
 
 function cellColor(value) {
@@ -94,7 +94,7 @@ export default function AllergensPage() {
             the whole box.
           </p>
           <div style={{ border: "1px solid rgba(43,28,20,.12)", borderRadius: 8, overflow: "hidden", background: "#fffaf0" }}>
-            <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1.5fr) repeat(3,minmax(0,1fr))", background: "var(--coffee)" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1.5fr) repeat(2,minmax(0,1fr))", background: "var(--coffee)" }}>
               <div style={{ padding: "13px 18px", fontSize: 11, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(247,240,228,.6)" }}>
                 Allergen
               </div>
@@ -109,7 +109,7 @@ export default function AllergensPage() {
                 key={allergen}
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "minmax(0,1.5fr) repeat(3,minmax(0,1fr))",
+                  gridTemplateColumns: "minmax(0,1.5fr) repeat(2,minmax(0,1fr))",
                   borderBottom: i < BY_FLAVOUR.length - 1 ? "1px solid rgba(43,28,20,.08)" : "none",
                   background: i % 2 ? "var(--cream)" : "transparent",
                 }}
@@ -140,8 +140,8 @@ export default function AllergensPage() {
           <h2 style={{ margin: "44px 0 8px", fontWeight: 400, fontSize: 22, color: "var(--coffee)" }}>Add-ons &amp; packaging</h2>
           <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 6 }}>
             {[
-              ["Pressed flowers", "Decorative only — not food grade, not for eating."],
-              ["Achievement token", "Engraved metal, sealed separately from the tray."],
+              ["Flower Frame Kit", "Decorative only — not food grade, not for eating."],
+              ["Custom Brass Bookmark", "Engraved metal, sealed separately from the tray."],
               ["Card & gold ink", "Non-toxic ink on black stock; keep the card out of the tray if storing."],
             ].map(([k, v]) => (
               <div key={k} style={{ display: "flex", gap: 14, padding: "14px 0", borderBottom: "1px solid rgba(43,28,20,.1)" }}>
