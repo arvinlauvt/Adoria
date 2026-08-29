@@ -1,6 +1,8 @@
 import { getCommittedBoxesForRange } from "../../../lib/airtable";
 import { MAX_BOXES_PER_DAY } from "../../../lib/products";
 import { withErrorHandling, badRequest } from "../../../lib/errors";
+import { checkAvailabilityRateLimit } from "../../../lib/auth/rateLimit";
+import { getRequestIp } from "../../../lib/auth/requestIp";
 
 export const dynamic = "force-dynamic";
 
@@ -14,6 +16,17 @@ function pad(n) {
 // /api/create-order re-checks the chosen date server-side before charging,
 // since this endpoint's response can go stale between requests.
 export const GET = withErrorHandling("availability", async (req) => {
+  const limit = await checkAvailabilityRateLimit(getRequestIp(req));
+  if (!limit.allowed) {
+    throw badRequest({
+      status: 429,
+      code: "rate_limited",
+      what: "The calendar is being checked too often from your connection.",
+      why: "Each check queries our booking data, so there's a ceiling on how many we serve per visitor.",
+      action: "Wait a minute and reload the page.",
+    });
+  }
+
   const { searchParams } = new URL(req.url);
   const month = searchParams.get("month");
 

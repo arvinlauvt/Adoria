@@ -52,6 +52,20 @@ export async function checkTrackRateLimit(ip) {
   return checkRateLimit(`track:${ip}`, { limit: 20, windowSeconds: 10 * 60 });
 }
 
+// Order creation writes a row to Airtable, which has a hard 5 requests per
+// second cap for the whole base. Without a limit here, one script can both
+// fill the orders table with junk and starve every real customer's checkout
+// of API quota. Ten an hour is far more than anyone orders and far less than
+// is useful to an attacker.
+export async function checkOrderRateLimit(ip) {
+  return checkRateLimit(`order:${ip}`, { limit: 10, windowSeconds: 60 * 60 });
+}
+
+// Reads only, but each one costs an Airtable query, so it gets a ceiling too.
+export async function checkAvailabilityRateLimit(ip) {
+  return checkRateLimit(`availability:${ip}`, { limit: 60, windowSeconds: 10 * 60 });
+}
+
 export async function checkPasswordResetRateLimit(email) {
   return checkRateLimit(`reset:${email.toLowerCase()}`, {
     limit: 3,

@@ -8,6 +8,8 @@ import {
   PRODUCTS,
 } from "../../../lib/products";
 import { withErrorHandling, badRequest } from "../../../lib/errors";
+import { checkOrderRateLimit } from "../../../lib/auth/rateLimit";
+import { getRequestIp } from "../../../lib/auth/requestIp";
 import {
   readJsonBody,
   requiredString,
@@ -35,6 +37,20 @@ function makeOrderId() {
 }
 
 export const POST = withErrorHandling("create-order", async (req) => {
+  // Before any parsing or database work: this endpoint writes a row every
+  // time it succeeds, and Airtable's per-base rate limit is shared with every
+  // real customer trying to check out.
+  const limit = await checkOrderRateLimit(getRequestIp(req));
+  if (!limit.allowed) {
+    throw badRequest({
+      status: 429,
+      code: "rate_limited",
+      what: "You've started too many orders in a short time.",
+      why: "We cap how many can come from one connection each hour so the shop stays responsive for everyone.",
+      action: `Wait about ${Math.ceil(limit.retryAfterSeconds / 60)} minutes, or message us on WhatsApp if you need several boxes at once.`,
+    });
+  }
+
   const body = await readJsonBody(req);
 
   // Everything is validated and normalised before a single field is written.
@@ -121,9 +137,11 @@ export const POST = withErrorHandling("create-order", async (req) => {
     Quantity: quantity,
     "Message Type": messageMode === "letter" ? "Full Letter" : "Card Message",
     "Card Message": cardMessage,
-    // Stored from the product config, not the request, so the label always
-    // matches the add-on actually priced above.
-    "Add-on": resolvedAddonType || "None",
+    // The label comes from the product's own config, not from the request,
+    // so it always matches the add-on that was actually priced above — but it
+    // is the label ("Flower Frame Kit"), not the internal type key, because
+    // that's what Airtable's Add-on field and both UIs expect.
+    "Add-on": addonSelected && product?.addon ? product.addon.label : "None",
     "Add-on Detail": addonSelected ? addonDetail : "",
     "Street Address": street,
     City: city,

@@ -3,11 +3,24 @@ import { updateOrder, getOrder } from "../../../lib/airtable";
 import { requirePaymentConfig } from "../../../lib/config";
 import { withErrorHandling, badRequest } from "../../../lib/errors";
 import { readJsonBody, requiredString, LIMITS } from "../../../lib/sanitize";
+import { checkOrderRateLimit } from "../../../lib/auth/rateLimit";
+import { getRequestIp } from "../../../lib/auth/requestIp";
 
 export const POST = withErrorHandling("checkout", async (req) => {
   // Fails here, with a precise message in the logs, rather than halfway
   // through creating a bill with an undefined callback URL.
   requirePaymentConfig();
+
+  const limit = await checkOrderRateLimit(getRequestIp(req));
+  if (!limit.allowed) {
+    throw badRequest({
+      status: 429,
+      code: "rate_limited",
+      what: "You've started too many payments in a short time.",
+      why: "We cap how many can come from one connection each hour.",
+      action: `Wait about ${Math.ceil(limit.retryAfterSeconds / 60)} minutes, or message us on WhatsApp and we'll take the order by hand.`,
+    });
+  }
 
   const body = await readJsonBody(req);
   const orderId = requiredString(body.orderId, { field: "orderId", label: "Order reference", max: LIMITS.orderId });
