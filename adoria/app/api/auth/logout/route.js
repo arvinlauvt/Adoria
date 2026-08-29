@@ -4,7 +4,10 @@ import { clearedSessionCookie } from "../../../../lib/auth/cookie";
 import { newErrorReference } from "../../../../lib/errors";
 
 export async function POST() {
-  const token = cookies().get(SESSION_COOKIE)?.value;
+  // Awaited for the same reason as lib/auth/requireSession.js: cookies()
+  // returns a Promise on Next 15+, and awaiting a non-Promise is harmless.
+  const cookieStore = await cookies();
+  const token = cookieStore.get(SESSION_COOKIE)?.value;
 
   // Delete server-side first. Clearing the cookie only stops the browser
   // sending it; deleting the Redis entry is what actually makes the token
