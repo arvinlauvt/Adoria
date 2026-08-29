@@ -61,9 +61,17 @@ const FIELDS = [
   },
   {
     name: "Created At",
-    type: "date",
+    // dateTime, not date: lib/users.js writes a full ISO timestamp
+    // (2026-08-29T15:04:05.123Z) and a date-only field rejects the time part
+    // outright — Airtable answers 422 INVALID_VALUE_FOR_COLUMN, which surfaces
+    // as a failed signup rather than a missing timestamp.
+    type: "dateTime",
     description: "ISO timestamp set at signup.",
-    options: { dateFormat: { name: "iso" } },
+    options: {
+      dateFormat: { name: "iso" },
+      timeFormat: { name: "24hour" },
+      timeZone: "utc",
+    },
   },
 ];
 
@@ -175,16 +183,37 @@ async function main() {
 
   if (clash) {
     console.log(`\n  ✓ A table named "${clash.name}" already exists (${clash.id}).`);
-    const have = new Set(clash.fields.map((f) => f.name));
-    const missing = FIELDS.filter((f) => !have.has(f.name)).map((f) => f.name);
-    if (missing.length === 0) {
-      console.log("    Every required field is present. Nothing to do.\n");
-    } else {
-      console.log(`    Missing field(s): ${missing.join(", ")}`);
-      console.log("    Add these by hand, or rename the existing table and re-run.\n");
-      process.exit(1);
+
+    const byName = new Map(clash.fields.map((f) => [f.name, f]));
+    const missing = FIELDS.filter((f) => !byName.has(f.name)).map((f) => f.name);
+
+    // Names alone aren't enough. A "Created At" of type `date` rather than
+    // `dateTime` has the right name and passes any name-only check, then
+    // rejects every timestamp the app writes with a 422 — which shows up as
+    // signup failing, a long way from here. Check the types too.
+    const wrongType = FIELDS.filter((f) => {
+      const actual = byName.get(f.name);
+      return actual && actual.type !== f.type;
+    }).map((f) => `${f.name} (is "${byName.get(f.name).type}", needs "${f.type}")`);
+
+    if (missing.length === 0 && wrongType.length === 0) {
+      console.log("    Every required field is present, with the right type. Nothing to do.\n");
+      return;
     }
-    return;
+
+    if (missing.length) {
+      console.log(`\n    Missing field(s): ${missing.join(", ")}`);
+      console.log("    Add these by hand, or rename the existing table and re-run.");
+    }
+    if (wrongType.length) {
+      console.log(`\n    Wrong type: ${wrongType.join(", ")}`);
+      console.log(
+        "    Fix in Airtable: click the field header, Edit field, change the type, Save.\n" +
+          '    For "Created At" specifically, that means a Date field with "Include time" turned on.'
+      );
+    }
+    console.log("");
+    process.exit(1);
   }
 
   const created = await api("/tables", {

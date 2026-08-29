@@ -71,7 +71,7 @@ Create it by hand in Airtable with these fields (names must match exactly):
 | `TOTP Secret` | Single line text | AES-256-GCM encrypted (see `lib/auth/crypto.js`) — never the raw secret |
 | `TOTP Enabled` | Checkbox | Only set true after the user confirms one live code |
 | `Backup Codes` | Long text | JSON array of bcrypt hashes, one removed per use |
-| `Created At` | Date | ISO timestamp |
+| `Created At` | Date **with "Include time" on** | Full ISO timestamp. A date-only field rejects the time part and signup fails with a 422. |
 
 Same token as the Orders table works here too (same base, same scopes).
 `AIRTABLE_USERS_TABLE_NAME` defaults to `Users`; only set it if you name the
