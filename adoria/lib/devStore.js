@@ -73,6 +73,38 @@ export function createInMemoryRedis() {
   };
 }
 
+// --- Airtable Orders stand-in ---------------------------------------------
+// Only the operations the admin dashboard needs, plus create for seeding.
+
+export function createInMemoryOrders() {
+  const records = new Map();
+  let counter = 0;
+
+  return {
+    async createOrder(fields) {
+      const id = `recORD${String(++counter).padStart(11, "0")}`;
+      const record = { id, fields: { ...fields } };
+      records.set(id, record);
+      return record;
+    },
+    async listOrders() {
+      // Newest first, matching the real query's sort.
+      return [...records.values()].sort((a, b) =>
+        String(b.fields["Order Date"] || "").localeCompare(String(a.fields["Order Date"] || ""))
+      );
+    },
+    async getOrder(id) {
+      return records.get(id) || null;
+    },
+    async updateOrder(id, fields) {
+      const record = records.get(id);
+      if (!record) throw new Error(`Dev store: no order ${id}`);
+      record.fields = { ...record.fields, ...fields };
+      return record;
+    },
+  };
+}
+
 // --- Airtable Users stand-in ----------------------------------------------
 // Mimics the shape lib/users.js expects back from Airtable: records with an
 // `id` and a `fields` object.
