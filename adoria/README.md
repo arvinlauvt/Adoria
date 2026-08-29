@@ -1,5 +1,9 @@
 # Cubelle
 
+> **Picking this project up?** Read [HANDOVER.md](./HANDOVER.md) first. This
+> file covers setup; that one covers current state, the decisions behind the
+> code, and the traps that aren't visible from reading it.
+
 Next.js site: landing page → product catalog → product page (description +
 order form, per-box flavor picker, message type, add-ons) → ToyyibPay
 checkout → thank-you page → "Your Orders" tracker backed by Airtable.
