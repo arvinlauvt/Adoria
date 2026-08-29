@@ -12,6 +12,10 @@ zxcvbnOptions.setOptions({
     ...zxcvbnEnPackage.dictionary,
   },
   graphs: zxcvbnCommonPackage.adjacencyGraphs,
+  // Without this, feedback comes back as raw keys ("common", "dates") rather
+  // than sentences, and those keys end up shown to the user as the reason
+  // their password was rejected.
+  translations: zxcvbnEnPackage.translations,
 });
 
 export const MIN_LENGTH = 10;

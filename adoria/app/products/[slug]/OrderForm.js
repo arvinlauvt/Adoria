@@ -16,6 +16,13 @@ import {
   computeTotalRM,
 } from "../../../lib/products";
 import Reveal from "../../../components/Reveal";
+import FormField from "../../../components/FormField";
+import {
+  validateRequired,
+  validateEmail,
+  validatePhone,
+  validatePostcode,
+} from "../../../lib/validation";
 
 const MAX_CARD_MESSAGE = 200;
 const MAX_LETTER = 1300;
@@ -61,56 +68,6 @@ function buildCalendar(minDate, monthOffset) {
     cells.push({ n: d, date, disabled: date < minDate });
   }
   return { cells, monthLabel };
-}
-
-// Forgiving on purpose: phone/postcode just count digits (spaces, dashes,
-// parens, +country codes all fine) rather than demanding one exact format.
-function validateRequired(v, label) {
-  return v && v.trim() ? null : `${label} is required.`;
-}
-function validateEmail(v) {
-  if (!v || !v.trim()) return "Email is required.";
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim())) return "Enter a valid email address.";
-  return null;
-}
-function validatePhone(v) {
-  const digits = (v || "").replace(/\D/g, "");
-  if (!digits) return "Phone number is required.";
-  if (digits.length < 7 || digits.length > 15) return "Enter a valid phone number.";
-  return null;
-}
-function validatePostcode(v) {
-  const digits = (v || "").replace(/\D/g, "");
-  if (!digits) return "Postcode is required.";
-  if (digits.length !== 5) return "Malaysian postcodes are 5 digits.";
-  return null;
-}
-
-// One field: label, optional hint, input, and — only once the field has
-// been touched (blurred, or the step's Continue was clicked while
-// invalid) — a red border and an inline message naming exactly what's
-// wrong, instead of a single generic error for the whole step.
-function FormField({ id, label, hint, error, touched, onBlur, ...inputProps }) {
-  const showError = touched && error;
-  return (
-    <div className="field">
-      <label htmlFor={id}>{label}</label>
-      {hint && <span className="hint">{hint}</span>}
-      <input
-        id={id}
-        onBlur={onBlur}
-        aria-invalid={showError ? "true" : undefined}
-        aria-describedby={showError ? `${id}-error` : undefined}
-        style={showError ? { borderColor: "var(--danger)" } : undefined}
-        {...inputProps}
-      />
-      {showError && (
-        <p id={`${id}-error`} className="error-text" style={{ marginTop: 4 }}>
-          {error}
-        </p>
-      )}
-    </div>
-  );
 }
 
 function StepHeader({ index, total, name, title, subtitle }) {
@@ -904,6 +861,11 @@ export default function OrderForm({ product }) {
             <button
               type="button"
               onClick={goNext}
+              // Keeps focus where it is, so clicking Continue doesn't blur the
+              // field above and insert its error message mid-click. Without
+              // this the button shifts down between mousedown and mouseup, the
+              // browser fires no click at all, and the first press does nothing.
+              onMouseDown={(e) => e.preventDefault()}
               className="btn"
               style={{ flex: 1, justifyContent: "center", opacity: stepIsValid(key) ? 1 : 0.55 }}
               title={stepIsValid(key) ? undefined : "Some fields still need attention"}

@@ -367,6 +367,20 @@ button {
   margin-top: 4px;
 }
 
+/* Visible to screen readers only. Used where a state is conveyed visually by
+   colour or an icon, which assistive tech can't read. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* --- Clipboard motif for the order form: aesthetic, not literal --- */
 .clipboard {
   position: relative;
