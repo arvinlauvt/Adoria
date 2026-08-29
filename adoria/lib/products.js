@@ -23,7 +23,15 @@ export const LEAD_TIME_DAYS = 7;
 export const MAX_BOXES_PER_ORDER = 3;
 export const MAX_BOXES_PER_DAY = 5;
 
-export const FLAVORS = ["Noir Cubes", "Cacao Sepia"];
+// The real menu. "Double Chocolate & Almond" is listed as its own flavour
+// rather than a toggle on Double Chocolate, because it has to be countable
+// per cube in the box builder and — more importantly — it carries a tree-nut
+// declaration the plain version doesn't.
+export const FLAVORS = [
+  "Double Chocolate",
+  "Double Chocolate & Almond",
+  "Blueberry Biscoff",
+];
 
 export const FLOWER_OPTIONS = [
   { name: "Midnight Lavender", color: "#4b3a63" },

@@ -72,7 +72,7 @@ function OrderCard({ order }) {
         {order.fulfillmentStatus === "Delivered" ? "Delivered" : arrival ? `Landing ${arrival}` : "On its way"}
       </h1>
       <p style={{ margin: "0 0 30px", fontSize: 14, color: "var(--text-muted)" }}>
-        {order.chocolateBreakdown}
+        {order.cubeBreakdown}
         {order.addonType && order.addonType !== "None" ? ` · ${order.addonType}${order.addonDetail ? `, ${order.addonDetail}` : ""}` : ""}
         {" · to "}
         {order.recipientName}

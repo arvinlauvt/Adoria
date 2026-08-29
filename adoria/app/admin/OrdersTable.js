@@ -157,7 +157,7 @@ export default function OrdersTable() {
             {order.quantity > 1 ? ` × ${order.quantity}` : ""} for {order.recipientName}
           </h2>
           <p style={{ margin: "0 0 6px", fontSize: 13, color: "var(--text-muted)", lineHeight: 1.6 }}>
-            {order.chocolateBreakdown}
+            {order.cubeBreakdown}
           </p>
           <p style={{ margin: "0 0 20px", fontSize: 13, color: "var(--text-muted)", lineHeight: 1.6 }}>
             {order.address || "No address on file"}

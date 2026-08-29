@@ -152,7 +152,8 @@ export default function Home() {
                 </h2>
                 <p style={{ margin: "26px 0 0", fontWeight: 300, fontSize: 16, lineHeight: 1.75, color: "var(--text-body)", maxWidth: 440 }}>
                   Every box is 15×15cm, matte black, and packed by hand: up to {CUBE_CAP} cubes in
-                  Noir Cubes or Cacao Sepia, mixed however you like. It's all set over a
+                  Double Chocolate, Double Chocolate & Almond or Blueberry Biscoff, mixed however you
+                  like. It's all set over a
                   black-stock card written in gold ink while the order is being packed.
                 </p>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 1, marginTop: 38, background: "var(--border-panel)" }}>

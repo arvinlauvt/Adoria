@@ -20,7 +20,7 @@ function serializeForCustomer(record) {
     productEdition: f["Product Edition"],
     recipientName: f["Recipient Name"],
     occasionDate: f["Occasion Date"],
-    chocolateBreakdown: f["Chocolate Breakdown"],
+    cubeBreakdown: f["Cube Breakdown"],
     addonType: f["Add-on"],
     addonDetail: f["Add-on Detail"],
     paymentStatus: f["Payment Status"],

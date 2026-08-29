@@ -1,23 +1,27 @@
 import Reveal from "../../components/Reveal";
 
-const FLAVOR_COLUMNS = ["Noir Cubes", "Cacao Sepia"];
+const FLAVOR_COLUMNS = ["Double Chocolate", "Double Chocolate & Almond", "Blueberry Biscoff"];
 
 const ALWAYS_PRESENT = [
   ["Wheat", "Plain flour base"],
   ["Egg", "Whole egg in the dough"],
-  ["Milk & dairy", "Butter, milk solids in the chocolate"],
-  ["Soy", "Soy lecithin in the couverture"],
+  ["Milk & dairy", "Butter, and milk solids in the chocolate"],
+  ["Soy", "Soy lecithin, commonly present in chocolate"],
 ];
 
+// Derived, never hard-coded: the header row and every body row have to track
+// however many flavours there are, or the table quietly falls apart.
+const FLAVOUR_GRID = `minmax(0,1.5fr) repeat(${FLAVOR_COLUMNS.length},minmax(0,1fr))`;
+
 const BY_FLAVOUR = [
-  ["Wheat / gluten", "Yes", "Yes"],
-  ["Egg", "Yes", "Yes"],
-  ["Milk / dairy", "Yes", "Yes"],
-  ["Soy", "Yes", "Yes"],
-  ["Tree nuts (almond, hazelnut)", "May contain", "May contain"],
-  ["Peanuts", "May contain", "May contain"],
-  ["Sesame", "May contain", "May contain"],
-  ["Sulphites (dried fruit)", "May contain", "No"],
+  ["Wheat / gluten", "Yes", "Yes", "Yes"],
+  ["Egg", "Yes", "Yes", "Yes"],
+  ["Milk / dairy", "Yes", "Yes", "Yes"],
+  ["Soy", "Yes", "Yes", "Yes"],
+  ["Tree nuts (almond)", "May contain", "Yes", "May contain"],
+  ["Peanuts", "May contain", "May contain", "May contain"],
+  ["Sesame", "May contain", "May contain", "May contain"],
+  ["Sulphites", "May contain", "May contain", "May contain"],
 ];
 
 function cellColor(value) {
@@ -93,7 +97,7 @@ export default function AllergensPage() {
             the whole box.
           </p>
           <div style={{ border: "1px solid var(--border-panel)", borderRadius: 8, overflow: "hidden", background: "var(--bg-panel)" }}>
-            <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1.5fr) repeat(2,minmax(0,1fr))", background: "var(--bg-deep)" }}>
+            <div style={{ display: "grid", gridTemplateColumns: FLAVOUR_GRID, background: "var(--bg-deep)" }}>
               <div style={{ padding: "13px 18px", fontSize: 11, letterSpacing: "0.14em", textTransform: "uppercase", color: "rgba(247,240,228,.6)" }}>
                 Allergen
               </div>
@@ -108,7 +112,7 @@ export default function AllergensPage() {
                 key={allergen}
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "minmax(0,1.5fr) repeat(2,minmax(0,1fr))",
+                  gridTemplateColumns: FLAVOUR_GRID,
                   borderBottom: i < BY_FLAVOUR.length - 1 ? "1px solid var(--border-panel)" : "none",
                   background: i % 2 ? "var(--bg-page)" : "transparent",
                 }}
@@ -155,8 +159,8 @@ export default function AllergensPage() {
           <h2 style={{ margin: "44px 0 8px", fontWeight: 400, fontSize: 22, color: "var(--text-heading)" }}>Keeping them</h2>
           <p style={{ margin: 0, fontWeight: 300, fontSize: 15, lineHeight: 1.8, color: "var(--text-body)" }}>
             Best within 7 days of delivery. Store sealed, cool and dry, out of direct sun —
-            Malaysian humidity will soften a cube faster than anything else. Do not refrigerate;
-            the chocolate will bloom.
+            Malaysian humidity will soften a cube faster than anything else. Do not refrigerate —
+            the chocolate blooms and the cubes pick up whatever else is in the fridge.
           </p>
           </Reveal>
         </div>

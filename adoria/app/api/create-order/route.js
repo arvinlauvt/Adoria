@@ -79,10 +79,10 @@ export const POST = withErrorHandling("create-order", async (req) => {
     max: MAX_BOXES_PER_ORDER,
   });
 
-  const chocolateBreakdown = optionalString(body.chocolateBreakdown, {
-    field: "chocolateBreakdown",
+  const cubeBreakdown = optionalString(body.cubeBreakdown, {
+    field: "cubeBreakdown",
     label: "Cube selection",
-    max: LIMITS.chocolateBreakdown,
+    max: LIMITS.cubeBreakdown,
   });
   const cardMessage = optionalString(body.cardMessage, {
     field: "cardMessage",
@@ -133,10 +133,10 @@ export const POST = withErrorHandling("create-order", async (req) => {
     "Customer Phone": phone,
     "Recipient Name": recipientName,
     "Product Edition": productEdition,
-    "Chocolate Breakdown": chocolateBreakdown,
-    Quantity: quantity,
+    "Cube Breakdown": cubeBreakdown,
+    Boxes: quantity,
     "Message Type": messageMode === "letter" ? "Full Letter" : "Card Message",
-    "Card Message": cardMessage,
+    "Message Text": cardMessage,
     // The label comes from the product's own config, not from the request,
     // so it always matches the add-on that was actually priced above — but it
     // is the label ("Flower Frame Kit"), not the internal type key, because
@@ -147,7 +147,7 @@ export const POST = withErrorHandling("create-order", async (req) => {
     City: city,
     State: state,
     Postcode: postcode,
-    "Order Total": amountRM,
+    "Order Total (RM)": amountRM,
     "Payment Status": "Pending",
     "Fulfillment Status": "Order Confirmed",
     "Order Date": new Date().toISOString(),

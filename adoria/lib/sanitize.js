@@ -22,7 +22,7 @@ export const LIMITS = {
   state: 100,
   postcode: 20,
   productEdition: 80,
-  chocolateBreakdown: 2000,
+  cubeBreakdown: 2000,
   cardMessage: 1300,
   addonType: 80,
   addonDetail: 200,

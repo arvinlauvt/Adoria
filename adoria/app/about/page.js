@@ -48,7 +48,8 @@ export default function AboutPage() {
           <h2 style={{ margin: "0 0 12px", fontWeight: 400, fontSize: 24, color: "var(--text-heading)" }}>The box</h2>
           <p style={{ margin: "0 0 32px", fontWeight: 300, fontSize: 16, lineHeight: 1.8, color: "var(--text-body)" }}>
             Every edition shares the same craft: up to {CUBE_CAP} Cubelles hand-baked in
-            Malaysia, in Noir Cubes or Cacao Sepia, set in a 15×15cm matte black box. Inside, a card
+            Malaysia, in Double Chocolate, Double Chocolate & Almond or Blueberry Biscoff, set in a
+            15×15cm matte black box. Inside, a card
             in black stock and gold ink carries whatever you want said. A short line, or a full
             letter.
           </p>

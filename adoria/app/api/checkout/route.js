@@ -67,7 +67,7 @@ export const POST = withErrorHandling("checkout", async (req) => {
 
   // Charge exactly what was committed to Airtable at order creation — never
   // a number the browser sends at this step.
-  const amountRM = fields["Order Total"];
+  const amountRM = fields["Order Total (RM)"];
   if (typeof amountRM !== "number" || !Number.isFinite(amountRM) || amountRM <= 0) {
     throw badRequest({
       status: 422,

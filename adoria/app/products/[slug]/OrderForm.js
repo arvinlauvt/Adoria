@@ -27,11 +27,15 @@ import {
 const MAX_CARD_MESSAGE = 200;
 const MAX_LETTER = 1300;
 const WEEKDAYS = ["S", "M", "T", "W", "T", "F", "S"];
-// "Noir Cubes" uses --coffee-soft rather than the near-black --coffee — on
-// the dark theme's near-black panels, --coffee's own value is barely
+// Double Chocolate uses --coffee-soft rather than the near-black --coffee —
+// on the dark theme's near-black panels, --coffee's own value is barely
 // distinguishable from the background, making the swatch and the cube-fill
 // grid below it look unfilled even when selected.
-const FLAVOR_SWATCH = { "Noir Cubes": "var(--coffee-soft)", "Cacao Sepia": "#8a5a34" };
+const FLAVOR_SWATCH = {
+  "Double Chocolate": "var(--coffee-soft)",
+  "Double Chocolate & Almond": "#8a5a34",
+  "Blueberry Biscoff": "#5a4a78",
+};
 
 function emptyBox() {
   return Object.fromEntries(FLAVORS.map((f) => [f, 0]));
@@ -294,7 +298,7 @@ export default function OrderForm({ product }) {
           occasionDate: occasionDateStr,
           productEdition: product.edition,
           quantity: boxes.length,
-          chocolateBreakdown: breakdown,
+          cubeBreakdown: breakdown,
           cardMessage,
           messageType: messageMode === "letter" ? "Full Letter" : "Card Message",
           addonType: product.addon && addonSelected ? product.addon.label : "None",

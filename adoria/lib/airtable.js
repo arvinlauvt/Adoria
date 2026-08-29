@@ -170,7 +170,7 @@ export async function getCommittedBoxesForDate(dateISO) {
     throw new Error(`Airtable capacity lookup failed: ${res.status} ${body}`);
   }
   const data = await res.json();
-  return data.records.reduce((sum, r) => sum + (r.fields["Quantity"] || 0), 0);
+  return data.records.reduce((sum, r) => sum + (r.fields["Boxes"] || 0), 0);
 }
 
 // Same as getCommittedBoxesForDate but for a whole date range in one call —
@@ -194,7 +194,7 @@ export async function getCommittedBoxesForRange(startISO, endISO) {
   for (const r of data.records) {
     const date = r.fields["Occasion Date"];
     if (!date) continue;
-    totals[date] = (totals[date] || 0) + (r.fields["Quantity"] || 0);
+    totals[date] = (totals[date] || 0) + (r.fields["Boxes"] || 0);
   }
   return totals;
 }

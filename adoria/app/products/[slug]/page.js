@@ -58,7 +58,7 @@ export default function ProductPage({ params }) {
                 What's inside
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 9, fontWeight: 300, fontSize: 14, color: "var(--text-body)" }}>
-                <span>Up to {CUBE_CAP} cubes: Noir Cubes, Cacao Sepia, mixed as you like</span>
+                <span>Up to {CUBE_CAP} cubes: Double Chocolate, Double Chocolate &amp; Almond, Blueberry Biscoff — mixed as you like</span>
                 <span>Matte black 15×15cm box</span>
                 <span>Your choice: black-stock card, or a full letter</span>
                 {product.addon?.type === "flowers" && <span>Optional Flower Frame Kit, four colourways</span>}
