@@ -2,6 +2,13 @@
 
 // Applied to every response. Each of these closes a class of attack that
 // doesn't need a bug in our own code to work.
+// React's development build calls eval() for debugging features (rebuilding
+// call stacks, hot reload). Production React never does, so 'unsafe-eval' is
+// added for `next dev` only — the deployed CSP stays strict, which is the
+// whole point of having one. Without this, dev fills the console with CSP
+// violations that look like application errors and aren't.
+const isDev = process.env.NODE_ENV !== "production";
+
 const securityHeaders = [
   // Stops the site being framed by another page, which is what makes
   // clickjacking possible — an invisible overlay of our admin dashboard
@@ -34,7 +41,7 @@ const securityHeaders = [
     key: "Content-Security-Policy",
     value: [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline'",
+      `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com",
       "img-src 'self' data: blob:",
