@@ -6,8 +6,14 @@ export function generateStaticParams() {
   return PRODUCTS.map((p) => ({ slug: p.slug }));
 }
 
-export default function ProductPage({ params }) {
-  const product = getProduct(params.slug);
+// `await params` rather than `params.slug`: Next 15 made params a Promise,
+// and awaiting a non-Promise is a no-op, so this one spelling works on 14
+// (what production builds) and 16 (what a fresh install gets). Without it,
+// slug is undefined on 15+, getProduct returns nothing, and every product
+// page 404s — the page is simply gone, with no error to explain it.
+export default async function ProductPage({ params }) {
+  const { slug } = await params;
+  const product = getProduct(slug);
   if (!product) notFound();
 
   return (

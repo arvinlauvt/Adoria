@@ -1,18 +1,32 @@
 import Link from "next/link";
 import { getBillTransactions } from "../../lib/toyyibpay";
+import { newErrorReference } from "../../lib/errors";
 
 export default async function ThankYouPage({ searchParams }) {
-  const billCode = searchParams?.billcode;
-  const orderId = searchParams?.order_id;
+  // Awaited: Next 15 made searchParams a Promise. Read synchronously it comes
+  // back undefined on 15+, so every customer — paid or not — landed on the
+  // "we're still confirming" branch and none were ever told their payment
+  // went through.
+  const params = await searchParams;
+  const billCode = params?.billcode;
+  const orderId = params?.order_id;
 
   let paid = false;
   let checked = false;
+  let reference = null;
   if (billCode) {
     try {
       const txn = await getBillTransactions(billCode);
       paid = !!txn && txn.billpaymentStatus === "1";
       checked = true;
-    } catch (e) {
+    } catch (err) {
+      // Was silently swallowed. This is the moment right after someone pays,
+      // so a failure to confirm is exactly when we most need to know.
+      reference = newErrorReference();
+      console.error(
+        `[thank-you] ${reference} could not confirm bill ${billCode}:`,
+        err && err.stack ? err.stack : err
+      );
       checked = false;
     }
   }
@@ -37,8 +51,8 @@ export default async function ThankYouPage({ searchParams }) {
                 color: "var(--text-label)",
               }}
             >
-              Your payment receipt has been sent to your Gmail — check your inbox (and spam
-              folder) for confirmation from ToyyibPay.
+              Your payment receipt has been sent to your email — check your inbox, and your spam
+              folder, for the confirmation from ToyyibPay.
             </p>
           </>
         ) : checked ? (
@@ -54,10 +68,19 @@ export default async function ThankYouPage({ searchParams }) {
           </>
         ) : (
           <>
-            <h1 style={{ fontSize: 28 }}>Thanks — almost there</h1>
+            <h1 style={{ fontSize: 28 }}>Thanks — we're confirming your payment</h1>
             <p style={{ color: "var(--text-body)" }}>
-              We're confirming your payment. This page updates automatically once it clears — no
-              need to do anything else.
+              We haven't been able to check with the payment provider just yet. If money left
+              your account, your order is safe — payment confirmation is recorded separately
+              and doesn't depend on this page.{" "}
+              {orderId ? (
+                <>
+                  Look up order <strong>{orderId}</strong> on the tracking page in a few minutes.
+                </>
+              ) : (
+                <>Check your email for the confirmation, or use the tracking page in a few minutes.</>
+              )}
+              {reference ? ` If you need to ask us about it, quote ${reference}.` : ""}
             </p>
           </>
         )}
