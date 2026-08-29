@@ -122,9 +122,16 @@ export async function listOrders({ pageLimit = 20 } = {}) {
     }
     const data = await res.json();
     records.push(...data.records);
-    if (!data.offset) break;
+    if (!data.offset) return records;
     offset = data.offset;
   }
+
+  // Ran out of pages with more still to fetch. Returning a subset silently
+  // would make the dashboard quietly wrong, which is worse than slow.
+  console.error(
+    `[airtable] listOrders hit its ${pageLimit}-page cap with ${records.length} records ` +
+      `and more remaining. The dashboard is showing a subset — raise pageLimit or add filtering.`
+  );
   return records;
 }
 
@@ -141,16 +148,32 @@ export async function findOrdersByEmail(email) {
   const formula = encodeURIComponent(
     `LOWER({Customer Email}) = "${escapeFormulaValue(email).toLowerCase()}"`
   );
-  const res = await fetch(
-    `${API_URL}?filterByFormula=${formula}&sort[0][field]=Order Date&sort[0][direction]=desc`,
-    { headers: headers() }
-  );
-  if (!res.ok) {
-    const body = await res.text();
-    throw new Error(`Airtable email lookup failed: ${res.status} ${body}`);
+  // Airtable caps a response at 100 records, so this follows the offset
+  // rather than returning a first page and calling it the whole history.
+  const records = [];
+  let offset;
+  for (let page = 0; page < 10; page++) {
+    const url =
+      `${API_URL}?filterByFormula=${formula}` +
+      `&sort[0][field]=Order Date&sort[0][direction]=desc&pageSize=100` +
+      (offset ? `&offset=${encodeURIComponent(offset)}` : "");
+
+    const res = await fetch(url, { headers: headers() });
+    if (!res.ok) {
+      const body = await res.text();
+      throw new Error(`Airtable email lookup failed: ${res.status} ${body}`);
+    }
+    const data = await res.json();
+    records.push(...data.records);
+    if (!data.offset) return records;
+    offset = data.offset;
   }
-  const data = await res.json();
-  return data.records;
+
+  console.error(
+    `[airtable] findOrdersByEmail hit its page cap with ${records.length} records and more ` +
+      `remaining — this customer's history is being shown incomplete.`
+  );
+  return records;
 }
 
 // Total boxes already Paid for a single delivery date, across every
@@ -182,7 +205,7 @@ export async function getCommittedBoxesForRange(startISO, endISO) {
     `AND({Payment Status} = "Paid", NOT({Occasion Date} = ""), IS_AFTER({Occasion Date}, DATEADD(DATETIME_PARSE("${startISO}", 'YYYY-MM-DD'), -1, 'days')), IS_BEFORE({Occasion Date}, DATEADD(DATETIME_PARSE("${endISO}", 'YYYY-MM-DD'), 1, 'days')))`
   );
   const res = await fetch(
-    `${API_URL}?filterByFormula=${formula}&fields%5B%5D=Occasion%20Date&fields%5B%5D=Quantity`,
+    `${API_URL}?filterByFormula=${formula}&fields%5B%5D=Occasion%20Date&fields%5B%5D=Boxes`,
     { headers: headers() }
   );
   if (!res.ok) {

@@ -19,8 +19,9 @@ export default function AboutPage() {
           <Image
             src="/logo-icon.png"
             alt=""
+            // The asset is square now; 96x64 was the old canvas's ratio.
             width={96}
-            height={64}
+            height={96}
             style={{ objectFit: "contain", opacity: 0.9 }}
           />
         </AnimateIn>

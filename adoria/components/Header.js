@@ -63,7 +63,7 @@ export default function Header() {
         <Link href="/" style={{ display: "flex", alignItems: "center", gap: 2, textDecoration: "none" }} onClick={() => setOpen(false)}>
           {/* No nudge needed any more — the source image used to sit off-centre
               on a much larger canvas, and this offset compensated for it. */}
-          <Image src="/logo-icon.png" alt="" width={44} height={44} style={{ objectFit: "contain" }} />
+          <Image src="/logo-icon.png" alt="" width={44} height={44} priority style={{ objectFit: "contain" }} />
           <span
             style={{
               fontFamily: "var(--serif)",
