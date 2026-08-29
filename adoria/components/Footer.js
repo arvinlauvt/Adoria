@@ -1,10 +1,9 @@
 export default function Footer() {
   return (
     <footer
+      className="dot-texture-deep"
       style={{
         backgroundColor: "var(--bg-deep)",
-        backgroundImage: "radial-gradient(rgba(217, 171, 92, 0.18) 1px, transparent 1px)",
-        backgroundSize: "24px 24px",
         padding: "64px 32px 40px",
         transition: "background-color 0.25s var(--ease-premium)",
       }}
@@ -81,7 +80,6 @@ export default function Footer() {
         }}
       >
         <span>© 2026 Cubelle</span>
-        <span>Terms · Privacy · Refunds</span>
       </div>
     </footer>
   );

@@ -246,7 +246,7 @@ export default function OrderForm({ product }) {
   }
 
   const key = steps[step];
-  const previewText = cardMessage || (messageMode === "card" ? "Your message will appear here." : "Your letter will appear here — write as much as the moment deserves.");
+  const previewText = cardMessage || (messageMode === "card" ? "Your message will appear here." : "Your letter will appear here. Write as much as the moment deserves.");
   const previewDate = occasionDate
     ? occasionDate.toLocaleDateString("en-MY", { day: "numeric", month: "long", year: "numeric" })
     : calendar.monthLabel;
@@ -281,8 +281,8 @@ export default function OrderForm({ product }) {
           subtitle={
             {
               details: "So we can reach you about your order.",
-              boxes: `Up to ${CUBE_CAP} cubes per box — mix flavors however you like.`,
-              message: "A short line, or a full letter — your call.",
+              boxes: `Up to ${CUBE_CAP} cubes per box. Mix flavors however you like.`,
+              message: "A short line, or a full letter: your call.",
               addon: "Dried and pressed in-house, tucked in beside the card.",
               delivery: "Pick the date; we work the lead time backwards.",
               review: "Everything as it will be made.",
@@ -389,7 +389,7 @@ export default function OrderForm({ product }) {
               </button>
             ) : (
               <p className="hint" style={{ textAlign: "center" }}>
-                {MAX_BOXES_PER_ORDER} boxes is the limit per order — place a second order for more.
+                {MAX_BOXES_PER_ORDER} boxes is the limit per order. Place a second order for more.
               </p>
             )}
           </div>
@@ -523,7 +523,7 @@ export default function OrderForm({ product }) {
             )}
 
             {addonSelected && product.addon.type === "brassBookmark" && (
-              <p className="hint">Engraved metal, sealed separately from the tray — a small keepsake beside the card.</p>
+              <p className="hint">Engraved metal, sealed separately from the tray: a small keepsake beside the card.</p>
             )}
           </div>
         )}
@@ -578,7 +578,7 @@ export default function OrderForm({ product }) {
                       key={i}
                       type="button"
                       disabled={disabled}
-                      title={isFull ? "Fully booked — please pick another date" : undefined}
+                      title={isFull ? "Fully booked. Please pick another date." : undefined}
                       onClick={() => setOccasionDate(c.date)}
                       style={{
                         aspectRatio: "1/1",
@@ -598,12 +598,12 @@ export default function OrderForm({ product }) {
                 })}
               </div>
               <div style={{ marginTop: 14, fontSize: 12, color: "var(--text-body)" }}>
-                {occasionDate ? `Landing ${previewDate}` : "Pick a date"} — need it{" "}
+                {occasionDate ? `Landing ${previewDate}` : "Pick a date"}. Need it{" "}
                 <a
                   href={`https://wa.me/60106509189?text=${encodeURIComponent(
                     occasionDate
                       ? `Hi Cubelle, can you rush my order to land by ${previewDate}? That's earlier than the site's earliest available date.`
-                      : "Hi Cubelle, I need a box sooner than the earliest available date — can you help?"
+                      : "Hi Cubelle, I need a box sooner than the earliest available date. Can you help?"
                   )}`}
                   target="_blank"
                   rel="noreferrer"

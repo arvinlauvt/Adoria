@@ -42,7 +42,7 @@ export const PRODUCTS = [
     shortDescription:
       "Engagements, first dates remembered, the small private dates only the two of you keep. Add pressed flowers in one of four colours; the card does the rest.",
     description:
-      "Our original box. Twenty-five hand-baked cubes over your words in gold ink — a short card message, or a full letter of up to 1,300 characters, your choice at checkout. Add pressed flowers if the moment calls for them. Choose the date — we build the lead time in.",
+      "Our original box. Twenty-five hand-baked cubes over your words in gold ink: a short card message, or a full letter of up to 1,300 characters, your choice at checkout. Add pressed flowers if the moment calls for them. Choose the date. We build the lead time in.",
     accent: "#8a5a34",
     occasionDateLabel: "Anniversary date",
     occasionDateRequired: true,
@@ -57,7 +57,7 @@ export const PRODUCTS = [
     occasionTag: "Career",
     tagline: "For the wins that deserve more than a text.",
     shortDescription:
-      "A new job, a new home, a degree finally finished. Same box, same craft — a card written for pride instead of romance, and an engraved token if you want it kept.",
+      "A new job, a new home, a degree finally finished. Same box, same craft: a card written for pride instead of romance, and an engraved token if you want it kept.",
     description:
       "A sleeker, congratulatory tone for the wins worth marking properly. Twenty-five hand-baked cubes, a card written for pride instead of romance, and an optional engraved Custom Brass Bookmark to keep long after the box is empty.",
     accent: "#4a3524",
@@ -74,9 +74,9 @@ export const PRODUCTS = [
     occasionTag: "Visiting",
     tagline: "A better guest than a fruit basket.",
     shortDescription:
-      "For dinner parties, visiting family, and thanking someone who hosted you well. Smaller gesture, same box — arrives ready to hand over.",
+      "For dinner parties, visiting family, and thanking someone who hosted you well. Smaller gesture, same box. Arrives ready to hand over.",
     description:
-      "For visiting family, dropping in on a dinner party, or thanking someone who hosted you well. Twenty-five hand-baked cubes, matte black box, your message in gold ink — an elevated alternative to whatever's usually picked up on the way over.",
+      "For visiting family, dropping in on a dinner party, or thanking someone who hosted you well. Twenty-five hand-baked cubes, matte black box, your message in gold ink. An elevated alternative to whatever's usually picked up on the way over.",
     accent: "#3b2417",
     occasionDateLabel: "Delivery date (optional)",
     occasionDateRequired: false,

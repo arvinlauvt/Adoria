@@ -30,10 +30,9 @@ export default function AllergensPage() {
   return (
     <main>
       <section
+        className="dot-texture-deep"
         style={{
           backgroundColor: "var(--bg-deep)",
-          backgroundImage: "radial-gradient(rgba(217, 171, 92, 0.2) 1px, transparent 1px)",
-          backgroundSize: "24px 24px",
           padding: "64px 32px 52px",
           transition: "background-color 0.25s var(--ease-premium)",
         }}
@@ -54,10 +53,9 @@ export default function AllergensPage() {
       </section>
 
       <section
+        className="dot-texture"
         style={{
           padding: "52px 32px 0",
-          backgroundImage: "radial-gradient(var(--dot-texture) 1px, transparent 1px)",
-          backgroundSize: "24px 24px",
         }}
       >
         <div className="wrap" style={{ maxWidth: 900, paddingBottom: 96 }}>

@@ -14,10 +14,9 @@ export default function ProductPage({ params }) {
     <main>
       <div style={{ display: "grid", gridTemplateColumns: "minmax(0,1fr) 520px", maxWidth: 1440, margin: "0 auto" }} className="product-grid">
         <div
+          className="dot-texture"
           style={{
             padding: "56px 32px 72px",
-            backgroundImage: "radial-gradient(var(--dot-texture) 1px, transparent 1px)",
-            backgroundSize: "24px 24px",
           }}
         >
           <div style={{ position: "sticky", top: 20 }}>
@@ -59,7 +58,7 @@ export default function ProductPage({ params }) {
                 What's inside
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 9, fontWeight: 300, fontSize: 14, color: "var(--text-body)" }}>
-                <span>Up to {CUBE_CAP} cubes — Noir Cubes, Cacao Sepia, mixed as you like</span>
+                <span>Up to {CUBE_CAP} cubes: Noir Cubes, Cacao Sepia, mixed as you like</span>
                 <span>Matte black 15×15cm box</span>
                 <span>Your choice: black-stock card, or a full letter</span>
                 {product.addon?.type === "flowers" && <span>Optional Flower Frame Kit, four colourways</span>}
@@ -69,17 +68,12 @@ export default function ProductPage({ params }) {
           </div>
         </div>
 
-        <div
-          style={{
-            backgroundImage: "radial-gradient(var(--dot-texture) 1px, transparent 1px)",
-            backgroundSize: "24px 24px",
-          }}
-        >
+        <div className="dot-texture">
           <div style={{ marginTop: 56, padding: "40px 32px 56px", background: "var(--bg-panel)", borderRadius: "28px 28px 0 0", minHeight: 700, transition: "background-color 0.25s var(--ease-premium)" }}>
             {product.comingSoon ? (
               <div className="card" style={{ textAlign: "center" }}>
                 <p style={{ fontFamily: "var(--serif)", fontSize: 18, color: "var(--text-heading)" }}>Coming soon.</p>
-                <p style={{ color: "var(--text-body)", fontSize: 14 }}>This edition isn't open for orders yet — check back soon.</p>
+                <p style={{ color: "var(--text-body)", fontSize: 14 }}>This edition isn't open for orders yet. Check back soon.</p>
               </div>
             ) : (
               <OrderForm product={product} />

@@ -124,7 +124,7 @@ export default function TrackPage() {
   }
 
   return (
-    <main style={{ padding: "56px 32px 96px", backgroundImage: "radial-gradient(var(--dot-texture) 1px, transparent 1px)", backgroundSize: "24px 24px" }}>
+    <main className="dot-texture" style={{ padding: "56px 32px 96px" }}>
       <div className="wrap" style={{ maxWidth: 620 }}>
         <h1 style={{ fontSize: 30, marginBottom: 8 }}>Track your order</h1>
         <p style={{ color: "var(--text-body)", marginBottom: 32 }}>

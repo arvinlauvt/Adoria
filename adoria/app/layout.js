@@ -35,7 +35,7 @@ export default function RootLayout({ children }) {
           rel="stylesheet"
         />
       </head>
-      <body>
+      <body className="dot-texture">
         <Header />
         <PageTransition>{children}</PageTransition>
         <Footer />
