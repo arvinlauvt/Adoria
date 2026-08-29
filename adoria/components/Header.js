@@ -40,7 +40,9 @@ export default function Header() {
         }}
       >
         <Link href="/" style={{ display: "flex", alignItems: "center", gap: 2, textDecoration: "none" }} onClick={() => setOpen(false)}>
-          <Image src="/logo-icon.png" alt="" width={68} height={68} style={{ objectFit: "contain", transform: "translate(8px, -8px)" }} />
+          {/* No nudge needed any more — the source image used to sit off-centre
+              on a much larger canvas, and this offset compensated for it. */}
+          <Image src="/logo-icon.png" alt="" width={44} height={44} style={{ objectFit: "contain" }} />
           <span
             style={{
               fontFamily: "var(--serif)",

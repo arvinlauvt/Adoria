@@ -45,8 +45,8 @@ export default function Home() {
             <Image
               src="/logo-icon.png"
               alt=""
-              width={1390}
-              height={922}
+              width={640}
+              height={640}
               style={{ width: "100%", height: "auto", opacity: 0.16 }}
             />
           </motion.div>

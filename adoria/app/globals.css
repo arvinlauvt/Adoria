@@ -153,47 +153,15 @@ body {
   transition: background-color 0.25s var(--ease-premium), color 0.25s var(--ease-premium);
 }
 
-/* Background motif: 5x5 clusters of dots, referencing the 5x5 cube grid
-   inside the actual product box (see the cube-fill grid in the checkout's
-   "Build the tray" step), instead of one infinite evenly-spaced dot field.
-   25 single-dot radial-gradient layers positioned into one cluster, tiled
-   via background-size — same dot count per unit area as the old 24px
-   single-dot tile (25 dots per 120x120px either way), so the overall
-   visual weight is unchanged, just clustered instead of uniform.
+/* An even 24px dot grid. A 5x5 clustered variant was tried, echoing the cube
+   grid inside the box, but at page scale it read as noise rather than texture.
    .dot-texture uses the theme-aware token (page/panel backgrounds);
-   .dot-texture-deep is a fixed gold tone for the header/hero/footer
-   surfaces, which are dark in both themes so don't need to invert. */
+   .dot-texture-deep is a fixed gold tone for the header/hero/footer surfaces,
+   which are dark in both themes so don't need to invert. */
 .dot-texture,
 .dot-texture-deep {
-  background-image: radial-gradient(var(--dot-color) 1px, transparent 1px),
-    radial-gradient(var(--dot-color) 1px, transparent 1px),
-    radial-gradient(var(--dot-color) 1px, transparent 1px),
-    radial-gradient(var(--dot-color) 1px, transparent 1px),
-    radial-gradient(var(--dot-color) 1px, transparent 1px),
-    radial-gradient(var(--dot-color) 1px, transparent 1px),
-    radial-gradient(var(--dot-color) 1px, transparent 1px),
-    radial-gradient(var(--dot-color) 1px, transparent 1px),
-    radial-gradient(var(--dot-color) 1px, transparent 1px),
-    radial-gradient(var(--dot-color) 1px, transparent 1px),
-    radial-gradient(var(--dot-color) 1px, transparent 1px),
-    radial-gradient(var(--dot-color) 1px, transparent 1px),
-    radial-gradient(var(--dot-color) 1px, transparent 1px),
-    radial-gradient(var(--dot-color) 1px, transparent 1px),
-    radial-gradient(var(--dot-color) 1px, transparent 1px),
-    radial-gradient(var(--dot-color) 1px, transparent 1px),
-    radial-gradient(var(--dot-color) 1px, transparent 1px),
-    radial-gradient(var(--dot-color) 1px, transparent 1px),
-    radial-gradient(var(--dot-color) 1px, transparent 1px),
-    radial-gradient(var(--dot-color) 1px, transparent 1px),
-    radial-gradient(var(--dot-color) 1px, transparent 1px),
-    radial-gradient(var(--dot-color) 1px, transparent 1px),
-    radial-gradient(var(--dot-color) 1px, transparent 1px),
-    radial-gradient(var(--dot-color) 1px, transparent 1px),
-    radial-gradient(var(--dot-color) 1px, transparent 1px);
-  background-position: 0px 0px, 6px 0px, 12px 0px, 18px 0px, 24px 0px, 0px 6px, 6px 6px, 12px 6px, 18px 6px,
-    24px 6px, 0px 12px, 6px 12px, 12px 12px, 18px 12px, 24px 12px, 0px 18px, 6px 18px, 12px 18px, 18px 18px,
-    24px 18px, 0px 24px, 6px 24px, 12px 24px, 18px 24px, 24px 24px;
-  background-size: 120px 120px;
+  background-image: radial-gradient(var(--dot-color) 1px, transparent 1px);
+  background-size: 24px 24px;
 }
 .dot-texture {
   --dot-color: var(--dot-texture);
