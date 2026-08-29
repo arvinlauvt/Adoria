@@ -2,12 +2,18 @@
 
 import { useRouter } from "next/navigation";
 
-export default function SignOutButton() {
+// `redirectTo` differs by where this is used: signing out of /admin drops you
+// at the sign-in page, since there's nothing left to see. Signing out of
+// /track leaves you on /track, which still works as a guest — bouncing
+// someone to a login form they didn't ask for reads as being thrown out.
+export default function SignOutButton({ redirectTo = "/login" }) {
   const router = useRouter();
 
   async function signOut() {
     await fetch("/api/auth/logout", { method: "POST" });
-    router.push("/login");
+    router.push(redirectTo);
+    // Server components cache the session; without this the page can still
+    // render as though you were signed in.
     router.refresh();
   }
 

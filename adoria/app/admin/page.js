@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import { getCurrentSession } from "../../lib/auth/requireSession";
 import OrdersTable from "./OrdersTable";
-import SignOutButton from "./SignOutButton";
+import SignOutButton from "../../components/SignOutButton";
 
 export const metadata = {
   title: "Fulfilment · Cubelle",
