@@ -16,7 +16,7 @@ export const GET = withErrorHandling(
     if (!session) {
       return Response.json(
         {
-          error: "You're not signed in. Sign in to see your account.",
+          error: "You're not signed in.",
           code: "not_signed_in",
         },
         { status: 401 }
@@ -29,7 +29,5 @@ export const GET = withErrorHandling(
   },
   {
     what: "We couldn't check whether you're signed in.",
-    dependency: "the service that stores accounts",
-    note: "Your account is fine — this is only the check failing.",
   }
 );

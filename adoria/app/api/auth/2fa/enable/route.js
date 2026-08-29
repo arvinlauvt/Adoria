@@ -22,9 +22,7 @@ export const POST = withErrorHandling(
     if (!code) {
       return Response.json(
         {
-          error:
-            "Enter the 6-digit code from your authenticator app. " +
-            "It's needed to prove the app scanned the QR correctly before we switch two-factor on.",
+          error: "Enter the 6-digit code from your authenticator app.",
           code: "missing_code",
           field: "code",
         },
@@ -37,9 +35,7 @@ export const POST = withErrorHandling(
       return Response.json(
         {
           error:
-            "Setup timed out. " +
-            "The QR code is only held for a few minutes, and this one has expired. " +
-            "Start setup again to get a fresh QR code, and remove the old Cubelle entry from your authenticator app.",
+            "Setup timed out. Start again for a fresh QR code, and delete the old Cubelle entry from your app.",
           code: "setup_expired",
         },
         { status: 400 }
@@ -51,10 +47,7 @@ export const POST = withErrorHandling(
     if (!verifyTotpCode(secretBase32, code)) {
       return Response.json(
         {
-          error:
-            "That code isn't right. " +
-            "Codes change every 30 seconds, so an old one won't work, and the phone's clock has to be accurate. " +
-            "Enter the code showing right now.",
+          error: "That code isn't right. Codes change every 30 seconds — use the one showing now.",
           code: "bad_code",
           field: "code",
         },
@@ -78,10 +71,8 @@ export const POST = withErrorHandling(
   },
   {
     what: "We couldn't turn on two-factor.",
-    dependency: "the service that stores accounts",
-    // The write and the confirmation are separate, so on failure the user
-    // can't assume either state — tell them how to check rather than guess.
-    note:
-      "Don't assume it's on or off: sign out and back in, then check your account page before running setup again.",
+    // Kept: the write and the confirmation are separate, so neither state is
+    // safe to assume.
+    note: "Sign out and back in, then check your account page before trying again.",
   }
 );

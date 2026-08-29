@@ -39,9 +39,8 @@ export const GET = withErrorHandling("track", async (req) => {
     throw badRequest({
       status: 429,
       code: "rate_limited",
-      what: "You've looked up too many orders in a short time.",
-      why: "We cap how often this can be searched, so nobody can work through customer emails one at a time.",
-      action: `Wait about ${Math.ceil(limit.retryAfterSeconds / 60)} minutes and try again, or sign in to see all your orders at once.`,
+      what: "Too many lookups.",
+      action: `Wait about ${Math.ceil(limit.retryAfterSeconds / 60)} minutes, or sign in to see all your orders.`,
     });
   }
 
@@ -71,8 +70,7 @@ export const GET = withErrorHandling("track", async (req) => {
       field: "orderId",
       code: "order_id_required",
       what: "We need your order ID as well as your email.",
-      why: "An email address on its own isn't proof the order is yours, and these show a recipient's details.",
-      action: "Copy the order ID from your confirmation email, or sign in and we'll show all your orders without it.",
+      action: "It's in your confirmation email. Or sign in and you won't need it.",
     });
   }
   const orderId = requiredString(rawOrderId, {
@@ -90,15 +88,12 @@ export const GET = withErrorHandling("track", async (req) => {
     throw badRequest({
       status: 404,
       code: "order_not_found",
-      what: "We couldn't find an order with those details.",
-      why: "Either the email or the order ID doesn't match what we have. They both need to be exactly as they appear in your confirmation email.",
-      action: "Check the confirmation email and try again, or sign in if you have an account and we'll show all your orders without the order ID.",
+      what: "No order matches those details.",
+      action: "Check both against your confirmation email, or sign in to see all your orders.",
     });
   }
 
   return Response.json({ orders: match.map(serializeForCustomer) });
 }, {
   what: "We couldn't look up your order.",
-  dependency: "our order database",
-  note: "Your order itself is fine — this is only the lookup failing.",
 });

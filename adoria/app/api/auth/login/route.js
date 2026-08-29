@@ -13,10 +13,10 @@ import { withErrorHandling } from "../../../../lib/errors";
 // non-existent account are indistinguishable. Anything more specific
 // ("no such account") turns this endpoint into an account-enumeration oracle.
 // It still tells the user what to do, which is the part that costs nothing.
+// Deliberately identical for a wrong password and an unknown address —
+// anything more specific turns this into an account-enumeration oracle.
 const GENERIC_FAILURE =
-  "That email and password don't match. " +
-  "Either the address isn't registered or the password is wrong — for your safety we don't say which. " +
-  "Check for typos, or reset your password if you're not sure of it.";
+  "That email and password don't match. Check for typos, or reset your password.";
 
 // Compared against when no account exists, purely so the response takes
 // roughly as long as a real bcrypt check would. Without it, a fast rejection
@@ -34,7 +34,7 @@ export const POST = withErrorHandling(
     if (!email || !password) {
       return Response.json(
         {
-          error: "Enter your email and password. Both are needed to sign in.",
+          error: "Enter your email and password.",
           code: "missing_credentials",
         },
         { status: 400 }
@@ -56,10 +56,8 @@ export const POST = withErrorHandling(
       return Response.json(
         {
           error:
-            `Too many sign-in attempts. ` +
-            `We've temporarily locked sign-in for this account to stop someone guessing the password. ` +
-            `Wait about ${minutes} minute${minutes === 1 ? "" : "s"} and try again — ` +
-            `if it wasn't you, reset your password before you do.`,
+            `Too many sign-in attempts. Try again in about ${minutes} minute${minutes === 1 ? "" : "s"}. ` +
+            `If it wasn't you, reset your password.`,
           code: "rate_limited",
         },
         { status: 429, headers: { "Retry-After": String(limit.retryAfterSeconds) } }
@@ -96,7 +94,5 @@ export const POST = withErrorHandling(
   },
   {
     what: "We couldn't sign you in.",
-    dependency: "the service that stores accounts",
-    note: "Your password wasn't wrong — this failed before we got as far as checking it.",
   }
 );

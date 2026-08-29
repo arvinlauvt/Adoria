@@ -44,28 +44,21 @@ function expandInputs(inputs) {
   return [...out];
 }
 
+// zxcvbn says what's wrong ("This is a commonly used password.") but never
+// what to do instead, so every rejection gets one short suggestion appended.
+const ADVICE = "Try four unrelated words — long beats complicated.";
+
 // `inputs` are extra terms to penalize (email, name) so "arvin1990" scores
 // low when it's literally the account's own email local-part.
-// zxcvbn's own feedback says what's wrong ("This is a commonly used
-// password.") but never why it matters or what to do instead, which leaves
-// someone guessing at another password that fails the same way. Everything
-// below pairs its diagnosis with a reason and a concrete next step.
-const ADVICE =
-  "Attackers try lists of known passwords first, so this one would be among the earliest guessed. " +
-  "Try four unrelated words strung together — long and unusual beats short and complicated.";
-
 export function checkPasswordStrength(password, inputs = []) {
   if (!password) {
-    return { ok: false, score: 0, reason: "Enter a password to protect your account." };
+    return { ok: false, score: 0, reason: "Enter a password." };
   }
   if (password.length < MIN_LENGTH) {
     return {
       ok: false,
       score: 0,
-      reason:
-        `Use at least ${MIN_LENGTH} characters — this one has ${password.length}. ` +
-        `Length is what makes a password hard to crack, more than symbols or numbers do. ` +
-        `A few unrelated words together is the easiest way to get there.`,
+      reason: `Use at least ${MIN_LENGTH} characters — this one has ${password.length}. Four unrelated words works well.`,
     };
   }
   const expanded = expandInputs(["cubelle", "cubelle.my", ...inputs]);
@@ -83,10 +76,7 @@ export function checkPasswordStrength(password, inputs = []) {
     return {
       ok: false,
       score: 0,
-      reason:
-        "This is built out of your own email address. " +
-        "Anyone targeting you would try that first, so it offers almost no protection. " +
-        "Pick something unrelated to you — four unconnected words works well.",
+      reason: "This is just your email address. Pick something unrelated to you.",
     };
   }
 

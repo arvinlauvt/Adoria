@@ -18,9 +18,7 @@ export const POST = withErrorHandling(
     if (!password) {
       return Response.json(
         {
-          error:
-            "Enter your password to turn this off. " +
-            "Removing two-factor makes the account easier to break into, so we confirm it's really you first.",
+          error: "Enter your password to turn two-factor off.",
           code: "missing_password",
           field: "password",
         },
@@ -37,10 +35,7 @@ export const POST = withErrorHandling(
       const minutes = Math.max(1, Math.ceil(limit.retryAfterSeconds / 60));
       return Response.json(
         {
-          error:
-            `Too many attempts. ` +
-            `Password checks are limited to stop guessing, and this account has hit that limit. ` +
-            `Two-factor is still on. Wait about ${minutes} minute${minutes === 1 ? "" : "s"} and try again.`,
+          error: `Too many attempts. Two-factor is still on. Try again in about ${minutes} minute${minutes === 1 ? "" : "s"}.`,
           code: "rate_limited",
         },
         { status: 429, headers: { "Retry-After": String(limit.retryAfterSeconds) } }
@@ -51,10 +46,7 @@ export const POST = withErrorHandling(
     if (!record || !(await verifyPassword(password, record.fields["Password Hash"] || ""))) {
       return Response.json(
         {
-          error:
-            "That password isn't right. " +
-            "Two-factor is still on and nothing has changed. " +
-            "Try again, or reset your password if you've forgotten it.",
+          error: "That password isn't right. Two-factor is still on.",
           code: "bad_password",
           field: "password",
         },
@@ -72,8 +64,8 @@ export const POST = withErrorHandling(
   },
   {
     what: "We couldn't turn off two-factor.",
-    dependency: "the service that stores accounts",
-    note:
-      "Assume it's still on and keep your authenticator app to hand — reload your account page to see where it actually stands.",
+    // Kept: assuming it's off and wiping the authenticator entry would lock
+    // them out.
+    note: "Assume it's still on — keep your authenticator app.",
   }
 );

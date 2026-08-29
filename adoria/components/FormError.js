@@ -37,8 +37,25 @@ export default function FormError({ error, style }) {
       {why && <p style={{ margin: "6px 0 0", opacity: 0.85 }}>{why}</p>}
       {action && <p style={{ margin: "6px 0 0" }}>{action}</p>}
       {reference && (
-        <p style={{ margin: "8px 0 0", fontSize: 12, letterSpacing: "0.06em", opacity: 0.7 }}>
-          Reference <code>{reference}</code>
+        // A reference code on its own is a dead end — it tells someone they
+        // have a ticket number without telling them where to take it. The
+        // wrapper appends "message us on WhatsApp" to the joined string, but
+        // this component renders the fields separately, so that instruction
+        // has to be here too, and as a real link rather than a suggestion.
+        <p style={{ margin: "9px 0 0", fontSize: 13 }}>
+          <a
+            href={`https://wa.me/60106509189?text=${encodeURIComponent(
+              `Hi Cubelle, I hit an error on the site. Reference ${reference}.`
+            )}`}
+            target="_blank"
+            rel="noreferrer"
+            style={{ color: "var(--accent-text)" }}
+          >
+            Message us on WhatsApp
+          </a>{" "}
+          <span style={{ opacity: 0.7 }}>
+            and quote <code>{reference}</code>
+          </span>
         </p>
       )}
     </div>

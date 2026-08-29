@@ -24,10 +24,7 @@ export const POST = withErrorHandling(
       const minutes = Math.max(1, Math.ceil(limit.retryAfterSeconds / 60));
       return Response.json(
         {
-          error:
-            `We've paused new signups from your connection. ` +
-            `Several accounts were just created from the same place, and that limit exists to stop bulk signups. ` +
-            `Try again in about ${minutes} minute${minutes === 1 ? "" : "s"}, or message us on WhatsApp if you need an account now.`,
+          error: `Too many signups from your connection. Try again in about ${minutes} minute${minutes === 1 ? "" : "s"}.`,
           code: "rate_limited",
         },
         { status: 429, headers: { "Retry-After": String(limit.retryAfterSeconds) } }
@@ -51,10 +48,7 @@ export const POST = withErrorHandling(
     if (await findUserByEmail(email)) {
       return Response.json(
         {
-          error:
-            "There's already an account with this email. " +
-            "You may have signed up before and forgotten. " +
-            "Sign in instead, or reset your password if you don't remember it.",
+          error: "There's already an account with this email. Sign in instead, or reset your password.",
           code: "email_taken",
           field: "email",
           existing: true,
@@ -84,12 +78,10 @@ export const POST = withErrorHandling(
     return response;
   },
   {
-    what: "We couldn't finish creating your account.",
-    dependency: "the service that stores accounts",
-    // The account row and the session are two separate writes, so a failure
-    // between them can leave the account real but the user not signed in.
-    // They can't tell from the outside, so this says how to find out.
-    note:
-      "If you later try again and it says the email is already registered, your account did get created — sign in instead of signing up.",
+    what: "We couldn't create your account.",
+    // Kept: the account row and the session are separate writes, so a failure
+    // between them leaves the account real but the user signed out, and they
+    // have no way to tell from the outside.
+    note: "If a retry says the email is already registered, it worked — just sign in.",
   }
 );

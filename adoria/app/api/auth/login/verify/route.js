@@ -25,9 +25,7 @@ export const POST = withErrorHandling(
     if (!pendingToken || !code) {
       return Response.json(
         {
-          error:
-            "Enter the 6-digit code from your authenticator app. " +
-            "Your password was accepted, but this account has two-factor turned on, so the code is the second step.",
+          error: "Enter the 6-digit code from your authenticator app.",
           code: "missing_code",
           field: "code",
         },
@@ -39,10 +37,7 @@ export const POST = withErrorHandling(
     if (!userId) {
       return Response.json(
         {
-          error:
-            "This sign-in attempt has expired. " +
-            "The window between entering your password and your code only stays open a few minutes. " +
-            "Enter your email and password again to get a fresh one.",
+          error: "This sign-in expired. Enter your email and password again.",
           code: "attempt_expired",
           restart: true,
         },
@@ -54,10 +49,7 @@ export const POST = withErrorHandling(
     if (!record) {
       return Response.json(
         {
-          error:
-            "This sign-in attempt is no longer valid. " +
-            "The account it belonged to can't be found, which can happen if it was removed mid-sign-in. " +
-            "Start again, and message us on WhatsApp if it keeps happening.",
+          error: "This sign-in is no longer valid. Start again.",
           code: "account_gone",
           restart: true,
         },
@@ -86,10 +78,8 @@ export const POST = withErrorHandling(
         return Response.json(
           {
             error:
-              "Too many incorrect codes, so this sign-in attempt has been cancelled. " +
-              "That limit exists to stop someone guessing their way past two-factor. " +
-              "Enter your email and password again to start over — if your phone's codes keep being rejected, " +
-              "check its clock is set to update automatically, or use one of your backup codes.",
+              "Too many wrong codes — this sign-in has been cancelled. Start again, or use a backup code. " +
+              "If codes keep failing, check your phone's clock is set automatically.",
             code: "too_many_codes",
             restart: true,
           },
@@ -99,9 +89,8 @@ export const POST = withErrorHandling(
       return Response.json(
         {
           error:
-            `That code isn't right — ${remaining} attempt${remaining === 1 ? "" : "s"} left before this sign-in is cancelled. ` +
-            `Codes change every 30 seconds, so enter the one showing now. ` +
-            `If none of them work, use one of your backup codes.`,
+            `That code isn't right — ${remaining} attempt${remaining === 1 ? "" : "s"} left. ` +
+            `Codes change every 30 seconds, so use the one showing now.`,
           code: "bad_code",
           field: "code",
           remaining,
@@ -124,9 +113,6 @@ export const POST = withErrorHandling(
   },
   {
     what: "We couldn't finish signing you in.",
-    dependency: "the service that stores accounts",
-    note:
-      "Your code wasn't wrong — this failed before we got as far as checking it, and you're not signed in.",
   }
 );
 

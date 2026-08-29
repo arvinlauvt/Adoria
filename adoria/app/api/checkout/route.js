@@ -16,9 +16,8 @@ export const POST = withErrorHandling("checkout", async (req) => {
     throw badRequest({
       status: 429,
       code: "rate_limited",
-      what: "You've started too many payments in a short time.",
-      why: "We cap how many can come from one connection each hour.",
-      action: `Wait about ${Math.ceil(limit.retryAfterSeconds / 60)} minutes, or message us on WhatsApp and we'll take the order by hand.`,
+      what: "Too many payment attempts.",
+      action: `Wait about ${Math.ceil(limit.retryAfterSeconds / 60)} minutes, or message us on WhatsApp.`,
     });
   }
 
@@ -34,8 +33,7 @@ export const POST = withErrorHandling("checkout", async (req) => {
       status: 404,
       code: "order_not_found",
       what: "We couldn't find that order.",
-      why: "The reference doesn't match anything in our system, which usually means the page was left open long enough for the order to be cleared.",
-      action: "Start the order again from the product page. Nothing has been charged.",
+      action: "Start again from the product page. Nothing has been charged.",
     });
   }
 
@@ -50,8 +48,7 @@ export const POST = withErrorHandling("checkout", async (req) => {
       status: 403,
       code: "order_mismatch",
       what: "That order reference doesn't match.",
-      why: "The two identifiers sent with the request belong to different orders, so we've stopped rather than charging for the wrong one.",
-      action: "Start the order again from the product page. Nothing has been charged.",
+      action: "Start again from the product page. Nothing has been charged.",
     });
   }
 
@@ -60,8 +57,7 @@ export const POST = withErrorHandling("checkout", async (req) => {
       status: 409,
       code: "already_paid",
       what: "This order is already paid.",
-      why: "We've received payment for it, so there's nothing left to charge.",
-      action: "Check your email for the receipt, or look it up on the order tracking page.",
+      action: "Check your email for the receipt, or look it up on the tracking page.",
     });
   }
 
@@ -72,9 +68,8 @@ export const POST = withErrorHandling("checkout", async (req) => {
     throw badRequest({
       status: 422,
       code: "amount_unverifiable",
-      what: "We couldn't confirm what this order should cost.",
-      why: "The saved total is missing or unreadable, and we won't guess at a price to charge you.",
-      action: "Start the order again from the product page, or message us on WhatsApp and we'll take it manually. Nothing has been charged.",
+      what: "We couldn't confirm the price, so we've stopped rather than guess.",
+      action: "Start again, or message us on WhatsApp. Nothing has been charged.",
     });
   }
 
@@ -103,18 +98,14 @@ export const POST = withErrorHandling("checkout", async (req) => {
     throw badRequest({
       status: 503,
       code: "bill_link_failed",
-      what: "We created your payment but couldn't finish linking it to your order.",
-      why: "Our order database didn't accept the update, so paying now would leave your order unconfirmed.",
-      action: "Don't pay yet. Try again in a moment, or message us on WhatsApp with your order reference and we'll finish it by hand.",
+      what: "Don't pay yet — we couldn't link that payment to your order.",
+      action: "Message us on WhatsApp with your order reference and we'll finish it by hand.",
     });
   }
 
   return Response.json({ paymentUrl });
 }, {
   what: "We couldn't start your payment.",
-  // Payment, not the order store: the failures reaching here are a missing
-  // ToyyibPay key or ToyyibPay itself refusing the bill. Naming the account
-  // store instead sends the reader looking in the wrong place.
-  dependency: "our payment provider",
-  note: "Your order is saved and nothing has been charged — you can pay for it once this is sorted.",
+  // Kept: "did I just get charged?" is the only question that matters here.
+  note: "Your order is saved and nothing has been charged.",
 });

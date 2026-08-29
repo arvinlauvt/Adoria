@@ -15,10 +15,7 @@ export const POST = withErrorHandling(
     if (!token) {
       return Response.json(
         {
-          error:
-            "This reset link is incomplete. " +
-            "The address is missing the code that identifies your request, which usually means it got cut short when copied. " +
-            "Open the link straight from the email, or request a new one.",
+          error: "This reset link is incomplete. Open it straight from the email, or request a new one.",
           code: "missing_token",
         },
         { status: 400 }
@@ -32,10 +29,7 @@ export const POST = withErrorHandling(
     if (!userId) {
       return Response.json(
         {
-          error:
-            "This reset link no longer works. " +
-            "Reset links are single-use and expire after a short while, so this one was either already used or is too old. " +
-            "Request a new link and use it straight away.",
+          error: "This reset link has expired or was already used. Request a new one.",
           code: "token_expired",
         },
         { status: 400 }
@@ -46,10 +40,7 @@ export const POST = withErrorHandling(
     if (!record) {
       return Response.json(
         {
-          error:
-            "This reset link is no longer valid. " +
-            "The account it belonged to can't be found, which can happen if it was removed after the link was sent. " +
-            "Message us on WhatsApp and we'll sort it out.",
+          error: "This reset link is no longer valid. Message us on WhatsApp.",
           code: "account_gone",
         },
         { status: 400 }
@@ -65,7 +56,7 @@ export const POST = withErrorHandling(
       // idea why.
       return Response.json(
         {
-          error: `${strength.reason} Note this reset link has now been used up, so request a fresh one before trying again.`,
+          error: `${strength.reason} This link is now used up — request a fresh one.`,
           code: "weak_password",
           field: "password",
         },
@@ -79,8 +70,7 @@ export const POST = withErrorHandling(
   },
   {
     what: "We couldn't change your password.",
-    dependency: "the service that stores accounts",
-    note:
-      "Your old password still works, so you're not locked out — but this reset link has been used up, so you'll need a fresh one.",
+    // Kept: without it they'd reasonably fear being locked out of the account.
+    note: "Your old password still works. Request a fresh reset link.",
   }
 );

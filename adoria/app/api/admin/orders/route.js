@@ -53,8 +53,6 @@ export const GET = withErrorHandling(
   },
   {
     what: "We couldn't load the orders.",
-    dependency: "our order database",
-    note: "No order data is lost — this is only the list failing to load.",
   }
 );
 
@@ -69,8 +67,7 @@ export const PATCH = withErrorHandling(
       return Response.json(
         {
           error:
-            "No order was specified, so there's nothing to update. " +
-            "This usually means the page is out of date — reload it and try the change again.",
+            "No order specified. Reload the page and try again.",
           code: "missing_order_id",
         },
         { status: 400 }
@@ -85,8 +82,7 @@ export const PATCH = withErrorHandling(
         return Response.json(
           {
             error:
-              `"${value}" isn't a fulfilment stage, so the order wasn't changed. ` +
-              `Pick one of: ${FULFILLMENT_STAGES.join(", ")}.`,
+              `"${value}" isn't a fulfilment stage. Pick one of: ${FULFILLMENT_STAGES.join(", ")}.`,
             code: "bad_stage",
             field: "fulfillmentStatus",
           },
@@ -100,9 +96,7 @@ export const PATCH = withErrorHandling(
       return Response.json(
         {
           error:
-            "Nothing was changed, so there's nothing to save. " +
-            "Only the fulfilment stage, courier, and tracking number can be edited here. " +
-            "Edit one of those first.",
+            "Nothing to save. Edit the fulfilment stage, courier, or tracking number first.",
           code: "no_changes",
         },
         { status: 400 }
@@ -114,7 +108,6 @@ export const PATCH = withErrorHandling(
   },
   {
     what: "We couldn't save that change.",
-    dependency: "our order database",
-    note: "The order still shows its previous details — reload the page to confirm what actually saved.",
+    note: "Reload to see what actually saved.",
   }
 );

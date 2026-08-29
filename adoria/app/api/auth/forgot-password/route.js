@@ -15,9 +15,8 @@ import { withErrorHandling, newErrorReference } from "../../../../lib/errors";
 const ALWAYS = {
   ok: true,
   message:
-    "If that email has an account, a reset link is on its way. " +
-    "It usually arrives within a minute or two — check your spam folder if you don't see it. " +
-    "If nothing has arrived after five minutes, message us on WhatsApp and we'll reset it for you by hand.",
+    "If that email has an account, a reset link is on its way. Check your spam folder. " +
+    "Nothing after five minutes? Message us on WhatsApp.",
 };
 
 export const POST = withErrorHandling(
@@ -29,7 +28,7 @@ export const POST = withErrorHandling(
     if (!email) {
       return Response.json(
         {
-          error: "Enter your email address so we know which account to send the reset link to.",
+          error: "Enter your email address.",
           code: "missing_email",
           field: "email",
         },
@@ -80,7 +79,5 @@ export const POST = withErrorHandling(
   },
   {
     what: "We couldn't start the password reset.",
-    dependency: "the service that stores accounts",
-    note: "Nothing has changed on your account and your current password still works.",
   }
 );
