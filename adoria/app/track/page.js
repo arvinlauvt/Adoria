@@ -1,7 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { OrderCardSkeleton, Spinner } from "../../components/Skeleton";
+
+// If the search is still going after this long, swap the skeleton for a
+// spinner — a skeleton promises "this exact shape, imminently"; past a
+// few seconds that promise reads as broken, and an indefinite spinner is
+// the more honest signal that something unusual is taking a while.
+const SKELETON_TIMEOUT_MS = 4000;
 
 const STAGES = [
   { key: "Order Confirmed", label: "Order confirmed", note: "payment received" },
@@ -103,6 +110,16 @@ export default function TrackPage() {
   const [orders, setOrders] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [showSpinner, setShowSpinner] = useState(false);
+
+  useEffect(() => {
+    if (!loading) {
+      setShowSpinner(false);
+      return;
+    }
+    const t = setTimeout(() => setShowSpinner(true), SKELETON_TIMEOUT_MS);
+    return () => clearTimeout(t);
+  }, [loading]);
 
   async function handleSearch(e) {
     e.preventDefault();
@@ -148,8 +165,16 @@ export default function TrackPage() {
 
         {error && <p className="error-text">{error}</p>}
 
-        {orders && orders.length === 0 && <p>No orders found under that email.</p>}
-        {orders && orders.map((o) => <OrderCard key={o.orderId} order={o} />)}
+        {loading && !showSpinner && <OrderCardSkeleton />}
+        {loading && showSpinner && (
+          <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "24px 0", color: "var(--text-muted)", fontSize: 14 }}>
+            <Spinner />
+            Still looking — this is taking longer than usual.
+          </div>
+        )}
+
+        {!loading && orders && orders.length === 0 && <p>No orders found under that email.</p>}
+        {!loading && orders && orders.map((o) => <OrderCard key={o.orderId} order={o} />)}
       </div>
     </main>
   );
