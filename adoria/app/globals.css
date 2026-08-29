@@ -540,3 +540,19 @@ button {
     grid-template-columns: 1fr !important;
   }
 }
+
+/* The header's desktop row stops fitting well before the 760px breakpoint
+   that used to hand over to the drawer: five content links, two account
+   links, currency, theme toggle and a button need roughly 1180px. Below
+   that it wrapped onto a second line, which read as a layout bug rather
+   than a responsive step. The drawer now takes over while the row is still
+   comfortable. Declared after the 760px block so it wins where they overlap
+   — the values are identical there anyway. */
+@media (max-width: 1180px) {
+  .desktop-nav {
+    display: none !important;
+  }
+  .mobile-menu-btn {
+    display: flex !important;
+  }
+}

@@ -5,16 +5,22 @@ import Link from "next/link";
 import { useState } from "react";
 import ThemeToggle from "./ThemeToggle";
 
+// Content links only. Account actions live on the right, where people
+// already look for them, rather than sitting in the middle among the
+// browsing links.
 const NAV_LINKS = [
   { href: "/#catalog", label: "The Catalog" },
   { href: "/about", label: "What is Cubelle" },
   { href: "/allergens", label: "Ingredients" },
   { href: "/track", label: "Track order" },
-  // Reads as "Sign in" to a guest and lands a signed-in customer on their
-  // own orders, so one link serves both without the header needing to know
-  // who's looking (it's a static component; the page it points at resolves
-  // the session server-side).
+];
+
+// Kept separate so the mobile drawer can show them apart from the content
+// links too. This is a static component — it never knows who's looking, and
+// both destinations resolve the session server-side.
+const ACCOUNT_LINKS = [
   { href: "/login", label: "Sign in" },
+  { href: "/signup", label: "Sign up" },
 ];
 
 export default function Header() {
@@ -34,7 +40,7 @@ export default function Header() {
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          padding: "20px 32px",
+          padding: "20px clamp(18px, 2.2vw, 32px)",
           flexWrap: "wrap",
           gap: 16,
         }}
@@ -61,7 +67,7 @@ export default function Header() {
           className="desktop-nav"
           style={{
             display: "flex",
-            gap: 34,
+            gap: "clamp(16px, 2.1vw, 34px)",
             fontSize: 12,
             fontWeight: 500,
             letterSpacing: "0.14em",
@@ -76,9 +82,26 @@ export default function Header() {
           ))}
         </nav>
 
-        <div className="desktop-nav" style={{ display: "flex", alignItems: "center", gap: 18 }}>
+        <div className="desktop-nav" style={{ display: "flex", alignItems: "center", gap: "clamp(11px, 1.3vw, 18px)" }}>
           <span style={{ fontSize: 12, letterSpacing: "0.1em", color: "rgba(247,240,228,.6)" }}>MYR</span>
           <ThemeToggle />
+          {ACCOUNT_LINKS.map((l) => (
+            <Link
+              key={l.href}
+              href={l.href}
+              style={{
+                fontSize: 12,
+                fontWeight: 500,
+                letterSpacing: "0.14em",
+                textTransform: "uppercase",
+                color: "rgba(247,240,228,.72)",
+                textDecoration: "none",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {l.label}
+            </Link>
+          ))}
           <Link
             href="/#catalog"
             className="btn"
@@ -128,7 +151,7 @@ export default function Header() {
             borderTop: "1px solid rgba(217,171,92,.14)",
           }}
         >
-          {NAV_LINKS.map((l) => (
+          {[...NAV_LINKS, ...ACCOUNT_LINKS].map((l) => (
             <Link
               key={l.href}
               href={l.href}
