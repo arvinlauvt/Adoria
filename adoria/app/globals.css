@@ -399,38 +399,9 @@ button {
   border-top: 3px solid var(--gold-bright);
 }
 
-/* --- Liveliness: gentle entrance motion --- */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(18px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes floatY {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-6px); }
-}
-
-.animate-in {
-  animation: fadeInUp 0.8s var(--ease-premium) both;
-}
-
-.page-transition {
-  animation: fadeInUp 0.5s var(--ease-premium) both;
-}
-
-.step-transition {
-  animation: fadeInUp 0.45s var(--ease-premium) both;
-}
-
-.float {
-  animation: floatY 4s ease-in-out infinite;
-}
+/* Entrance motion (fade + rise, the floating hero cube) is handled by the
+   Motion library now — see Reveal.js, PageTransition.js, AnimateIn.js, and
+   the hero cube in app/page.js — rather than these CSS keyframes/classes. */
 
 /* --- Mobile nav: drawer replaces the inline links + CTA --- */
 .mobile-menu-btn {

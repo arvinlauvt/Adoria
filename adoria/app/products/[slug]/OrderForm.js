@@ -2,6 +2,8 @@
 
 import { useState, useMemo, useEffect } from "react";
 import Image from "next/image";
+import { motion } from "motion/react";
+import { EASE_PREMIUM } from "../../../lib/motion";
 import {
   PRICE_CARD,
   PRICE_LETTER,
@@ -254,7 +256,12 @@ export default function OrderForm({ product }) {
   return (
     <Reveal>
       <div className="card" style={{ padding: "36px 32px", boxShadow: "none", border: "none", background: "transparent" }}>
-        <div key={step} className="step-transition">
+        <motion.div
+          key={step}
+          initial={{ opacity: 0, y: 18 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.45, ease: EASE_PREMIUM }}
+        >
         <StepHeader
           index={step}
           total={steps.length}
@@ -664,7 +671,7 @@ export default function OrderForm({ product }) {
             </div>
           </div>
         )}
-        </div>
+        </motion.div>
 
         {error && <p className="error-text" style={{ marginTop: 16 }}>{error}</p>}
 

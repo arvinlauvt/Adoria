@@ -1,4 +1,5 @@
 import "./globals.css";
+import { MotionConfig } from "motion/react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import PageTransition from "../components/PageTransition";
@@ -36,9 +37,15 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body className="dot-texture">
-        <Header />
-        <PageTransition>{children}</PageTransition>
-        <Footer />
+        {/* reducedMotion="user" makes every Motion-driven animation in the
+            app respect the OS/browser prefers-reduced-motion setting
+            automatically — Motion animates via JS, not CSS, so the
+            prefers-reduced-motion CSS rule below can't reach it on its own. */}
+        <MotionConfig reducedMotion="user">
+          <Header />
+          <PageTransition>{children}</PageTransition>
+          <Footer />
+        </MotionConfig>
       </body>
     </html>
   );

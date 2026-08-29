@@ -3,8 +3,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import { motion } from "motion/react";
 import { PRODUCTS, CUBE_CAP, LEAD_TIME_DAYS, PRICE_CARD } from "../lib/products";
 import Reveal from "../components/Reveal";
+import { EASE_PREMIUM } from "../lib/motion";
 
 const FILTERS = ["All occasions", "Romance", "Career", "Visiting"];
 
@@ -28,44 +30,67 @@ export default function Home() {
           transition: "background-color 0.25s var(--ease-premium)",
         }}
       >
-        <Image
-          src="/logo-icon.png"
-          alt=""
-          width={1390}
-          height={922}
+        <div
           aria-hidden="true"
-          className="float hero-phantom"
-          style={{ position: "absolute", right: "-7vw", top: "31%", transform: "translateY(-50%)", width: "64vw", maxWidth: 1150, minWidth: 500, height: "auto", opacity: 0.16 }}
-        />
+          className="hero-phantom"
+          style={{ position: "absolute", right: "-7vw", top: "31%", transform: "translateY(-50%)", width: "64vw", maxWidth: 1150, minWidth: 500 }}
+        >
+          {/* Static centering (translateY(-50%)) lives on the wrapper above
+              so it doesn't fight with Motion's own transform on this inner
+              element, which owns only the float animation. */}
+          <motion.div
+            animate={{ y: [0, -6, 0] }}
+            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <Image
+              src="/logo-icon.png"
+              alt=""
+              width={1390}
+              height={922}
+              style={{ width: "100%", height: "auto", opacity: 0.16 }}
+            />
+          </motion.div>
+        </div>
         <div className="wrap" style={{ maxWidth: 900, position: "relative", width: "100%" }}>
-          <div
-            className="animate-in"
+          <motion.div
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: EASE_PREMIUM }}
             style={{ fontSize: 11, letterSpacing: "0.32em", textTransform: "uppercase", color: "var(--gold)", marginBottom: 34 }}
           >
             Hand-baked in Malaysia · Written in gold ink
-          </div>
-          <h1
-            className="animate-in"
+          </motion.div>
+          <motion.h1
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: EASE_PREMIUM }}
             style={{ margin: 0, fontWeight: 300, fontSize: "clamp(2.625rem, 7.2vw, 5.75rem)", lineHeight: 0.98, letterSpacing: "-0.02em", color: "var(--cream)" }}
           >
             For the moments<br />
             worth <em style={{ fontStyle: "italic", fontWeight: 400, color: "var(--gold-bright)" }}>archiving</em>.
-          </h1>
-          <p
-            className="animate-in"
+          </motion.h1>
+          <motion.p
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: EASE_PREMIUM }}
             style={{ margin: "38px 0 0", maxWidth: 470, fontWeight: 300, fontSize: 17, lineHeight: 1.7, color: "rgba(247,240,228,.72)" }}
           >
             Hand-baked cookie cubes in a matte black box, with your message written by hand in
             real gold ink. One considered gift, timed to land on the date that matters.
-          </p>
-          <div className="animate-in" style={{ display: "flex", gap: 14, marginTop: 44, flexWrap: "wrap" }}>
+          </motion.p>
+          <motion.div
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: EASE_PREMIUM }}
+            style={{ display: "flex", gap: 14, marginTop: 44, flexWrap: "wrap" }}
+          >
             <a href="#catalog" className="btn" style={{ padding: "16px 34px", fontSize: 14, background: "var(--gold-bright)", color: "var(--btn-primary-text)" }}>
               Choose your box
             </a>
             <Link href="/about" className="btn-outline btn" style={{ padding: "16px 34px", fontSize: 14, borderColor: "rgba(247,240,228,.34)", color: "var(--cream)" }}>
               What is Cubelle?
             </Link>
-          </div>
+          </motion.div>
         </div>
       </section>
 

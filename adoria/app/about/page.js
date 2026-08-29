@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { CUBE_CAP } from "../../lib/products";
+import AnimateIn from "../../components/AnimateIn";
 
 export default function AboutPage() {
   return (
@@ -14,20 +15,21 @@ export default function AboutPage() {
           transition: "background-color 0.25s var(--ease-premium)",
         }}
       >
-        <Image
-          src="/logo-icon.png"
-          alt=""
-          width={96}
-          height={64}
-          className="animate-in"
-          style={{ objectFit: "contain", opacity: 0.9, marginBottom: 26 }}
-        />
-        <h1 className="animate-in" style={{ margin: 0, fontWeight: 300, fontSize: "clamp(2.125rem, 7vw, 3rem)", color: "var(--cream)" }}>
+        <AnimateIn style={{ marginBottom: 26 }}>
+          <Image
+            src="/logo-icon.png"
+            alt=""
+            width={96}
+            height={64}
+            style={{ objectFit: "contain", opacity: 0.9 }}
+          />
+        </AnimateIn>
+        <AnimateIn as="h1" style={{ margin: 0, fontWeight: 300, fontSize: "clamp(2.125rem, 7vw, 3rem)", color: "var(--cream)" }}>
           What is Cubelle?
-        </h1>
-        <p className="animate-in" style={{ margin: "16px 0 0", fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 18, color: "var(--gold-bright)" }}>
+        </AnimateIn>
+        <AnimateIn as="p" style={{ margin: "16px 0 0", fontFamily: "var(--serif)", fontStyle: "italic", fontSize: 18, color: "var(--gold-bright)" }}>
           For the moments worth archiving.
-        </p>
+        </AnimateIn>
       </section>
 
       <section
@@ -36,7 +38,7 @@ export default function AboutPage() {
           padding: "68px 32px 84px",
         }}
       >
-        <div className="wrap animate-in" style={{ maxWidth: 560 }}>
+        <AnimateIn className="wrap" style={{ maxWidth: 560 }}>
           <p style={{ margin: "0 0 34px", fontFamily: "var(--serif)", fontWeight: 300, fontSize: 21, lineHeight: 1.55, color: "var(--text-label)" }}>
             Cubelle started as a way to never forget an anniversary. It grew into something
             broader: one considered gift for the moments that deserve marking properly.
@@ -105,7 +107,7 @@ export default function AboutPage() {
               Browse the catalog
             </Link>
           </div>
-        </div>
+        </AnimateIn>
       </section>
     </main>
   );
