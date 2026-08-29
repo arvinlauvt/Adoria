@@ -12,7 +12,15 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    {/* suppressHydrationWarning is on <html> because the script below
+        deliberately sets data-theme before React hydrates — that's the whole
+        point of it, and it means the client markup legitimately differs from
+        what the server sent. Without this React reports a mismatch on every
+        page load for a difference we caused on purpose, and noise like that
+        trains you to ignore the overlay that would otherwise catch a real
+        one. It suppresses the warning for this element's own attributes
+        only, not for the tree inside it. */}
+    <html lang="en" suppressHydrationWarning>
       <head>
         {/* Runs before first paint so the page never flashes the wrong
             theme on load — reads the stored choice (if the visitor has
