@@ -63,6 +63,56 @@ function buildCalendar(minDate, monthOffset) {
   return { cells, monthLabel };
 }
 
+// Forgiving on purpose: phone/postcode just count digits (spaces, dashes,
+// parens, +country codes all fine) rather than demanding one exact format.
+function validateRequired(v, label) {
+  return v && v.trim() ? null : `${label} is required.`;
+}
+function validateEmail(v) {
+  if (!v || !v.trim()) return "Email is required.";
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim())) return "Enter a valid email address.";
+  return null;
+}
+function validatePhone(v) {
+  const digits = (v || "").replace(/\D/g, "");
+  if (!digits) return "Phone number is required.";
+  if (digits.length < 7 || digits.length > 15) return "Enter a valid phone number.";
+  return null;
+}
+function validatePostcode(v) {
+  const digits = (v || "").replace(/\D/g, "");
+  if (!digits) return "Postcode is required.";
+  if (digits.length !== 5) return "Malaysian postcodes are 5 digits.";
+  return null;
+}
+
+// One field: label, optional hint, input, and — only once the field has
+// been touched (blurred, or the step's Continue was clicked while
+// invalid) — a red border and an inline message naming exactly what's
+// wrong, instead of a single generic error for the whole step.
+function FormField({ id, label, hint, error, touched, onBlur, ...inputProps }) {
+  const showError = touched && error;
+  return (
+    <div className="field">
+      <label htmlFor={id}>{label}</label>
+      {hint && <span className="hint">{hint}</span>}
+      <input
+        id={id}
+        onBlur={onBlur}
+        aria-invalid={showError ? "true" : undefined}
+        aria-describedby={showError ? `${id}-error` : undefined}
+        style={showError ? { borderColor: "var(--danger)" } : undefined}
+        {...inputProps}
+      />
+      {showError && (
+        <p id={`${id}-error`} className="error-text" style={{ marginTop: 4 }}>
+          {error}
+        </p>
+      )}
+    </div>
+  );
+}
+
 function StepHeader({ index, total, name, title, subtitle }) {
   return (
     <div style={{ marginBottom: 26 }}>
@@ -98,6 +148,44 @@ export default function OrderForm({ product }) {
   const [postcode, setPostcode] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
+  const [touched, setTouched] = useState({});
+  const [boxesTouched, setBoxesTouched] = useState(false);
+
+  // Prefill from whatever the visitor already typed this session, in case
+  // they navigated away or reloaded mid-checkout — sessionStorage (not
+  // localStorage) so it clears when the tab closes rather than lingering.
+  const [draftLoaded, setDraftLoaded] = useState(false);
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem("cubelle-checkout-draft");
+      if (raw) {
+        const d = JSON.parse(raw);
+        if (d.name) setName(d.name);
+        if (d.phone) setPhone(d.phone);
+        if (d.email) setEmail(d.email);
+        if (d.recipientName) setRecipientName(d.recipientName);
+        if (d.street) setStreet(d.street);
+        if (d.city) setCity(d.city);
+        if (d.state) setState(d.state);
+        if (d.postcode) setPostcode(d.postcode);
+        if (d.cardMessage) setCardMessage(d.cardMessage);
+      }
+    } catch (e) {
+      // sessionStorage unavailable (private mode etc.) — just skip prefill
+    }
+    setDraftLoaded(true);
+  }, []);
+  useEffect(() => {
+    if (!draftLoaded) return; // don't overwrite a saved draft with blanks before it's loaded
+    try {
+      sessionStorage.setItem(
+        "cubelle-checkout-draft",
+        JSON.stringify({ name, phone, email, recipientName, street, city, state, postcode, cardMessage })
+      );
+    } catch (e) {
+      // ignore — draft persistence is a nicety, not required for checkout to work
+    }
+  }, [draftLoaded, name, phone, email, recipientName, street, city, state, postcode, cardMessage]);
 
   const activeAddonType = addonSelected && product.addon ? product.addon.type : null;
   const total = computeTotalRM({ messageMode, addonType: activeAddonType, quantity: boxes.length });
@@ -165,24 +253,56 @@ export default function OrderForm({ product }) {
     );
   }
 
-  function validateStep(key) {
-    if (key === "details" && (!name || !phone || !email)) return "Please fill in your name, phone, and email.";
-    if (key === "boxes") {
-      const empty = boxes.some((b) => boxTotal(b) === 0);
-      if (empty) return "Every box needs at least one cube.";
-    }
-    if (key === "delivery") {
-      if (product.occasionDateRequired && !occasionDate) return `Please pick the ${product.occasionDateLabel.toLowerCase()}.`;
-      if (!recipientName) return "Please add the recipient's name.";
-      if (!street || !city || !state || !postcode) return "Please complete the delivery address.";
-    }
-    return null;
+  // Every real (non-boxes) required field's current error, recomputed live
+  // as the user types — drives both the red inline messages (once a field
+  // is touched) and whether the current step's Continue button is enabled.
+  const fieldErrors = useMemo(
+    () => ({
+      name: validateRequired(name, "Full name"),
+      phone: validatePhone(phone),
+      email: validateEmail(email),
+      recipientName: validateRequired(recipientName, "Recipient's name"),
+      street: validateRequired(street, "Street address"),
+      city: validateRequired(city, "City"),
+      state: validateRequired(state, "State"),
+      postcode: validatePostcode(postcode),
+      occasionDate:
+        product.occasionDateRequired && !occasionDate ? `Please pick the ${product.occasionDateLabel.toLowerCase()}.` : null,
+    }),
+    [name, phone, email, recipientName, street, city, state, postcode, occasionDate, product]
+  );
+  const STEP_FIELDS = {
+    details: ["name", "phone", "email"],
+    delivery: ["recipientName", "street", "city", "state", "postcode", ...(product.occasionDateRequired ? ["occasionDate"] : [])],
+  };
+  function stepIsValid(stepKey) {
+    if (stepKey === "boxes") return !boxes.some((b) => boxTotal(b) === 0);
+    const fields = STEP_FIELDS[stepKey];
+    if (!fields) return true;
+    return fields.every((f) => !fieldErrors[f]);
+  }
+  function markTouched(field) {
+    setTouched((t) => ({ ...t, [field]: true }));
+  }
+  function markAllTouched(fields) {
+    setTouched((t) => {
+      const next = { ...t };
+      fields.forEach((f) => (next[f] = true));
+      return next;
+    });
   }
 
   function goNext() {
-    const err = validateStep(steps[step]);
-    if (err) {
-      setError(err);
+    const stepKey = steps[step];
+    if (stepKey === "boxes") {
+      if (boxes.some((b) => boxTotal(b) === 0)) {
+        setBoxesTouched(true);
+        setError("Every box needs at least one cube. See below.");
+        return;
+      }
+    } else if (STEP_FIELDS[stepKey] && !stepIsValid(stepKey)) {
+      markAllTouched(STEP_FIELDS[stepKey]);
+      setError("Please fix the highlighted fields before continuing.");
       return;
     }
     setError("");
@@ -300,20 +420,46 @@ export default function OrderForm({ product }) {
         {key === "details" && (
           <>
             <div className="field-row">
-              <div className="field">
-                <label htmlFor="name">Your full name</label>
-                <input id="name" placeholder="Arvin Lau" value={name} onChange={(e) => setName(e.target.value)} required />
-              </div>
-              <div className="field">
-                <label htmlFor="phone">Phone number</label>
-                <input id="phone" placeholder="+60 12 345 6789" value={phone} onChange={(e) => setPhone(e.target.value)} required />
-              </div>
+              <FormField
+                id="name"
+                label="Your full name"
+                placeholder="Arvin Lau"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                onBlur={() => markTouched("name")}
+                error={fieldErrors.name}
+                touched={touched.name}
+                autoComplete="name"
+                required
+              />
+              <FormField
+                id="phone"
+                label="Phone number"
+                placeholder="+60 12 345 6789"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                onBlur={() => markTouched("phone")}
+                error={fieldErrors.phone}
+                touched={touched.phone}
+                autoComplete="tel"
+                inputMode="tel"
+                required
+              />
             </div>
-            <div className="field">
-              <label htmlFor="email">Email</label>
-              <span className="hint">Your receipt and order tracking go here.</span>
-              <input id="email" type="email" placeholder="you@email.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
-            </div>
+            <FormField
+              id="email"
+              label="Email"
+              hint="Your receipt and order tracking go here."
+              type="email"
+              placeholder="you@email.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              onBlur={() => markTouched("email")}
+              error={fieldErrors.email}
+              touched={touched.email}
+              autoComplete="email"
+              required
+            />
           </>
         )}
 
@@ -321,8 +467,19 @@ export default function OrderForm({ product }) {
           <div className="field">
             {boxes.map((box, i) => {
               const remaining = CUBE_CAP - boxTotal(box);
+              const isEmpty = boxTotal(box) === 0;
+              const showBoxError = boxesTouched && isEmpty;
               return (
-                <div key={i} style={{ border: "1px solid var(--cream-deep)", borderRadius: 10, padding: 20, marginBottom: 14, background: "var(--bg-panel)" }}>
+                <div
+                  key={i}
+                  style={{
+                    border: showBoxError ? "1px solid var(--danger)" : "1px solid var(--cream-deep)",
+                    borderRadius: 10,
+                    padding: 20,
+                    marginBottom: 14,
+                    background: "var(--bg-panel)",
+                  }}
+                >
                   <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
                     <strong style={{ fontSize: 14, color: "var(--text-heading)" }}>Box {i + 1}</strong>
                     <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
@@ -387,6 +544,11 @@ export default function OrderForm({ product }) {
                       return <span key={ci} style={{ aspectRatio: "1/1", borderRadius: 3, background: color, border: "1px solid var(--border-panel)" }} />;
                     })}
                   </div>
+                  {showBoxError && (
+                    <p className="error-text" style={{ marginTop: 12, marginBottom: 0 }}>
+                      This box is empty. Add at least one cube.
+                    </p>
+                  )}
                 </div>
               );
             })}
@@ -537,12 +699,28 @@ export default function OrderForm({ product }) {
 
         {key === "delivery" && (
           <>
-            <div className="field">
-              <label htmlFor="recipient">Recipient's name</label>
-              <input id="recipient" placeholder="Who it's for" value={recipientName} onChange={(e) => setRecipientName(e.target.value)} required />
-            </div>
+            <FormField
+              id="recipient"
+              label="Recipient's name"
+              placeholder="Who it's for"
+              value={recipientName}
+              onChange={(e) => setRecipientName(e.target.value)}
+              onBlur={() => markTouched("recipientName")}
+              error={fieldErrors.recipientName}
+              touched={touched.recipientName}
+              required
+            />
 
-            <div style={{ border: "1px solid var(--cream-deep)", borderRadius: 10, background: "var(--bg-panel)", padding: 18, marginBottom: 18, transition: "background-color 0.25s var(--ease-premium)" }}>
+            <div
+              style={{
+                border: touched.occasionDate && fieldErrors.occasionDate ? "1px solid var(--danger)" : "1px solid var(--cream-deep)",
+                borderRadius: 10,
+                background: "var(--bg-panel)",
+                padding: 18,
+                marginBottom: 18,
+                transition: "background-color 0.25s var(--ease-premium)",
+              }}
+            >
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: 14 }}>
                 <span style={{ fontWeight: 600, fontSize: 12, color: "var(--text-label)" }}>{product.occasionDateLabel}</span>
                 <span style={{ fontSize: 11, color: "var(--text-muted)" }}>{LEAD_TIME_DAYS}-day lead time · crossed-out dates are fully booked</span>
@@ -586,7 +764,10 @@ export default function OrderForm({ product }) {
                       type="button"
                       disabled={disabled}
                       title={isFull ? "Fully booked. Please pick another date." : undefined}
-                      onClick={() => setOccasionDate(c.date)}
+                      onClick={() => {
+                        setOccasionDate(c.date);
+                        markTouched("occasionDate");
+                      }}
                       style={{
                         aspectRatio: "1/1",
                         borderRadius: 999,
@@ -620,25 +801,63 @@ export default function OrderForm({ product }) {
                 </a>
                 ?
               </div>
+              {touched.occasionDate && fieldErrors.occasionDate && (
+                <p className="error-text" style={{ marginTop: 8, marginBottom: 0 }}>
+                  {fieldErrors.occasionDate}
+                </p>
+              )}
             </div>
 
-            <div className="field">
-              <label htmlFor="street">Street address / unit</label>
-              <input id="street" placeholder="8, Lorong SKD 7/1" value={street} onChange={(e) => setStreet(e.target.value)} required />
-            </div>
+            <FormField
+              id="street"
+              label="Street address / unit"
+              placeholder="8, Lorong SKD 7/1"
+              value={street}
+              onChange={(e) => setStreet(e.target.value)}
+              onBlur={() => markTouched("street")}
+              error={fieldErrors.street}
+              touched={touched.street}
+              autoComplete="street-address"
+              required
+            />
             <div className="field-row">
-              <div className="field">
-                <label htmlFor="city">City</label>
-                <input id="city" placeholder="Kuantan" value={city} onChange={(e) => setCity(e.target.value)} required />
-              </div>
-              <div className="field">
-                <label htmlFor="state">State</label>
-                <input id="state" placeholder="Pahang" value={state} onChange={(e) => setState(e.target.value)} required />
-              </div>
-              <div className="field">
-                <label htmlFor="postcode">Postcode</label>
-                <input id="postcode" placeholder="26100" value={postcode} onChange={(e) => setPostcode(e.target.value)} required />
-              </div>
+              <FormField
+                id="city"
+                label="City"
+                placeholder="Kuantan"
+                value={city}
+                onChange={(e) => setCity(e.target.value)}
+                onBlur={() => markTouched("city")}
+                error={fieldErrors.city}
+                touched={touched.city}
+                autoComplete="address-level2"
+                required
+              />
+              <FormField
+                id="state"
+                label="State"
+                placeholder="Pahang"
+                value={state}
+                onChange={(e) => setState(e.target.value)}
+                onBlur={() => markTouched("state")}
+                error={fieldErrors.state}
+                touched={touched.state}
+                autoComplete="address-level1"
+                required
+              />
+              <FormField
+                id="postcode"
+                label="Postcode"
+                placeholder="26100"
+                value={postcode}
+                onChange={(e) => setPostcode(e.target.value)}
+                onBlur={() => markTouched("postcode")}
+                error={fieldErrors.postcode}
+                touched={touched.postcode}
+                autoComplete="postal-code"
+                inputMode="numeric"
+                required
+              />
             </div>
           </>
         )}
@@ -682,7 +901,13 @@ export default function OrderForm({ product }) {
             </button>
           )}
           {key !== "review" ? (
-            <button type="button" onClick={goNext} className="btn" style={{ flex: 1, justifyContent: "center" }}>
+            <button
+              type="button"
+              onClick={goNext}
+              className="btn"
+              style={{ flex: 1, justifyContent: "center", opacity: stepIsValid(key) ? 1 : 0.55 }}
+              title={stepIsValid(key) ? undefined : "Some fields still need attention"}
+            >
               Continue
             </button>
           ) : (
