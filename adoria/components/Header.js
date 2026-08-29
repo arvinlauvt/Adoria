@@ -10,6 +10,11 @@ const NAV_LINKS = [
   { href: "/about", label: "What is Cubelle" },
   { href: "/allergens", label: "Ingredients" },
   { href: "/track", label: "Track order" },
+  // Reads as "Sign in" to a guest and lands a signed-in customer on their
+  // own orders, so one link serves both without the header needing to know
+  // who's looking (it's a static component; the page it points at resolves
+  // the session server-side).
+  { href: "/login", label: "Sign in" },
 ];
 
 export default function Header() {

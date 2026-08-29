@@ -83,6 +83,39 @@ emails) to actually function; the `lib/auth/*` and `lib/resend.js` helpers
 throw a clear setup error if their env vars are missing, rather than
 failing silently.
 
+### Making yourself an admin
+
+Signup always creates a `Customer` — the role is set server-side and can't
+be requested, so there's no way to sign up as an admin. To get the first
+admin: create a normal account at `/signup`, then open the **Users** table
+in Airtable and change that row's **Role** to `Admin` by hand. Sign out and
+back in (role is read when the session is created).
+
+### Pages
+
+| Path | Who |
+|---|---|
+| `/signup`, `/login`, `/forgot-password`, `/reset-password` | Guests (signed-in visitors are redirected away) |
+| `/login/verify` | Mid-sign-in, when 2FA is on |
+| `/track` | Everyone — guests look up by email, signed-in customers see their own orders automatically |
+| `/account/security` | Signed-in customers, to turn 2FA on or off |
+| `/admin` | Admins only |
+
+### Running the auth flow locally without Upstash/Resend/Airtable
+
+`lib/devStore.js` provides in-memory stand-ins for all three:
+
+```
+AUTH_ALLOW_INMEMORY_STORE=true AUTH_ENCRYPTION_KEY=$(node -e "console.log(require('crypto').randomBytes(32).toString('base64'))") npm run start
+```
+
+It engages only when the real credentials are absent, only with that flag
+set, and never when `NETLIFY` is set. Without the flag, missing credentials
+throw — in-memory sessions and rate limits would look like they work while
+providing none of the guarantees they exist for. The `/api/dev/*` routes
+(seeding users and orders, minting a reset token) are behind the same flag
+and 404 otherwise. Data is per-process and lost on restart.
+
 ## 4. Deploy to Netlify
 
 1. Push this folder to a new GitHub repo.

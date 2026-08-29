@@ -39,6 +39,13 @@ export async function checkLoginRateLimit(ip, email) {
   return checkRateLimit(`login:ip:${ip}`, { limit: 20, windowSeconds: 15 * 60 });
 }
 
+// Per IP only — there's no account to bucket by yet. Generous enough for a
+// household or office on one address, tight enough that nobody scripts a
+// few thousand accounts into the Users table.
+export async function checkSignupRateLimit(ip) {
+  return checkRateLimit(`signup:${ip}`, { limit: 5, windowSeconds: 60 * 60 });
+}
+
 export async function checkPasswordResetRateLimit(email) {
   return checkRateLimit(`reset:${email.toLowerCase()}`, {
     limit: 3,
