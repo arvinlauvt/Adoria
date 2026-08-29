@@ -83,10 +83,12 @@ Rather than building it by hand, run:
 AIRTABLE_SCHEMA_TOKEN=pat... AIRTABLE_BASE_ID=app... node scripts/create-users-table.js
 ```
 
-That token needs **`schema.bases:write`**, which is a different scope from the
-one the site uses (`data.records:read` / `data.records:write`) — creating a
-table changes the base's structure, which the running app never does. Make a
-separate token for it, run this once, then delete that token.
+That token needs **both `schema.bases:read` and `schema.bases:write`**. They are
+separate scopes: listing the existing tables (so this doesn't create a duplicate)
+is a read, creating the table is a write, and having one does not grant the
+other. Neither is granted by the scopes the site itself uses
+(`data.records:read` / `data.records:write`) — the running app never alters the
+base's structure. Make a separate token for this, run it once, then delete it.
 
 The script checks for an existing `Users` table before creating anything, so
 running it twice is safe.

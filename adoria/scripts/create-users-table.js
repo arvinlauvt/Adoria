@@ -8,10 +8,12 @@
  *
  *   AIRTABLE_SCHEMA_TOKEN=pat... AIRTABLE_BASE_ID=app... node scripts/create-users-table.js
  *
- * The token needs schema.bases:write, which is a DIFFERENT scope from the one
- * the site itself uses (data.records:read / data.records:write). Create a
- * separate token for this, run it once, then delete that token — nothing in
- * the running app ever needs schema access.
+ * The token needs BOTH schema.bases:read and schema.bases:write. Those are two
+ * separate scopes — listing the existing tables (so this doesn't create a
+ * duplicate) is a read, creating the table is a write, and having one does not
+ * grant the other. Neither is granted by the scopes the site itself uses
+ * (data.records:read / data.records:write). Create a separate token for this,
+ * run it once, then delete it — nothing in the running app needs schema access.
  *
  * Safe to run twice: it checks for an existing Users table first and stops
  * rather than creating a duplicate.
@@ -70,7 +72,10 @@ function die(what, why, action) {
   process.exit(1);
 }
 
-async function api(path, init) {
+// `need` names the scope the specific call requires. Listing tables and
+// creating one need DIFFERENT scopes, so a single "you need write access"
+// message sends people to check a permission that was never the problem.
+async function api(path, init, need = { scope: "schema.bases:write", doing: "change the base's structure" }) {
   const res = await fetch(`https://api.airtable.com/v0/meta/bases/${BASE_ID}${path}`, {
     ...init,
     headers: {
@@ -114,11 +119,13 @@ async function api(path, init) {
     }
     if (res.status === 403 || /INVALID_PERMISSIONS|NOT_AUTHORIZED/i.test(type)) {
       die(
-        "That token can't change the base's structure.",
-        "Creating a table needs the schema.bases:write scope. A token scoped only to " +
-          "data.records:read / data.records:write can read and write rows but not add tables.",
-        "Create a new token with schema.bases:write, give it access to this base only, " +
-          "and run this again. Delete it once the table exists."
+        `That token isn't allowed to ${need.doing}.`,
+        `This step needs the ${need.scope} scope. Note that reading the base's structure ` +
+          `and changing it are separate scopes, so having one doesn't grant the other — ` +
+          `and neither is granted by data.records:read / data.records:write.`,
+        `Edit your token at https://airtable.com/create/tokens, make sure it has BOTH ` +
+          `schema.bases:read and schema.bases:write, and that this base is listed under ` +
+          `its access. Then run this again.`
       );
     }
     if (res.status === 404) {
@@ -142,7 +149,7 @@ async function main() {
   if (!TOKEN) {
     die(
       "AIRTABLE_SCHEMA_TOKEN is not set.",
-      "This script needs a token with the schema.bases:write scope to create a table.",
+      "This script needs a token with both schema.bases:read and schema.bases:write.",
       "Run: AIRTABLE_SCHEMA_TOKEN=pat... AIRTABLE_BASE_ID=app... node scripts/create-users-table.js"
     );
   }
@@ -158,7 +165,10 @@ async function main() {
   console.log(`  Table   ${TABLE_NAME}`);
 
   // Idempotent: never create a second Users table over the top of a real one.
-  const existing = await api("/tables");
+  const existing = await api("/tables", undefined, {
+    scope: "schema.bases:read",
+    doing: "read the base's structure",
+  });
   const clash = (existing.tables || []).find(
     (t) => t.name.toLowerCase() === TABLE_NAME.toLowerCase()
   );
