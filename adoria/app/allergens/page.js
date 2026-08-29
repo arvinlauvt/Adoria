@@ -5,8 +5,8 @@ const FLAVOR_COLUMNS = ["Double Chocolate", "Double Chocolate & Almond", "Bluebe
 const ALWAYS_PRESENT = [
   ["Wheat", "Plain flour base"],
   ["Egg", "Whole egg in the dough"],
-  ["Milk & dairy", "Butter, and milk solids in the chocolate"],
-  ["Soy", "Soy lecithin, commonly present in chocolate"],
+  ["Milk & dairy", "Butter in the dough"],
+  ["Soy", "Soy lecithin in the chocolate"],
 ];
 
 // Derived, never hard-coded: the header row and every body row have to track
@@ -21,7 +21,6 @@ const BY_FLAVOUR = [
   ["Tree nuts (almond)", "May contain", "Yes", "May contain"],
   ["Peanuts", "May contain", "May contain", "May contain"],
   ["Sesame", "May contain", "May contain", "May contain"],
-  ["Sulphites", "May contain", "May contain", "May contain"],
 ];
 
 function cellColor(value) {
