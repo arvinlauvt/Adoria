@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "motion/react";
 import { EASE_PREMIUM } from "../../lib/motion";
 import FormField from "../../components/FormField";
+import FormError from "../../components/FormError";
 import { validateEmail } from "../../lib/validation";
 import { Spinner } from "../../components/Skeleton";
 
@@ -56,7 +57,7 @@ export default function LoginForm() {
       const data = await res.json();
 
       if (!res.ok) {
-        setFormError(data.error || "Sign-in failed.");
+        setFormError(data.what ? data : data.error || "Sign-in failed.");
         return;
       }
 
@@ -119,9 +120,7 @@ export default function LoginForm() {
         />
 
         {formError && (
-          <p className="error-text form-error" role="alert" style={{ marginBottom: 18 }}>
-            {formError}
-          </p>
+          <FormError error={formError} style={{ marginBottom: 18 }} />
         )}
 
         <button

@@ -26,26 +26,79 @@ export const MIN_LENGTH = 10;
 // "P@ssw0rd" — length + estimated guessability is the stronger signal).
 export const MIN_SCORE = 3;
 
+// zxcvbn matches user inputs as whole dictionary entries, so passing
+// "arvinlau@example.com" only penalizes that exact string — "arvinlau" on its
+// own still scores as an unknown word, and "arvinlau-arvinlau" scored a full 4
+// before this. Splitting each input into its alphanumeric parts is what makes
+// the local-part, the domain, and each name token count individually.
+function expandInputs(inputs) {
+  const out = new Set();
+  for (const raw of inputs) {
+    const value = String(raw || "").trim().toLowerCase();
+    if (!value) continue;
+    out.add(value);
+    for (const part of value.split(/[^a-z0-9]+/)) {
+      if (part.length >= 3) out.add(part);
+    }
+  }
+  return [...out];
+}
+
 // `inputs` are extra terms to penalize (email, name) so "arvin1990" scores
 // low when it's literally the account's own email local-part.
+// zxcvbn's own feedback says what's wrong ("This is a commonly used
+// password.") but never why it matters or what to do instead, which leaves
+// someone guessing at another password that fails the same way. Everything
+// below pairs its diagnosis with a reason and a concrete next step.
+const ADVICE =
+  "Attackers try lists of known passwords first, so this one would be among the earliest guessed. " +
+  "Try four unrelated words strung together — long and unusual beats short and complicated.";
+
 export function checkPasswordStrength(password, inputs = []) {
   if (!password) {
-    return { ok: false, score: 0, reason: "Enter a password." };
+    return { ok: false, score: 0, reason: "Enter a password to protect your account." };
   }
   if (password.length < MIN_LENGTH) {
     return {
       ok: false,
       score: 0,
-      reason: `Use at least ${MIN_LENGTH} characters.`,
+      reason:
+        `Use at least ${MIN_LENGTH} characters — this one has ${password.length}. ` +
+        `Length is what makes a password hard to crack, more than symbols or numbers do. ` +
+        `A few unrelated words together is the easiest way to get there.`,
     };
   }
-  const result = zxcvbn(password, ["cubelle", ...inputs]);
+  const expanded = expandInputs(["cubelle", "cubelle.my", ...inputs]);
+
+  // zxcvbn credits long repeats, so "arvinlau-arvinlau" still scraped a 3 even
+  // with the local-part in the dictionary. A password built only out of the
+  // account's own details is the first thing anyone targeting this specific
+  // person would try, so it's rejected outright rather than scored.
+  const stripped = password.toLowerCase().replace(/[^a-z0-9]/g, "");
+  let residue = stripped;
+  for (const token of expanded) {
+    if (token.length >= 4) residue = residue.split(token).join("");
+  }
+  if (residue.length < 4) {
+    return {
+      ok: false,
+      score: 0,
+      reason:
+        "This is built out of your own email address. " +
+        "Anyone targeting you would try that first, so it offers almost no protection. " +
+        "Pick something unrelated to you — four unconnected words works well.",
+    };
+  }
+
+  const result = zxcvbn(password, expanded);
   if (result.score < MIN_SCORE) {
-    const feedback =
+    const diagnosis =
       result.feedback.warning ||
       result.feedback.suggestions[0] ||
       "This password is too easy to guess.";
-    return { ok: false, score: result.score, reason: feedback };
+    // zxcvbn's warnings are sentences already, but not all end in a full stop.
+    const tidied = /[.!?]$/.test(diagnosis) ? diagnosis : `${diagnosis}.`;
+    return { ok: false, score: result.score, reason: `${tidied} ${ADVICE}` };
   }
   return { ok: true, score: result.score, reason: "" };
 }

@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "motion/react";
 import { EASE_PREMIUM } from "../../lib/motion";
 import FormField from "../../components/FormField";
+import FormError from "../../components/FormError";
 import PasswordStrength from "../../components/PasswordStrength";
 import { checkPasswordStrength } from "../../lib/auth/passwordStrength";
 import { Spinner } from "../../components/Skeleton";
@@ -49,7 +50,7 @@ export default function ResetPasswordForm() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setFormError(data.error || "Could not reset your password.");
+        setFormError(data.what ? data : data.error || "Could not reset your password.");
         return;
       }
       setDone(true);
@@ -124,9 +125,7 @@ export default function ResetPasswordForm() {
         />
 
         {formError && (
-          <p className="error-text form-error" role="alert" style={{ marginBottom: 18 }}>
-            {formError}
-          </p>
+          <FormError error={formError} style={{ marginBottom: 18 }} />
         )}
 
         <button

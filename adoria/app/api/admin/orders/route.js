@@ -42,47 +42,77 @@ function serialize(record) {
   };
 }
 
-export const GET = withErrorHandling("admin-orders", async () => {
-  try {
+export const GET = withErrorHandling(
+  "admin-orders-list",
+  async () => {
     // Re-checked here, not inherited from the page that rendered the UI —
     // this endpoint is reachable directly.
     await requireAdmin();
     const records = await listOrders();
     return Response.json({ orders: records.map(serialize) });
-  } catch (err) {
-    if (err.status) return Response.json({ error: err.message }, { status: err.status });
-    console.error("Admin order list failed:", err);
-    return Response.json({ error: "Could not load orders." }, { status: 503 });
+  },
+  {
+    what: "We couldn't load the orders.",
+    note: "No order data is lost — this is only the list failing to load.",
   }
-});
+);
 
-export const PATCH = withErrorHandling("admin-orders", async (req) => {
-  try {
+export const PATCH = withErrorHandling(
+  "admin-orders-update",
+  async (req) => {
     await requireAdmin();
 
     const body = await readJsonBody(req);
     const id = String(body?.id || "");
-    if (!id) return Response.json({ error: "Which order?" }, { status: 400 });
+    if (!id) {
+      return Response.json(
+        {
+          error:
+            "No order was specified, so there's nothing to update. " +
+            "This usually means the page is out of date — reload it and try the change again.",
+          code: "missing_order_id",
+        },
+        { status: 400 }
+      );
+    }
 
     const fields = {};
     for (const [key, column] of Object.entries(EDITABLE)) {
       if (body[key] === undefined) continue;
       const value = String(body[key]).trim();
       if (key === "fulfillmentStatus" && !FULFILLMENT_STAGES.includes(value)) {
-        return Response.json({ error: "That isn't a fulfilment stage." }, { status: 400 });
+        return Response.json(
+          {
+            error:
+              `"${value}" isn't a fulfilment stage, so the order wasn't changed. ` +
+              `Pick one of: ${FULFILLMENT_STAGES.join(", ")}.`,
+            code: "bad_stage",
+            field: "fulfillmentStatus",
+          },
+          { status: 400 }
+        );
       }
       fields[column] = value;
     }
 
     if (Object.keys(fields).length === 0) {
-      return Response.json({ error: "Nothing to change." }, { status: 400 });
+      return Response.json(
+        {
+          error:
+            "Nothing was changed, so there's nothing to save. " +
+            "Only the fulfilment stage, courier, and tracking number can be edited here. " +
+            "Edit one of those first.",
+          code: "no_changes",
+        },
+        { status: 400 }
+      );
     }
 
     const updated = await updateOrder(id, fields);
     return Response.json({ ok: true, order: serialize(updated) });
-  } catch (err) {
-    if (err.status) return Response.json({ error: err.message }, { status: err.status });
-    console.error("Admin order update failed:", err);
-    return Response.json({ error: "Could not save that change." }, { status: 503 });
+  },
+  {
+    what: "We couldn't save that change.",
+    note: "The order still shows its previous details — reload the page to confirm what actually saved.",
   }
-});
+);

@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "motion/react";
 import { EASE_PREMIUM } from "../../../lib/motion";
 import FormField from "../../../components/FormField";
+import FormError from "../../../components/FormError";
 import { Spinner } from "../../../components/Skeleton";
 
 export default function VerifyForm() {
@@ -38,7 +39,7 @@ export default function VerifyForm() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setFormError(data.error || "That code didn't work.");
+        setFormError(data.what ? data : data.error || "That code didn't work.");
         // The pending window is gone; sending them back to the start is the
         // only way forward, so don't leave them typing into a dead form.
         if (data.restart) setTimeout(() => router.push("/login"), 2200);
@@ -87,9 +88,7 @@ export default function VerifyForm() {
         />
 
         {formError && (
-          <p className="error-text form-error" role="alert" style={{ marginBottom: 18 }}>
-            {formError}
-          </p>
+          <FormError error={formError} style={{ marginBottom: 18 }} />
         )}
 
         <button

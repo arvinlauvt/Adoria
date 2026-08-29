@@ -1,11 +1,13 @@
 import { requireSession } from "../../../../../lib/auth/requireSession";
 import { generateTotpEnrollment } from "../../../../../lib/auth/totp";
 import { stashPendingSecret } from "../../../../../lib/auth/totpSetup";
+import { withErrorHandling } from "../../../../../lib/errors";
 
 export const dynamic = "force-dynamic";
 
-export async function POST() {
-  try {
+export const POST = withErrorHandling(
+  "2fa-setup",
+  async () => {
     const session = await requireSession();
 
     const { secretBase32, qrDataUrl } = await generateTotpEnrollment(session.email);
@@ -14,9 +16,9 @@ export async function POST() {
     // The QR encodes the secret, which is the point of it — shown once, to
     // the signed-in owner of the account, and never persisted client-side.
     return Response.json({ qrDataUrl, secretBase32 });
-  } catch (err) {
-    if (err.status) return Response.json({ error: err.message }, { status: err.status });
-    console.error("2FA setup failed:", err);
-    return Response.json({ error: "Could not start setup right now." }, { status: 503 });
+  },
+  {
+    what: "We couldn't start two-factor setup.",
+    note: "Two-factor is still off and your account is unchanged.",
   }
-}
+);

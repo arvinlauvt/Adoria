@@ -47,7 +47,13 @@ export const GET = withErrorHandling("track", async (req) => {
 
   // A signed-in customer has already proved this address is theirs, so they
   // get their own orders with nothing else to supply.
-  const session = await getCurrentSession().catch(() => null);
+  //
+  // Deliberately not wrapped in .catch(() => null): a missing cookie already
+  // resolves to null without throwing, so the only thing a catch here would
+  // swallow is the session store being down — and that would silently demote
+  // a signed-in customer to the guest path, asking them for an order ID they
+  // shouldn't need. Letting it throw gives them the real reason instead.
+  const session = await getCurrentSession();
   if (session) {
     const records = await findOrdersByEmail(session.email);
     return Response.json({ orders: records.map(serializeForCustomer) });

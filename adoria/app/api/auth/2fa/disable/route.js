@@ -8,14 +8,24 @@ import { withErrorHandling } from "../../../../../lib/errors";
 
 export const dynamic = "force-dynamic";
 
-export const POST = withErrorHandling("2fa-disable", async (req) => {
-  try {
+export const POST = withErrorHandling(
+  "2fa-disable",
+  async (req) => {
     const session = await requireSession();
     const body = await readJsonBody(req);
     const password = String(body?.password || "");
 
     if (!password) {
-      return Response.json({ error: "Enter your password to turn this off." }, { status: 400 });
+      return Response.json(
+        {
+          error:
+            "Enter your password to turn this off. " +
+            "Removing two-factor makes the account easier to break into, so we confirm it's really you first.",
+          code: "missing_password",
+          field: "password",
+        },
+        { status: 400 }
+      );
     }
 
     // Turning off a second factor is a downgrade in account security, so it
@@ -24,15 +34,32 @@ export const POST = withErrorHandling("2fa-disable", async (req) => {
     // login is: this is a password check like any other.
     const limit = await checkLoginRateLimit(getRequestIp(req), session.email);
     if (!limit.allowed) {
+      const minutes = Math.max(1, Math.ceil(limit.retryAfterSeconds / 60));
       return Response.json(
-        { error: "Too many attempts. Try again later." },
+        {
+          error:
+            `Too many attempts. ` +
+            `Password checks are limited to stop guessing, and this account has hit that limit. ` +
+            `Two-factor is still on. Wait about ${minutes} minute${minutes === 1 ? "" : "s"} and try again.`,
+          code: "rate_limited",
+        },
         { status: 429, headers: { "Retry-After": String(limit.retryAfterSeconds) } }
       );
     }
 
     const record = await getUserById(session.userId);
     if (!record || !(await verifyPassword(password, record.fields["Password Hash"] || ""))) {
-      return Response.json({ error: "That password isn't right." }, { status: 401 });
+      return Response.json(
+        {
+          error:
+            "That password isn't right. " +
+            "Two-factor is still on and nothing has changed. " +
+            "Try again, or reset your password if you've forgotten it.",
+          code: "bad_password",
+          field: "password",
+        },
+        { status: 401 }
+      );
     }
 
     await updateUser(session.userId, {
@@ -42,9 +69,10 @@ export const POST = withErrorHandling("2fa-disable", async (req) => {
     });
 
     return Response.json({ ok: true });
-  } catch (err) {
-    if (err.status) return Response.json({ error: err.message }, { status: err.status });
-    console.error("2FA disable failed:", err);
-    return Response.json({ error: "Could not turn off two-factor right now." }, { status: 503 });
+  },
+  {
+    what: "We couldn't turn off two-factor.",
+    note:
+      "Assume it's still on and keep your authenticator app to hand — reload your account page to see where it actually stands.",
   }
-});
+);

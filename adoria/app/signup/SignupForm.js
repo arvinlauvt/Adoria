@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "motion/react";
 import { EASE_PREMIUM } from "../../lib/motion";
 import FormField from "../../components/FormField";
+import FormError from "../../components/FormError";
 import PasswordStrength from "../../components/PasswordStrength";
 import { validateEmail } from "../../lib/validation";
 import { checkPasswordStrength } from "../../lib/auth/passwordStrength";
@@ -53,14 +54,18 @@ export default function SignupForm() {
       });
       const data = await res.json();
       if (!res.ok) {
-        setFormError(data.error || "Could not create your account.");
+        setFormError(data.what ? data : data.error || "Could not create your account.");
         setExisting(Boolean(data.existing));
         return;
       }
       router.push("/track");
       router.refresh();
     } catch {
-      setFormError("Could not reach the server. Check your connection and try again.");
+      setFormError({
+        what: "We couldn't reach the site's server.",
+        why: "The request didn't get a reply, which usually means the connection dropped part-way.",
+        action: "Check you're online and try again. Your account was not created.",
+      });
     } finally {
       setSubmitting(false);
     }
@@ -103,14 +108,14 @@ export default function SignupForm() {
         </FormField>
 
         {formError && (
-          <p className="error-text form-error" role="alert" style={{ marginBottom: 18 }}>
-            {formError}{" "}
+          <div style={{ marginBottom: 18 }}>
+            <FormError error={formError} style={{ marginBottom: existing ? 6 : 0 }} />
             {existing && (
               <a href={`/login?email=${encodeURIComponent(email.trim())}`} style={{ color: "var(--accent-text)" }}>
                 Go to sign in
               </a>
             )}
-          </p>
+          </div>
         )}
 
         <button

@@ -8,20 +8,28 @@ import { validateEmail } from "../../../../lib/validation";
 import { readJsonBody } from "../../../../lib/sanitize";
 import { withErrorHandling } from "../../../../lib/errors";
 
-export const POST = withErrorHandling("signup", async (req) => {
-  const body = await readJsonBody(req);
+export const POST = withErrorHandling(
+  "signup",
+  async (req) => {
+    const body = await readJsonBody(req);
 
-  const email = String(body?.email || "").trim().toLowerCase();
-  const password = String(body?.password || "");
+    const email = String(body?.email || "").trim().toLowerCase();
+    const password = String(body?.password || "");
 
-  const emailError = validateEmail(email);
-  if (emailError) return Response.json({ error: emailError }, { status: 400 });
+    const emailError = validateEmail(email);
+    if (emailError) return Response.json({ error: emailError }, { status: 400 });
 
-  try {
     const limit = await checkSignupRateLimit(getRequestIp(req));
     if (!limit.allowed) {
+      const minutes = Math.max(1, Math.ceil(limit.retryAfterSeconds / 60));
       return Response.json(
-        { error: "Too many accounts created from here. Try again later." },
+        {
+          error:
+            `We've paused new signups from your connection. ` +
+            `Several accounts were just created from the same place, and that limit exists to stop bulk signups. ` +
+            `Try again in about ${minutes} minute${minutes === 1 ? "" : "s"}, or message us on WhatsApp if you need an account now.`,
+          code: "rate_limited",
+        },
         { status: 429, headers: { "Retry-After": String(limit.retryAfterSeconds) } }
       );
     }
@@ -29,7 +37,7 @@ export const POST = withErrorHandling("signup", async (req) => {
     // Checked server-side regardless of what the browser did.
     const strength = checkPasswordStrength(password, [email]);
     if (!strength.ok) {
-      return Response.json({ error: strength.reason }, { status: 400 });
+      return Response.json({ error: strength.reason, field: "password" }, { status: 400 });
     }
 
     // Deliberately explicit, unlike login and password reset. Those two stay
@@ -42,7 +50,15 @@ export const POST = withErrorHandling("signup", async (req) => {
     // signup, which is a bigger change than this.
     if (await findUserByEmail(email)) {
       return Response.json(
-        { error: "There's already an account with this email. Sign in instead.", existing: true },
+        {
+          error:
+            "There's already an account with this email. " +
+            "You may have signed up before and forgotten. " +
+            "Sign in instead, or reset your password if you don't remember it.",
+          code: "email_taken",
+          field: "email",
+          existing: true,
+        },
         { status: 409 }
       );
     }
@@ -66,8 +82,13 @@ export const POST = withErrorHandling("signup", async (req) => {
     const response = Response.json({ ok: true });
     response.headers.set("Set-Cookie", sessionCookie(token));
     return response;
-  } catch (err) {
-    console.error("Signup failed:", err);
-    return Response.json({ error: "Could not create your account right now." }, { status: 503 });
+  },
+  {
+    what: "We couldn't finish creating your account.",
+    // The account row and the session are two separate writes, so a failure
+    // between them can leave the account real but the user not signed in.
+    // They can't tell from the outside, so this says how to find out.
+    note:
+      "If you later try again and it says the email is already registered, your account did get created — sign in instead of signing up.",
   }
-});
+);

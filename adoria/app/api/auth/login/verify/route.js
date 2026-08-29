@@ -11,31 +11,58 @@ import { sessionCookie } from "../../../../../lib/auth/cookie";
 import { readJsonBody } from "../../../../../lib/sanitize";
 import { withErrorHandling } from "../../../../../lib/errors";
 
-export const POST = withErrorHandling("login-verify", async (req) => {
-  const body = await readJsonBody(req);
+export const POST = withErrorHandling(
+  "login-verify",
+  async (req) => {
+    const body = await readJsonBody(req);
 
-  const pendingToken = String(body?.pendingToken || "");
-  // Forgiving: authenticator apps show "123 456", and people paste it that
-  // way. Strip anything that isn't a digit or letter before checking, so
-  // spaces and dashes don't cause a spurious failure.
-  const code = String(body?.code || "").replace(/[^0-9a-zA-Z]/g, "");
+    const pendingToken = String(body?.pendingToken || "");
+    // Forgiving: authenticator apps show "123 456", and people paste it that
+    // way. Strip anything that isn't a digit or letter before checking, so
+    // spaces and dashes don't cause a spurious failure.
+    const code = String(body?.code || "").replace(/[^0-9a-zA-Z]/g, "");
 
-  if (!pendingToken || !code) {
-    return Response.json({ error: "Enter the code from your authenticator app." }, { status: 400 });
-  }
+    if (!pendingToken || !code) {
+      return Response.json(
+        {
+          error:
+            "Enter the 6-digit code from your authenticator app. " +
+            "Your password was accepted, but this account has two-factor turned on, so the code is the second step.",
+          code: "missing_code",
+          field: "code",
+        },
+        { status: 400 }
+      );
+    }
 
-  try {
     const userId = await readPendingLogin(pendingToken);
     if (!userId) {
       return Response.json(
-        { error: "This sign-in attempt expired. Start again.", restart: true },
+        {
+          error:
+            "This sign-in attempt has expired. " +
+            "The window between entering your password and your code only stays open a few minutes. " +
+            "Enter your email and password again to get a fresh one.",
+          code: "attempt_expired",
+          restart: true,
+        },
         { status: 400 }
       );
     }
 
     const record = await getUserById(userId);
     if (!record) {
-      return Response.json({ error: "This sign-in attempt is no longer valid.", restart: true }, { status: 400 });
+      return Response.json(
+        {
+          error:
+            "This sign-in attempt is no longer valid. " +
+            "The account it belonged to can't be found, which can happen if it was removed mid-sign-in. " +
+            "Start again, and message us on WhatsApp if it keeps happening.",
+          code: "account_gone",
+          restart: true,
+        },
+        { status: 400 }
+      );
     }
 
     const secret = record.fields["TOTP Secret"];
@@ -57,12 +84,28 @@ export const POST = withErrorHandling("login-verify", async (req) => {
       const remaining = await recordFailedAttempt(pendingToken);
       if (remaining === 0) {
         return Response.json(
-          { error: "Too many incorrect codes. Sign in again to restart.", restart: true },
+          {
+            error:
+              "Too many incorrect codes, so this sign-in attempt has been cancelled. " +
+              "That limit exists to stop someone guessing their way past two-factor. " +
+              "Enter your email and password again to start over — if your phone's codes keep being rejected, " +
+              "check its clock is set to update automatically, or use one of your backup codes.",
+            code: "too_many_codes",
+            restart: true,
+          },
           { status: 429 }
         );
       }
       return Response.json(
-        { error: `That code isn't right. ${remaining} attempt${remaining === 1 ? "" : "s"} left.` },
+        {
+          error:
+            `That code isn't right — ${remaining} attempt${remaining === 1 ? "" : "s"} left before this sign-in is cancelled. ` +
+            `Codes change every 30 seconds, so enter the one showing now. ` +
+            `If none of them work, use one of your backup codes.`,
+          code: "bad_code",
+          field: "code",
+          remaining,
+        },
         { status: 401 }
       );
     }
@@ -78,11 +121,13 @@ export const POST = withErrorHandling("login-verify", async (req) => {
     const response = Response.json({ ok: true, role: record.fields.Role || "Customer" });
     response.headers.set("Set-Cookie", sessionCookie(token));
     return response;
-  } catch (err) {
-    console.error("Two-factor verification failed:", err);
-    return Response.json({ error: "Sign-in is unavailable right now." }, { status: 503 });
+  },
+  {
+    what: "We couldn't finish signing you in.",
+    note:
+      "Your code wasn't wrong — this failed before we got as far as checking it, and you're not signed in.",
   }
-});
+);
 
 function parseBackupCodes(raw) {
   if (!raw) return [];
