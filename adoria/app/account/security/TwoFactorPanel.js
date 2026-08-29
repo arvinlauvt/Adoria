@@ -16,10 +16,16 @@ export default function TwoFactorPanel({ initiallyEnabled }) {
   const [backupCodes, setBackupCodes] = useState([]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  // Turning two-factor off only changed a heading from "Turned on" to "Not
+  // turned on" — easy to miss entirely, which is the worst outcome for a
+  // security setting: you walk away unsure whether it happened. Both
+  // outcomes now announce themselves.
+  const [flash, setFlash] = useState(null);
 
   async function startSetup() {
     setBusy(true);
     setError("");
+    setFlash(null);
     try {
       const res = await fetch("/api/auth/2fa/setup", { method: "POST" });
       const data = await res.json();
@@ -50,6 +56,7 @@ export default function TwoFactorPanel({ initiallyEnabled }) {
       setEnabled(true);
       setStage("codes");
       setCode("");
+      setFlash({ tone: "on", text: "Two-factor is now on. You'll be asked for a code next time you sign in." });
     } catch {
       setError("Could not reach the server.");
     } finally {
@@ -72,6 +79,12 @@ export default function TwoFactorPanel({ initiallyEnabled }) {
       setEnabled(false);
       setStage("idle");
       setPassword("");
+      setFlash({
+        tone: "off",
+        text:
+          "Two-factor is now OFF. Your password is the only thing protecting this account. " +
+          "You can delete the Cubelle entry from your authenticator app — the old codes no longer work.",
+      });
     } catch {
       setError("Could not reach the server.");
     } finally {
@@ -104,6 +117,29 @@ export default function TwoFactorPanel({ initiallyEnabled }) {
           : "Add a code from an authenticator app on top of your password, so a stolen password isn't enough on its own."}
       </p>
 
+      {flash && (
+        <div
+          role="status"
+          style={{
+            marginBottom: 22,
+            padding: "13px 16px",
+            borderRadius: 8,
+            fontSize: 14,
+            lineHeight: 1.6,
+            // Turning it OFF is the one worth colouring like a warning: it's a
+            // downgrade, and someone who did it by accident needs to notice.
+            background: flash.tone === "off" ? "rgba(190,90,60,.12)" : "rgba(90,150,90,.12)",
+            border: `1px solid ${flash.tone === "off" ? "rgba(190,90,60,.4)" : "rgba(90,150,90,.4)"}`,
+            color: "var(--text-body)",
+          }}
+        >
+          <strong style={{ display: "block", marginBottom: 3 }}>
+            {flash.tone === "off" ? "Two-factor turned off" : "Two-factor turned on"}
+          </strong>
+          {flash.text}
+        </div>
+      )}
+
       {error && (
         <p className="error-text form-error" role="alert" style={{ marginBottom: 18 }}>
           {error}
@@ -126,8 +162,14 @@ export default function TwoFactorPanel({ initiallyEnabled }) {
 
       {stage === "scanning" && (
         <div>
-          <p style={{ margin: "0 0 16px", fontSize: 14, color: "var(--text-body)" }}>
-            Scan this with your authenticator app, then enter the six-digit code it shows.
+          <p style={{ margin: "0 0 6px", fontSize: 14, color: "var(--text-body)" }}>
+            Scan this with an authenticator app, then enter the six-digit code it shows.
+          </p>
+          <p style={{ margin: "0 0 16px", fontSize: 13, color: "var(--text-muted)", lineHeight: 1.6 }}>
+            Don&rsquo;t have one? <strong>Google Authenticator</strong>, <strong>Microsoft
+            Authenticator</strong> and <strong>Authy</strong> are all free on iPhone and
+            Android, and any of them works here. Install one, open it, and choose to add an
+            account by scanning a code.
           </p>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img

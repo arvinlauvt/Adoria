@@ -47,7 +47,7 @@ export default async function ProductPage({ params }) {
               ))}
             </div>
             <div style={{ fontSize: 10, letterSpacing: "0.26em", textTransform: "uppercase", color: "var(--accent-text)" }}>
-              {product.edition}
+              {product.editionLabel}
             </div>
             <h1 style={{ margin: "14px 0 10px", fontWeight: 400, fontSize: "clamp(1.875rem, 6vw, 2.625rem)", lineHeight: 1.08, color: "var(--text-heading)" }}>
               {product.name}

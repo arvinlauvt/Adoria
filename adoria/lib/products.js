@@ -1,5 +1,14 @@
-// Consumer-facing catalog. `edition` must match a "Product Edition" option
-// in Airtable exactly. Swap `accent` and copy per drop as needed.
+// Consumer-facing catalog.
+//
+// `edition` is the value written to Airtable's "Product Edition" single-select
+// and must match one of its options exactly. It's deliberately short, because
+// it's read in a spreadsheet all day.
+//
+// `editionLabel` is what customers see above the product title. Showing the
+// short name there would put "ANNIVERSARY" directly above "The Anniversary
+// Box" — the same word twice, and the line stops earning its place.
+//
+// Swap `accent` and copy per drop as needed.
 
 // Pricing: per box = base (by message type) + add-on (if selected), all
 // multiplied by quantity. Base RM79 (card) / RM89 (letter). Add-on price
@@ -44,7 +53,8 @@ export const PRODUCTS = [
   {
     slug: "anniversary",
     name: "The Anniversary Box",
-    edition: "Milestone & Anniversary Edition",
+    edition: "Anniversary",
+    editionLabel: "Milestone & Anniversary Edition",
     occasionTag: "Romance",
     tagline: "For the date you never want to forget.",
     shortDescription:
@@ -61,7 +71,8 @@ export const PRODUCTS = [
   {
     slug: "congratulations",
     name: "The Congratulations Box",
-    edition: "Celebration Edition",
+    edition: "Congratulations",
+    editionLabel: "Celebration Edition",
     occasionTag: "Career",
     tagline: "For the wins that deserve more than a text.",
     shortDescription:
@@ -78,7 +89,8 @@ export const PRODUCTS = [
   {
     slug: "hostess",
     name: "The Hostess Box",
-    edition: "Host & Visiting Edition",
+    edition: "Hostess",
+    editionLabel: "Host & Visiting Edition",
     occasionTag: "Visiting",
     tagline: "A better guest than a fruit basket.",
     shortDescription:

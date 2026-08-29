@@ -15,13 +15,28 @@ const NAV_LINKS = [
   { href: "/track", label: "Track order" },
 ];
 
-// Kept separate so the mobile drawer can show them apart from the content
-// links too. This is a static component — it never knows who's looking, and
-// both destinations resolve the session server-side.
+// The drawer still needs words — an icon alone in a vertical list of text
+// links reads as a stray graphic. Desktop gets the icon below.
 const ACCOUNT_LINKS = [
-  { href: "/login", label: "Sign in" },
-  { href: "/signup", label: "Sign up" },
+  { href: "/account", label: "Your account" },
 ];
+
+// One destination for both states. This is a static component and never
+// knows who's looking; /account resolves the session server-side and sends
+// a signed-out visitor to sign in, so the icon doesn't have to guess.
+function AccountIcon() {
+  return (
+    <svg width="19" height="19" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="12" cy="8.2" r="3.6" stroke="currentColor" strokeWidth="1.6" />
+      <path
+        d="M4.8 20c.6-3.9 3.6-6.2 7.2-6.2s6.6 2.3 7.2 6.2"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+      />
+    </svg>
+  );
+}
 
 export default function Header() {
   const [open, setOpen] = useState(false);
@@ -85,23 +100,25 @@ export default function Header() {
         <div className="desktop-nav" style={{ display: "flex", alignItems: "center", gap: "clamp(11px, 1.3vw, 18px)" }}>
           <span style={{ fontSize: 12, letterSpacing: "0.1em", color: "rgba(247,240,228,.6)" }}>MYR</span>
           <ThemeToggle />
-          {ACCOUNT_LINKS.map((l) => (
-            <Link
-              key={l.href}
-              href={l.href}
-              style={{
-                fontSize: 12,
-                fontWeight: 500,
-                letterSpacing: "0.14em",
-                textTransform: "uppercase",
-                color: "rgba(247,240,228,.72)",
-                textDecoration: "none",
-                whiteSpace: "nowrap",
-              }}
-            >
-              {l.label}
-            </Link>
-          ))}
+          <Link
+            href="/account"
+            aria-label="Your account"
+            title="Your account"
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: 34,
+              height: 34,
+              borderRadius: 999,
+              border: "1px solid rgba(217,171,92,.4)",
+              color: "var(--gold-bright)",
+              textDecoration: "none",
+              flexShrink: 0,
+            }}
+          >
+            <AccountIcon />
+          </Link>
           <Link
             href="/#catalog"
             className="btn"
