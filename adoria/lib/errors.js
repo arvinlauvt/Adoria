@@ -81,7 +81,11 @@ function classify(err, dependency = "a service we rely on") {
   if (/\b(is|are) not set\b|\bis missing\b|\bnot configured\b/i.test(text)) {
     return {
       code: "misconfigured",
-      why: `The site is missing a setting it needs to reach ${dependency}, so the request stopped before it got anywhere.`,
+      // Deliberately not "a setting it needs to REACH x" — some missing
+      // settings are keys used locally (the TOTP encryption key), not
+      // addresses of anything, and naming a dependency there points whoever
+      // is debugging at the wrong system.
+      why: "The site is missing a setting it needs for this, so the request stopped before it got anywhere.",
       retryable: false,
     };
   }
