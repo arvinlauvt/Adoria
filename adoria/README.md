@@ -77,6 +77,20 @@ Same token as the Orders table works here too (same base, same scopes).
 `AIRTABLE_USERS_TABLE_NAME` defaults to `Users`; only set it if you name the
 table something else.
 
+Rather than building it by hand, run:
+
+```
+AIRTABLE_SCHEMA_TOKEN=pat... AIRTABLE_BASE_ID=app... node scripts/create-users-table.js
+```
+
+That token needs **`schema.bases:write`**, which is a different scope from the
+one the site uses (`data.records:read` / `data.records:write`) — creating a
+table changes the base's structure, which the running app never does. Make a
+separate token for it, run this once, then delete that token.
+
+The script checks for an existing `Users` table before creating anything, so
+running it twice is safe.
+
 This table also needs Upstash Redis (sessions, rate limits, short-lived
 reset/2FA tokens — see `.env.example` for setup) and Resend (password-reset
 emails) to actually function; the `lib/auth/*` and `lib/resend.js` helpers
