@@ -57,7 +57,33 @@ swap in the sandbox key/category, and use their test bank credentials to run
 a full order without moving real money. Switch `TOYYIBPAY_BASE_URL` back to
 `https://toyyibpay.com` with your real key/category once you're live.
 
-## 3. Deploy to Netlify
+## 3. Auth (Users table)
+
+Login, admin, and customer accounts (`lib/auth/*`, `lib/users.js`) need a
+second table, **Users**, in the same **Cubelle Operations** base as Orders.
+Create it by hand in Airtable with these fields (names must match exactly):
+
+| Field | Type | Notes |
+|---|---|---|
+| `Email` | Single line text | Lowercase before writing; looked up case-insensitively |
+| `Password Hash` | Single line text | bcrypt hash — never a plaintext password |
+| `Role` | Single select | Options: `Customer`, `Admin` |
+| `TOTP Secret` | Single line text | AES-256-GCM encrypted (see `lib/auth/crypto.js`) — never the raw secret |
+| `TOTP Enabled` | Checkbox | Only set true after the user confirms one live code |
+| `Backup Codes` | Long text | JSON array of bcrypt hashes, one removed per use |
+| `Created At` | Date | ISO timestamp |
+
+Same token as the Orders table works here too (same base, same scopes).
+`AIRTABLE_USERS_TABLE_NAME` defaults to `Users`; only set it if you name the
+table something else.
+
+This table also needs Upstash Redis (sessions, rate limits, short-lived
+reset/2FA tokens — see `.env.example` for setup) and Resend (password-reset
+emails) to actually function; the `lib/auth/*` and `lib/resend.js` helpers
+throw a clear setup error if their env vars are missing, rather than
+failing silently.
+
+## 4. Deploy to Netlify
 
 1. Push this folder to a new GitHub repo.
 2. In Netlify: **Add new site** → **Import an existing project** → pick that repo.
