@@ -62,9 +62,8 @@ and re-checks the real payment status with ToyyibPay directly.
   something confirmed out loud, but "I think" was the standard for one line
   and that isn't good enough for a page where being wrong hurts a person.
 - **Have the legal pages reviewed** — see section 2a.
-- **`next@16` upgrade.** Two open high-severity advisories against 14. Much
-  safer now that the four Next 15 breakages are fixed and work on both
-  majors, but still a breaking major — own branch, full pass over every page.
+- **`next@16` upgrade — attempted and rolled back.** See section 2b. Do not
+  take it with `npm audit fix --force`.
 
 ---
 
@@ -171,6 +170,53 @@ URL-encoded and inside template strings too, not just as a quoted literal.
   adding it.
 
 ---
+
+## 2b. The Next 16 upgrade was tried, and rolled back
+
+`npm audit fix --force` will offer to take you to Next 16, and it fixes every
+outstanding advisory. **It was tested and it breaks authentication.** Don't
+let that command make the decision for you.
+
+What was tested on 16.3.3: every page rendered, the build passed, the API
+routes worked, signup and logout worked, orders were created. Then this:
+
+| | Next 14.2.35 | Next 16.3.3 |
+|---|---|---|
+| `/api/auth/me` with a session cookie | signed in | signed in |
+| `/account` with the same cookie | 200 | **307 → /login** |
+| `/track` with the same cookie | "Signed in as…" | **shows signed out** |
+
+Route handlers read the session; **pages do not.** Same cookie, same request.
+A signed-in customer would be bounced to the sign-in page from every page
+that checks a session, while the API believed them.
+
+The likely cause is that the opt-in in-memory dev store ends up as two
+separate module instances under Turbopack — the server-component bundle and
+the route-handler bundle each getting their own Map — which would make it an
+artifact of local testing rather than a real fault. **That was not proven.**
+It could not be tested against real Upstash from where this was run, so the
+possibility that it also breaks in production was never ruled out.
+
+So: unproven cause, sitting directly on the auth path. Not something to ship
+and hope.
+
+**To finish this properly**, someone needs to run the upgrade with real
+Upstash credentials and repeat exactly the table above. If pages read the
+session correctly against real Upstash, the upgrade is fine and the local
+failure was the dev store. If they don't, there is a real bug to fix first.
+
+Until then `package.json` pins **`14.2.35` exactly, with no caret** —
+deliberately, because a range is what let a routine install drift onto an
+untested major.
+
+### What you're living with meanwhile
+
+Next 14.2.35 carries around twenty advisories, high severity, mostly denial
+of service, cache poisoning, and SSRF in features this site doesn't lean on.
+None is a remote code execution, and none is an open door to the Airtable
+data. That is a real risk, not a dismissed one — it just isn't a worse risk
+than shipping authentication that might send every signed-in customer to the
+login page.
 
 ## 2a. Legal pages
 
