@@ -30,10 +30,17 @@ export default function Home() {
           transition: "background-color 0.25s var(--ease-premium)",
         }}
       >
+        {/* These numbers look arbitrary but aren't: the source PNG used to be a
+            1390x922 canvas with the mark occupying ~41% of it and the rest
+            transparent, so that empty margin was silently doing the sizing and
+            positioning. The asset is now cropped square to the mark itself
+            (~87% of the frame), so the padding it used to supply has to live
+            here instead — hence the smaller box, pulled back inside the
+            viewport rather than bled off the right edge. */}
         <div
           aria-hidden="true"
           className="hero-phantom"
-          style={{ position: "absolute", right: "-7vw", top: "31%", transform: "translateY(-50%)", width: "64vw", maxWidth: 1150, minWidth: 500 }}
+          style={{ position: "absolute", right: "11vw", top: "calc(31% + 7vw)", transform: "translateY(-50%)", width: "30vw", maxWidth: 540, minWidth: 235 }}
         >
           {/* Static centering (translateY(-50%)) lives on the wrapper above
               so it doesn't fight with Motion's own transform on this inner
