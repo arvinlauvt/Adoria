@@ -1,4 +1,5 @@
-const BASE_URL = process.env.TOYYIBPAY_BASE_URL || "https://toyyibpay.com";
+import { getToyyibpayBaseUrl } from "./config";
+
 const SECRET_KEY = process.env.TOYYIBPAY_SECRET_KEY;
 const CATEGORY_CODE = process.env.TOYYIBPAY_CATEGORY_CODE;
 
@@ -30,7 +31,8 @@ export async function createBill({
     billPaymentChannel: "0",
   });
 
-  const res = await fetch(`${BASE_URL}/index.php/api/createBill`, {
+  const baseUrl = getToyyibpayBaseUrl();
+  const res = await fetch(`${baseUrl}/index.php/api/createBill`, {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: body.toString(),
@@ -41,7 +43,7 @@ export async function createBill({
   if (!billCode) {
     throw new Error(`ToyyibPay createBill failed: ${JSON.stringify(data)}`);
   }
-  return { billCode, paymentUrl: `${BASE_URL}/${billCode}` };
+  return { billCode, paymentUrl: `${baseUrl}/${billCode}` };
 }
 
 // Server-side confirmation that a bill was actually paid - never trust
@@ -51,7 +53,7 @@ export async function getBillTransactions(billCode) {
     billCode,
     billpaymentStatus: "1",
   });
-  const res = await fetch(`${BASE_URL}/index.php/api/getBillTransactions`, {
+  const res = await fetch(`${getToyyibpayBaseUrl()}/index.php/api/getBillTransactions`, {
     method: "POST",
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body: body.toString(),

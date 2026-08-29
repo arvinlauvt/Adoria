@@ -5,14 +5,11 @@ import { sessionCookie } from "../../../../lib/auth/cookie";
 import { checkSignupRateLimit } from "../../../../lib/auth/rateLimit";
 import { getRequestIp } from "../../../../lib/auth/requestIp";
 import { validateEmail } from "../../../../lib/validation";
+import { readJsonBody } from "../../../../lib/sanitize";
+import { withErrorHandling } from "../../../../lib/errors";
 
-export async function POST(req) {
-  let body;
-  try {
-    body = await req.json();
-  } catch {
-    return Response.json({ error: "Malformed request." }, { status: 400 });
-  }
+export const POST = withErrorHandling("signup", async (req) => {
+  const body = await readJsonBody(req);
 
   const email = String(body?.email || "").trim().toLowerCase();
   const password = String(body?.password || "");
@@ -73,4 +70,4 @@ export async function POST(req) {
     console.error("Signup failed:", err);
     return Response.json({ error: "Could not create your account right now." }, { status: 503 });
   }
-}
+});

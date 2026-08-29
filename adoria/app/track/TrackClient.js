@@ -132,7 +132,11 @@ export default function TrackClient({ signedInEmail = "" }) {
       if (searchOrderId) params.set("orderId", searchOrderId);
       const res = await fetch(`/api/track?${params}`);
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Something went wrong.");
+      if (!res.ok) {
+        // The server sends what happened, why, and what to do about it.
+        // Passing the whole thing through beats collapsing it to "not found".
+        throw new Error(data.error || "We couldn't complete that search. Try again in a moment.");
+      }
       setOrders(data.orders);
     } catch (err) {
       setError(err.message);
@@ -171,9 +175,15 @@ export default function TrackClient({ signedInEmail = "" }) {
               <input id="track-email" type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
             </div>
             <div className="field">
-              <label htmlFor="track-order">Order ID (optional)</label>
-              <span className="hint">Leave blank to see every order under this email.</span>
-              <input id="track-order" value={orderId} onChange={(e) => setOrderId(e.target.value)} />
+              <label htmlFor="track-order">Order ID</label>
+              {/* Required for guests on purpose: an email address alone is
+                  often public, so asking for something only the real customer
+                  has stops anyone reading someone else's order. */}
+              <span className="hint">
+                It looks like ADR-20260901-123456, at the top of your confirmation email.
+                Signed-in customers don&rsquo;t need this.
+              </span>
+              <input id="track-order" value={orderId} onChange={(e) => setOrderId(e.target.value)} required />
             </div>
             <button type="submit" className="btn" disabled={loading} onMouseDown={(e) => e.preventDefault()}>
               {loading ? "Looking…" : "Find my orders"}

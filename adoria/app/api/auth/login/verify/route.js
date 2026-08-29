@@ -8,14 +8,11 @@ import { verifyTotpCode, findMatchingBackupCodeIndex } from "../../../../../lib/
 import { decryptSecret } from "../../../../../lib/auth/crypto";
 import { createSession } from "../../../../../lib/auth/session";
 import { sessionCookie } from "../../../../../lib/auth/cookie";
+import { readJsonBody } from "../../../../../lib/sanitize";
+import { withErrorHandling } from "../../../../../lib/errors";
 
-export async function POST(req) {
-  let body;
-  try {
-    body = await req.json();
-  } catch {
-    return Response.json({ error: "Malformed request." }, { status: 400 });
-  }
+export const POST = withErrorHandling("login-verify", async (req) => {
+  const body = await readJsonBody(req);
 
   const pendingToken = String(body?.pendingToken || "");
   // Forgiving: authenticator apps show "123 456", and people paste it that
@@ -85,7 +82,7 @@ export async function POST(req) {
     console.error("Two-factor verification failed:", err);
     return Response.json({ error: "Sign-in is unavailable right now." }, { status: 503 });
   }
-}
+});
 
 function parseBackupCodes(raw) {
   if (!raw) return [];

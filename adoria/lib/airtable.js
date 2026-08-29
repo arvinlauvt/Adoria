@@ -1,4 +1,5 @@
 import { inMemoryStoreAllowed, createInMemoryOrders, warnInMemory } from "./devStore";
+import { escapeFormulaValue } from "./sanitize";
 
 const AIRTABLE_TOKEN = process.env.AIRTABLE_TOKEN;
 const BASE_ID = process.env.AIRTABLE_BASE_ID;
@@ -48,8 +49,14 @@ export async function createOrder(fields) {
 }
 
 // Looks up the single order record that holds this ToyyibPay bill code.
+// billCode arrives from the payment webhook, which anyone can POST to, so it
+// is escaped before going anywhere near a formula string — an unescaped
+// quote would let a crafted value close the string literal early and rewrite
+// the filter into one that matches other people's orders.
 export async function findOrderByBillCode(billCode) {
-  const formula = encodeURIComponent(`{ToyyibPay Bill Code} = "${billCode}"`);
+  const formula = encodeURIComponent(
+    `{ToyyibPay Bill Code} = "${escapeFormulaValue(billCode)}"`
+  );
   const res = await fetch(`${API_URL}?filterByFormula=${formula}`, {
     headers: headers(),
   });
@@ -131,9 +138,8 @@ export async function findOrdersByEmail(email) {
       (r) => String(r.fields["Customer Email"] || "").toLowerCase() === target
     );
   }
-  const safe = email.replace(/"/g, '\\"');
   const formula = encodeURIComponent(
-    `LOWER({Customer Email}) = "${safe.toLowerCase()}"`
+    `LOWER({Customer Email}) = "${escapeFormulaValue(email).toLowerCase()}"`
   );
   const res = await fetch(
     `${API_URL}?filterByFormula=${formula}&sort[0][field]=Order Date&sort[0][direction]=desc`,

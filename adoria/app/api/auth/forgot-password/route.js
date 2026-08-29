@@ -2,6 +2,8 @@ import { findUserByEmail } from "../../../../lib/users";
 import { createPasswordResetToken } from "../../../../lib/auth/passwordReset";
 import { checkPasswordResetRateLimit } from "../../../../lib/auth/rateLimit";
 import { sendPasswordResetEmail } from "../../../../lib/resend";
+import { readJsonBody } from "../../../../lib/sanitize";
+import { withErrorHandling } from "../../../../lib/errors";
 
 // Always the same reply, whether or not the address has an account. Saying
 // "no account with that email" would let anyone test addresses against the
@@ -11,13 +13,8 @@ const ALWAYS = {
   message: "If that email has an account, a reset link is on its way.",
 };
 
-export async function POST(req) {
-  let body;
-  try {
-    body = await req.json();
-  } catch {
-    return Response.json({ error: "Malformed request." }, { status: 400 });
-  }
+export const POST = withErrorHandling("forgot-password", async (req) => {
+  const body = await readJsonBody(req);
 
   const email = String(body?.email || "").trim().toLowerCase();
   if (!email) {
@@ -48,4 +45,4 @@ export async function POST(req) {
     console.error("Password reset request failed:", err);
     return Response.json(ALWAYS);
   }
-}
+});

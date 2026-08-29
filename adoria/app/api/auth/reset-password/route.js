@@ -1,14 +1,11 @@
 import { getUserById, updateUser } from "../../../../lib/users";
 import { consumePasswordResetToken } from "../../../../lib/auth/passwordReset";
 import { hashPassword, checkPasswordStrength } from "../../../../lib/auth/password";
+import { readJsonBody } from "../../../../lib/sanitize";
+import { withErrorHandling } from "../../../../lib/errors";
 
-export async function POST(req) {
-  let body;
-  try {
-    body = await req.json();
-  } catch {
-    return Response.json({ error: "Malformed request." }, { status: 400 });
-  }
+export const POST = withErrorHandling("reset-password", async (req) => {
+  const body = await readJsonBody(req);
 
   const token = String(body?.token || "");
   const password = String(body?.password || "");
@@ -48,4 +45,4 @@ export async function POST(req) {
     console.error("Password reset failed:", err);
     return Response.json({ error: "Could not reset your password right now." }, { status: 503 });
   }
-}
+});

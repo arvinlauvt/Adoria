@@ -1,5 +1,7 @@
 import { listOrders, updateOrder } from "../../../../lib/airtable";
 import { requireAdmin } from "../../../../lib/auth/requireSession";
+import { readJsonBody } from "../../../../lib/sanitize";
+import { withErrorHandling } from "../../../../lib/errors";
 
 export const dynamic = "force-dynamic";
 
@@ -40,7 +42,7 @@ function serialize(record) {
   };
 }
 
-export async function GET() {
+export const GET = withErrorHandling("admin-orders", async () => {
   try {
     // Re-checked here, not inherited from the page that rendered the UI —
     // this endpoint is reachable directly.
@@ -52,13 +54,13 @@ export async function GET() {
     console.error("Admin order list failed:", err);
     return Response.json({ error: "Could not load orders." }, { status: 503 });
   }
-}
+});
 
-export async function PATCH(req) {
+export const PATCH = withErrorHandling("admin-orders", async (req) => {
   try {
     await requireAdmin();
 
-    const body = await req.json().catch(() => ({}));
+    const body = await readJsonBody(req);
     const id = String(body?.id || "");
     if (!id) return Response.json({ error: "Which order?" }, { status: 400 });
 
@@ -83,4 +85,4 @@ export async function PATCH(req) {
     console.error("Admin order update failed:", err);
     return Response.json({ error: "Could not save that change." }, { status: 503 });
   }
-}
+});

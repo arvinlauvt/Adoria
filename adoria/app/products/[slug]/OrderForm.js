@@ -307,7 +307,15 @@ export default function OrderForm({ product }) {
         }),
       });
       const orderData = await orderRes.json();
-      if (!orderRes.ok) throw new Error(orderData.error || "Could not save your order.");
+      if (!orderRes.ok) {
+        // The server names the field it rejected, so put the person back in
+        // front of it rather than leaving them to hunt through five steps.
+        if (orderData.field) focusServerRejectedField(orderData.field);
+        throw new Error(
+          orderData.error ||
+            "We couldn't save your order. The details didn't reach us intact. Try submitting again — nothing has been charged."
+        );
+      }
 
       const checkoutRes = await fetch("/api/checkout", {
         method: "POST",
@@ -315,12 +323,33 @@ export default function OrderForm({ product }) {
         body: JSON.stringify({ orderId: orderData.orderId, recordId: orderData.recordId, name, email, phone }),
       });
       const checkoutData = await checkoutRes.json();
-      if (!checkoutRes.ok) throw new Error(checkoutData.error || "Could not start payment.");
+      if (!checkoutRes.ok) {
+        throw new Error(
+          checkoutData.error ||
+            "We saved your order but couldn't open the payment page. Your order is held, not lost. Try again in a moment, or message us on WhatsApp with your order reference."
+        );
+      }
 
       window.location.href = checkoutData.paymentUrl;
     } catch (err) {
-      setError(err.message || "Something went wrong. Please try again.");
+      setError(
+        err.message ||
+          "We couldn't reach the server. Your connection dropped partway through, and nothing has been charged. Check your connection and try again."
+      );
       setSubmitting(false);
+    }
+  }
+
+  // Server-side validation names the field it rejected. Marking it touched
+  // makes its inline error appear; scrolling puts it on screen. Without this
+  // a rejection from the server is a message at the bottom of a long form
+  // with no indication of which of twelve fields it means.
+  function focusServerRejectedField(field) {
+    setTouched((t) => ({ ...t, [field]: true }));
+    const el = document.getElementById(field);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      el.focus({ preventScroll: true });
     }
   }
 

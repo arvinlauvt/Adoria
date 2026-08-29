@@ -7,13 +7,15 @@ import {
 } from "../../../../../lib/auth/totp";
 import { encryptSecret } from "../../../../../lib/auth/crypto";
 import { readPendingSecret, clearPendingSecret } from "../../../../../lib/auth/totpSetup";
+import { readJsonBody } from "../../../../../lib/sanitize";
+import { withErrorHandling } from "../../../../../lib/errors";
 
 export const dynamic = "force-dynamic";
 
-export async function POST(req) {
+export const POST = withErrorHandling("2fa-enable", async (req) => {
   try {
     const session = await requireSession();
-    const body = await req.json().catch(() => ({}));
+    const body = await readJsonBody(req);
     const code = String(body?.code || "").replace(/\D/g, "");
 
     if (!code) {
@@ -52,4 +54,4 @@ export async function POST(req) {
     console.error("2FA enable failed:", err);
     return Response.json({ error: "Could not turn on two-factor right now." }, { status: 503 });
   }
-}
+});

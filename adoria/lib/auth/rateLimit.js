@@ -46,6 +46,12 @@ export async function checkSignupRateLimit(ip) {
   return checkRateLimit(`signup:${ip}`, { limit: 5, windowSeconds: 60 * 60 });
 }
 
+// Order lookups are unauthenticated by design, so this is the only thing
+// standing between a scraper and a slow walk through the customer list.
+export async function checkTrackRateLimit(ip) {
+  return checkRateLimit(`track:${ip}`, { limit: 20, windowSeconds: 10 * 60 });
+}
+
 export async function checkPasswordResetRateLimit(email) {
   return checkRateLimit(`reset:${email.toLowerCase()}`, {
     limit: 3,

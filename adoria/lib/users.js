@@ -1,6 +1,7 @@
 // Users table lives in the same Airtable base as Orders, but as its own
 // table — see README "Auth (Users table)" for the exact schema to create.
 import { inMemoryStoreAllowed, createInMemoryUsers, warnInMemory } from "./devStore";
+import { escapeFormulaValue } from "./sanitize";
 
 const AIRTABLE_TOKEN = process.env.AIRTABLE_TOKEN;
 const BASE_ID = process.env.AIRTABLE_BASE_ID;
@@ -52,8 +53,9 @@ export async function createUser(fields) {
 export async function findUserByEmail(email) {
   const d = dev();
   if (d) return d.findUserByEmail(email);
-  const safe = email.replace(/"/g, '\\"');
-  const formula = encodeURIComponent(`LOWER({Email}) = "${safe.toLowerCase()}"`);
+  const formula = encodeURIComponent(
+    `LOWER({Email}) = "${escapeFormulaValue(email).toLowerCase()}"`
+  );
   const res = await fetch(`${API_URL}?filterByFormula=${formula}`, {
     headers: headers(),
   });

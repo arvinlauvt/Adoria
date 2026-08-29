@@ -3,13 +3,15 @@ import { getUserById, updateUser } from "../../../../../lib/users";
 import { verifyPassword } from "../../../../../lib/auth/password";
 import { checkLoginRateLimit } from "../../../../../lib/auth/rateLimit";
 import { getRequestIp } from "../../../../../lib/auth/requestIp";
+import { readJsonBody } from "../../../../../lib/sanitize";
+import { withErrorHandling } from "../../../../../lib/errors";
 
 export const dynamic = "force-dynamic";
 
-export async function POST(req) {
+export const POST = withErrorHandling("2fa-disable", async (req) => {
   try {
     const session = await requireSession();
-    const body = await req.json().catch(() => ({}));
+    const body = await readJsonBody(req);
     const password = String(body?.password || "");
 
     if (!password) {
@@ -45,4 +47,4 @@ export async function POST(req) {
     console.error("2FA disable failed:", err);
     return Response.json({ error: "Could not turn off two-factor right now." }, { status: 503 });
   }
-}
+});

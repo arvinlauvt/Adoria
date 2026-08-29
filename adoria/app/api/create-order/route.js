@@ -1,106 +1,142 @@
+import { randomInt } from "crypto";
 import { createOrder, getCommittedBoxesForDate } from "../../../lib/airtable";
-import { computeTotalRM, getProductByEdition, MAX_BOXES_PER_ORDER, MAX_BOXES_PER_DAY } from "../../../lib/products";
+import {
+  computeTotalRM,
+  getProductByEdition,
+  MAX_BOXES_PER_ORDER,
+  MAX_BOXES_PER_DAY,
+  PRODUCTS,
+} from "../../../lib/products";
+import { withErrorHandling, badRequest } from "../../../lib/errors";
+import {
+  readJsonBody,
+  requiredString,
+  optionalString,
+  emailField,
+  phoneField,
+  postcodeField,
+  integerField,
+  dateOnlyField,
+  enumField,
+  LIMITS,
+} from "../../../lib/sanitize";
 
-const DATE_ONLY = /^\d{4}-\d{2}-\d{2}$/;
+const EDITIONS = PRODUCTS.map((p) => p.edition);
 
+// randomInt, not Math.random: order IDs shouldn't be guessable from a known
+// one. Math.random is seeded predictably and is not meant for anything an
+// attacker might try to enumerate.
 function makeOrderId() {
   const d = new Date();
   const stamp = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, "0")}${String(
     d.getDate()
   ).padStart(2, "0")}`;
-  const rand = Math.floor(1000 + Math.random() * 9000);
-  return `ADR-${stamp}-${rand}`;
+  return `ADR-${stamp}-${randomInt(100000, 1000000)}`;
 }
 
-export async function POST(req) {
-  try {
-    const body = await req.json();
-    const {
-      name,
-      phone,
-      email,
-      recipientName,
-      occasionDate,
-      productEdition,
-      quantity,
-      chocolateBreakdown,
-      cardMessage,
-      messageType,
-      addonType,
-      addonDetail,
-      street,
-      city,
-      state,
-      postcode,
-    } = body;
+export const POST = withErrorHandling("create-order", async (req) => {
+  const body = await readJsonBody(req);
 
-    if (!name || !phone || !email || !recipientName || !productEdition || !street || !city || !state || !postcode) {
-      return Response.json({ error: "Missing required fields." }, { status: 400 });
+  // Everything is validated and normalised before a single field is written.
+  // Nothing below this point is client-controlled in an unchecked form.
+  const name = requiredString(body.name, { field: "name", label: "Your name", max: LIMITS.name });
+  const email = emailField(body.email);
+  const phone = phoneField(body.phone);
+  const recipientName = requiredString(body.recipientName, {
+    field: "recipientName",
+    label: "Recipient name",
+    max: LIMITS.recipientName,
+  });
+  const street = requiredString(body.street, { field: "street", label: "Street address", max: LIMITS.street });
+  const city = requiredString(body.city, { field: "city", label: "City", max: LIMITS.city });
+  const state = requiredString(body.state, { field: "state", label: "State", max: LIMITS.state });
+  const postcode = postcodeField(body.postcode);
+
+  const productEdition = enumField(body.productEdition, EDITIONS, {
+    field: "productEdition",
+    label: "The box",
+  });
+  const quantity = integerField(body.quantity, {
+    field: "quantity",
+    label: "Number of boxes",
+    min: 1,
+    max: MAX_BOXES_PER_ORDER,
+  });
+
+  const chocolateBreakdown = optionalString(body.chocolateBreakdown, {
+    field: "chocolateBreakdown",
+    label: "Cube selection",
+    max: LIMITS.chocolateBreakdown,
+  });
+  const cardMessage = optionalString(body.cardMessage, {
+    field: "cardMessage",
+    label: "Card message",
+    max: LIMITS.cardMessage,
+  });
+  const addonDetail = optionalString(body.addonDetail, {
+    field: "addonDetail",
+    label: "Add-on detail",
+    max: LIMITS.addonDetail,
+  });
+
+  const occasionDate = body.occasionDate ? dateOnlyField(body.occasionDate) : null;
+
+  // The delivery-date calendar already hides fully-booked dates, but that
+  // list can go stale between page-load and submit (another order could fill
+  // the last slot in between) — re-check here, right before writing.
+  if (occasionDate) {
+    const committed = await getCommittedBoxesForDate(occasionDate);
+    if (committed + quantity > MAX_BOXES_PER_DAY) {
+      throw badRequest({
+        status: 409,
+        field: "occasionDate",
+        code: "date_full",
+        what: "That delivery date just filled up.",
+        why: `Someone else took the last slots while you were filling this in — we only bake ${MAX_BOXES_PER_DAY} boxes a day.`,
+        action: "Go back to the calendar and pick another date. Nothing has been charged.",
+      });
     }
-
-    if (!Number.isFinite(quantity) || quantity < 1 || quantity > MAX_BOXES_PER_ORDER) {
-      return Response.json({ error: `Orders are limited to ${MAX_BOXES_PER_ORDER} boxes.` }, { status: 400 });
-    }
-
-    // The delivery-date calendar already hides fully-booked dates, but that
-    // list can go stale between page-load and submit (another order could
-    // fill the last slot in between) — re-check here, right before writing
-    // the order, so a tampered or late request can't slip past the cap.
-    if (occasionDate) {
-      if (!DATE_ONLY.test(occasionDate)) {
-        return Response.json({ error: "Invalid delivery date." }, { status: 400 });
-      }
-      const committed = await getCommittedBoxesForDate(occasionDate);
-      if (committed + quantity > MAX_BOXES_PER_DAY) {
-        return Response.json(
-          { error: "That delivery date just filled up — please pick another date." },
-          { status: 409 }
-        );
-      }
-    }
-
-    // Never trust a client-supplied price — recompute from the same rules
-    // the form used to display it, and charge that instead. The add-on
-    // *type* (and therefore its price) comes from the product's own config
-    // via productEdition, not from the client-supplied addonType label, so
-    // a tampered request can't pick a cheaper add-on's price.
-    const messageMode = messageType === "Full Letter" ? "letter" : "card";
-    const addonSelected = !!addonType && addonType !== "None";
-    const product = getProductByEdition(productEdition);
-    const resolvedAddonType = addonSelected ? product?.addon?.type : null;
-    const amountRM = computeTotalRM({ messageMode, addonType: resolvedAddonType, quantity });
-
-    const orderId = makeOrderId();
-
-    const fields = {
-      "Order ID": orderId,
-      "Customer Name": name,
-      "Customer Email": email,
-      "Customer Phone": phone,
-      "Recipient Name": recipientName,
-      "Product Edition": productEdition,
-      "Chocolate Breakdown": chocolateBreakdown,
-      Quantity: quantity,
-      "Message Type": messageMode === "letter" ? "Full Letter" : "Card Message",
-      "Card Message": cardMessage || "",
-      "Add-on": addonSelected ? addonType : "None",
-      "Add-on Detail": addonSelected ? addonDetail || "" : "",
-      "Street Address": street,
-      City: city,
-      State: state,
-      Postcode: postcode,
-      "Order Total": amountRM,
-      "Payment Status": "Pending",
-      "Fulfillment Status": "Order Confirmed",
-      "Order Date": new Date().toISOString(),
-    };
-    if (occasionDate) fields["Occasion Date"] = occasionDate;
-
-    const record = await createOrder(fields);
-
-    return Response.json({ orderId, recordId: record.id, amountRM });
-  } catch (err) {
-    console.error(err);
-    return Response.json({ error: "Could not save your order. Please try again." }, { status: 500 });
   }
-}
+
+  // Never trust a client-supplied price — recompute from the same rules the
+  // form used to display it. The add-on type (and therefore its price) comes
+  // from the product's own config, not the client-supplied label, so a
+  // tampered request can't pick a cheaper add-on's price.
+  const messageMode = body.messageType === "Full Letter" ? "letter" : "card";
+  const product = getProductByEdition(productEdition);
+  const addonSelected = Boolean(body.addonType) && body.addonType !== "None";
+  const resolvedAddonType = addonSelected ? product?.addon?.type : null;
+  const amountRM = computeTotalRM({ messageMode, addonType: resolvedAddonType, quantity });
+
+  const orderId = makeOrderId();
+
+  const fields = {
+    "Order ID": orderId,
+    "Customer Name": name,
+    "Customer Email": email,
+    "Customer Phone": phone,
+    "Recipient Name": recipientName,
+    "Product Edition": productEdition,
+    "Chocolate Breakdown": chocolateBreakdown,
+    Quantity: quantity,
+    "Message Type": messageMode === "letter" ? "Full Letter" : "Card Message",
+    "Card Message": cardMessage,
+    // Stored from the product config, not the request, so the label always
+    // matches the add-on actually priced above.
+    "Add-on": resolvedAddonType || "None",
+    "Add-on Detail": addonSelected ? addonDetail : "",
+    "Street Address": street,
+    City: city,
+    State: state,
+    Postcode: postcode,
+    "Order Total": amountRM,
+    "Payment Status": "Pending",
+    "Fulfillment Status": "Order Confirmed",
+    "Order Date": new Date().toISOString(),
+  };
+  if (occasionDate) fields["Occasion Date"] = occasionDate;
+
+  const record = await createOrder(fields);
+
+  return Response.json({ orderId, recordId: record.id, amountRM });
+});

@@ -6,6 +6,8 @@ import { sessionCookie } from "../../../../lib/auth/cookie";
 import { createPendingLogin } from "../../../../lib/auth/pendingLogin";
 import { checkLoginRateLimit } from "../../../../lib/auth/rateLimit";
 import { getRequestIp } from "../../../../lib/auth/requestIp";
+import { readJsonBody } from "../../../../lib/sanitize";
+import { withErrorHandling } from "../../../../lib/errors";
 
 // One message for every failure mode below, so a wrong password and a
 // non-existent account are indistinguishable. Anything more specific
@@ -17,13 +19,8 @@ const GENERIC_FAILURE = "That email and password don't match.";
 // reliably signals "this email has no account" via response time alone.
 const DUMMY_HASH = bcrypt.hashSync("timing-equalizer-not-a-real-password", 12);
 
-export async function POST(req) {
-  let body;
-  try {
-    body = await req.json();
-  } catch {
-    return Response.json({ error: "Malformed request." }, { status: 400 });
-  }
+export const POST = withErrorHandling("login", async (req) => {
+  const body = await readJsonBody(req);
 
   const email = String(body?.email || "").trim().toLowerCase();
   const password = String(body?.password || "");
@@ -84,4 +81,4 @@ export async function POST(req) {
     console.error("Login failed:", err);
     return Response.json({ error: "Sign-in is unavailable right now." }, { status: 503 });
   }
-}
+});
