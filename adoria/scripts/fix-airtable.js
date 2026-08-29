@@ -14,9 +14,13 @@
  * orders, and a rename you didn't expect is worth catching before it happens
  * rather than after.
  *
- * Both operations preserve data. Renaming a field keeps every value in it —
- * Airtable tracks fields by id, not name. Adding a select option leaves the
- * existing options and the rows using them untouched.
+ * Renaming preserves data: Airtable tracks fields by id, not name, so every
+ * value in the column survives.
+ *
+ * Select options are NOT applied here. Airtable's update-field endpoint only
+ * accepts `name` and `description` — an `options` payload is accepted and
+ * ignored, so attempting it would print success and change nothing. Those are
+ * printed as instructions to do by hand instead.
  *
  * ⚠ A rename takes effect immediately, and the deployed site writes the OLD
  * names until it is redeployed. Run this at the same time as the deploy, not
@@ -133,7 +137,7 @@ async function main() {
   console.log("");
   for (const p of planned) {
     if (p.kind === "rename") console.log(`  → rename  "${p.from}"  to  "${p.to}"`);
-    else console.log(`  → add to  "${p.fieldName}"  option(s): ${p.missing.map((m) => `"${m}"`).join(", ")}`);
+    else console.log(`  → BY HAND: add to "${p.fieldName}" option(s): ${p.missing.map((m) => `"${m}"`).join(", ")}`);
   }
 
   if (!APPLY) {
@@ -146,6 +150,7 @@ async function main() {
   }
 
   console.log("");
+  const manual = [];
   for (const p of planned) {
     if (p.kind === "rename") {
       await api(`/tables/${table.id}/fields/${p.id}`, {
@@ -154,22 +159,27 @@ async function main() {
       });
       console.log(`  ✓ renamed "${p.from}" to "${p.to}"`);
     } else {
-      // Existing choices must be sent back with their ids, or Airtable treats
-      // the omitted ones as deleted — which would blank that column on every
-      // row already using them.
-      const choices = [
-        ...p.existing.map((c) => ({ id: c.id, name: c.name })),
-        ...p.missing.map((name) => ({ name })),
-      ];
-      await api(`/tables/${table.id}/fields/${p.id}`, {
-        method: "PATCH",
-        body: JSON.stringify({ options: { choices } }),
-      });
-      console.log(`  ✓ added ${p.missing.length} option(s) to "${p.fieldName}"`);
+      // Airtable's update-field endpoint accepts only `name` and
+      // `description`. Sending `options` is accepted and ignored, so an
+      // attempt here would report success and change nothing — which is
+      // worse than not trying. Say so instead.
+      manual.push(p);
     }
   }
 
-  console.log("\n  Done. Run scripts/check-airtable.js to confirm it's clean.\n");
+  if (manual.length) {
+    console.log("\n  ─────────────────────────────────────────────────────────");
+    console.log("  These CANNOT be done from here — Airtable's API only lets a");
+    console.log("  field's name and description be changed, never its options.");
+    console.log("  Add them by hand in Airtable:\n");
+    for (const p of manual) {
+      console.log(`    "${p.fieldName}" → click the column header → Edit field → add:`);
+      for (const m of p.missing) console.log(`        ${m}`);
+    }
+    console.log("");
+  }
+
+  console.log("\n  Run scripts/check-airtable.js to confirm it's clean.\n");
 }
 
 main().catch((err) => die("Couldn't reach Airtable.", err && err.message ? err.message : String(err), "Check your connection and try again."));
