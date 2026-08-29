@@ -29,6 +29,7 @@ export const GET = withErrorHandling(
   },
   {
     what: "We couldn't check whether you're signed in.",
+    dependency: "the service that stores accounts",
     note: "Your account is fine — this is only the check failing.",
   }
 );

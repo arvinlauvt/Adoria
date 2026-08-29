@@ -96,6 +96,7 @@ export const POST = withErrorHandling(
   },
   {
     what: "We couldn't sign you in.",
+    dependency: "the service that stores accounts",
     note: "Your password wasn't wrong — this failed before we got as far as checking it.",
   }
 );

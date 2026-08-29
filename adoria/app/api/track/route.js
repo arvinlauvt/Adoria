@@ -97,4 +97,8 @@ export const GET = withErrorHandling("track", async (req) => {
   }
 
   return Response.json({ orders: match.map(serializeForCustomer) });
+}, {
+  what: "We couldn't look up your order.",
+  dependency: "our order database",
+  note: "Your order itself is fine — this is only the lookup failing.",
 });

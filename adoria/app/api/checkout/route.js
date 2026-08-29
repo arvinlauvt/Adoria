@@ -110,4 +110,11 @@ export const POST = withErrorHandling("checkout", async (req) => {
   }
 
   return Response.json({ paymentUrl });
+}, {
+  what: "We couldn't start your payment.",
+  // Payment, not the order store: the failures reaching here are a missing
+  // ToyyibPay key or ToyyibPay itself refusing the bill. Naming the account
+  // store instead sends the reader looking in the wrong place.
+  dependency: "our payment provider",
+  note: "Your order is saved and nothing has been charged — you can pay for it once this is sorted.",
 });

@@ -85,6 +85,7 @@ export const POST = withErrorHandling(
   },
   {
     what: "We couldn't finish creating your account.",
+    dependency: "the service that stores accounts",
     // The account row and the session are two separate writes, so a failure
     // between them can leave the account real but the user not signed in.
     // They can't tell from the outside, so this says how to find out.

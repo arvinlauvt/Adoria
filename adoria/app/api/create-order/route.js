@@ -157,4 +157,8 @@ export const POST = withErrorHandling("create-order", async (req) => {
   const record = await createOrder(fields);
 
   return Response.json({ orderId, recordId: record.id, amountRM });
+}, {
+  what: "We couldn't save your order.",
+  dependency: "our order database",
+  note: "Nothing has been charged, and no order was created.",
 });

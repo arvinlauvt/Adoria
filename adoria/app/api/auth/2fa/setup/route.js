@@ -19,6 +19,7 @@ export const POST = withErrorHandling(
   },
   {
     what: "We couldn't start two-factor setup.",
+    dependency: "the service that stores accounts",
     note: "Two-factor is still off and your account is unchanged.",
   }
 );

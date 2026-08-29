@@ -79,6 +79,7 @@ export const POST = withErrorHandling(
   },
   {
     what: "We couldn't change your password.",
+    dependency: "the service that stores accounts",
     note:
       "Your old password still works, so you're not locked out — but this reset link has been used up, so you'll need a fresh one.",
   }

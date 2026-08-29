@@ -72,6 +72,7 @@ export const POST = withErrorHandling(
   },
   {
     what: "We couldn't turn off two-factor.",
+    dependency: "the service that stores accounts",
     note:
       "Assume it's still on and keep your authenticator app to hand — reload your account page to see where it actually stands.",
   }

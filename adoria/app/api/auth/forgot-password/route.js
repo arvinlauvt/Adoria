@@ -80,6 +80,7 @@ export const POST = withErrorHandling(
   },
   {
     what: "We couldn't start the password reset.",
+    dependency: "the service that stores accounts",
     note: "Nothing has changed on your account and your current password still works.",
   }
 );

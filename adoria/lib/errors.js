@@ -65,10 +65,15 @@ export function newErrorReference() {
   return `CB-${out}`;
 }
 
+// Sentence-initial only — these nouns are already correctly cased mid-sentence.
+function capitalise(s) {
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
 // Turns an internal failure into the distinction the user actually needs:
 // will trying again help? Deliberately says nothing about which service
 // failed, which host it lives on, or what the credentials were.
-function classify(err) {
+function classify(err, dependency = "a service we rely on") {
   const text = String((err && err.message) || err);
 
   // A missing/blank environment variable. The request never left our side,
@@ -76,7 +81,7 @@ function classify(err) {
   if (/\b(is|are) not set\b|\bis missing\b|\bnot configured\b/i.test(text)) {
     return {
       code: "misconfigured",
-      why: "The site is missing a setting it needs to reach the service that stores accounts, so the request stopped before it got anywhere.",
+      why: `The site is missing a setting it needs to reach ${dependency}, so the request stopped before it got anywhere.`,
       retryable: false,
     };
   }
@@ -87,21 +92,21 @@ function classify(err) {
   if (status === 401 || status === 403) {
     return {
       code: "upstream_denied",
-      why: "The service that stores accounts refused our request, which means our access to it needs fixing.",
+      why: `${capitalise(dependency)} refused our request, which means our access to it needs fixing.`,
       retryable: false,
     };
   }
   if (status === 404 || status === 422) {
     return {
       code: "upstream_mismatch",
-      why: "The service that stores accounts didn't accept the shape of our request, which is a setup problem on our end.",
+      why: `${capitalise(dependency)} didn't accept the shape of our request, which is a setup problem on our end.`,
       retryable: false,
     };
   }
   if (status >= 500) {
     return {
       code: "upstream_down",
-      why: "The service that stores accounts is having problems of its own right now.",
+      why: `${capitalise(dependency)} is having problems of its own right now.`,
       retryable: true,
     };
   }
@@ -109,7 +114,7 @@ function classify(err) {
   if (/fetch failed|ENOTFOUND|ECONNREFUSED|ECONNRESET|ETIMEDOUT|timeout|network/i.test(text)) {
     return {
       code: "upstream_unreachable",
-      why: "We couldn't reach the service that stores accounts — most likely a brief network problem between us and them.",
+      why: `We couldn't reach ${dependency} — most likely a brief network problem between us and them.`,
       retryable: true,
     };
   }
@@ -166,7 +171,7 @@ export function withErrorHandling(routeName, handler, failure = {}) {
       }
 
       const reference = newErrorReference();
-      const { code, why, retryable } = classify(err);
+      const { code, why, retryable } = classify(err, failure.dependency);
 
       // Loud on the server, and tagged with the same code the user is holding,
       // so "it said CB-K7M2QP" goes straight to the stack trace that caused it.

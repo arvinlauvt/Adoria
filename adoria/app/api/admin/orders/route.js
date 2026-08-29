@@ -53,6 +53,7 @@ export const GET = withErrorHandling(
   },
   {
     what: "We couldn't load the orders.",
+    dependency: "our order database",
     note: "No order data is lost — this is only the list failing to load.",
   }
 );
@@ -113,6 +114,7 @@ export const PATCH = withErrorHandling(
   },
   {
     what: "We couldn't save that change.",
+    dependency: "our order database",
     note: "The order still shows its previous details — reload the page to confirm what actually saved.",
   }
 );

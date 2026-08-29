@@ -78,6 +78,7 @@ export const POST = withErrorHandling(
   },
   {
     what: "We couldn't turn on two-factor.",
+    dependency: "the service that stores accounts",
     // The write and the confirmation are separate, so on failure the user
     // can't assume either state — tell them how to check rather than guess.
     note:

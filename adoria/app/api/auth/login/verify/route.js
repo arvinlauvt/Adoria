@@ -124,6 +124,7 @@ export const POST = withErrorHandling(
   },
   {
     what: "We couldn't finish signing you in.",
+    dependency: "the service that stores accounts",
     note:
       "Your code wasn't wrong — this failed before we got as far as checking it, and you're not signed in.",
   }
