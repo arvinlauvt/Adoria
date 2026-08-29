@@ -61,6 +61,7 @@ and re-checks the real payment status with ToyyibPay directly.
 - **Read `/allergens` against the real recipe.** Everything on it is now
   something confirmed out loud, but "I think" was the standard for one line
   and that isn't good enough for a page where being wrong hurts a person.
+- **Have the legal pages reviewed** — see section 2a.
 - **`next@16` upgrade.** Two open high-severity advisories against 14. Much
   safer now that the four Next 15 breakages are fixed and work on both
   majors, but still a breaking major — own branch, full pass over every page.
@@ -139,6 +140,21 @@ fired no click at all and the button looked dead. Fixed with
 `onMouseDown={(e) => e.preventDefault()}` on those buttons. If a button ever
 seems to need two clicks, this is why.
 
+### A silent bug worth remembering the shape of
+
+The daily capacity check was disabled for a while without anyone noticing.
+`getCommittedBoxesForRange` asked Airtable for a column that had been
+renamed — the field name was URL-encoded in the query string, so a search
+for the old name didn't find it. Airtable returns nothing for a field it
+doesn't recognise rather than erroring, so every date totalled zero boxes
+and every order passed the limit.
+
+Nothing failed. Nothing was logged. It would have shown up as a week where
+the kitchen was somehow booked for eleven boxes on a Saturday.
+
+When renaming anything that crosses a service boundary, search for it
+URL-encoded and inside template strings too, not just as a quoted literal.
+
 ### Other small ones
 
 - **zxcvbn needs its `translations` loaded**, or feedback comes back as raw
@@ -155,6 +171,39 @@ seems to need two clicks, this is why.
   adding it.
 
 ---
+
+## 2a. Legal pages
+
+`/privacy` and `/terms` exist and are linked from the footer. **Neither has
+been reviewed by a lawyer.** Three things to settle before taking real money:
+
+- **Get them read by someone Malaysian-qualified.** They were written against
+  the PDPA 2010 and the Consumer Protection Act 1999, but written by an
+  assistant, not a solicitor.
+- **Check the Bahasa Malaysia.** The PDPA requires the notice in both
+  languages, so the translation is load-bearing, not a courtesy. Have a native
+  speaker read it.
+- **Check whether you must register as a data user.** The PDPA requires
+  registration for certain classes of data user. Whether a small online food
+  business falls in one is a question for someone qualified — it was not
+  possible to answer here, and guessing at it would be worse than flagging it.
+
+The privacy notice lists exactly what the code collects and which services
+receive it. **If you add a field or a service, that page has to change with
+it.** A privacy notice that no longer matches the system isn't just stale —
+it's a written claim that isn't true.
+
+Two things deliberately not built, despite being asked for:
+
+- **EULA** — licenses software to end users. This shop sells cookies; the
+  terms of sale cover the same ground.
+- **DMCA policy** — a US safe-harbour mechanism for sites hosting
+  user-generated content. Nothing customers write here is published, and
+  Malaysia has its own Copyright Act 1987 regime. The terms carry a plain
+  "message us and we'll take it down" route instead, which is what actually
+  gets used.
+
+Both would have been paperwork that looks like protection without being any.
 
 ## 3. Decisions worth not re-litigating
 
