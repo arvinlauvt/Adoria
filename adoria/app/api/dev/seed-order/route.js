@@ -1,5 +1,13 @@
 import { createOrder } from "../../../../lib/airtable";
 import { inMemoryStoreAllowed } from "../../../../lib/devStore";
+import { PRODUCTS } from "../../../../lib/products";
+
+// Read from the catalog rather than spelling these out. "Product Edition" is
+// a single-select in Airtable and the site's token deliberately has no schema
+// permissions, so an edition name that isn't already an option fails with
+// INVALID_MULTIPLE_CHOICE_OPTIONS instead of silently adding one. Deriving
+// them here means the seeder can't drift away from what checkout writes.
+const EDITIONS = PRODUCTS.map((p) => p.edition);
 
 // Test-only, gated like the other dev routes so it 404s in any real
 // deployment. Lets the admin dashboard and /track be exercised without
@@ -19,7 +27,7 @@ async function seed({ count, email }) {
       "Order Date": new Date(Date.now() - i * 86400000).toISOString(),
       "Customer Email": to || `customer${i}@example.com`,
       "Recipient Name": ["Jane Doe", "Aisyah Rahman", "Wei Ling Tan"][i % 3],
-      "Product Edition": ["Anniversary", "Congratulations", "Hostess"][i % 3],
+      "Product Edition": EDITIONS[i % EDITIONS.length],
       Quantity: (i % 2) + 1,
       "Occasion Date": new Date(Date.now() + (7 + i) * 86400000).toISOString().slice(0, 10),
       "Chocolate Breakdown": "Box 1: 10 Noir Cubes, 15 Cacao Sepia (25/25)",
